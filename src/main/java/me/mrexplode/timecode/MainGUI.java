@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -179,7 +180,19 @@ public class MainGUI extends JFrame {
         artnetBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
         
         ltcBox = new JCheckBox("LTC timecode");
-        ltcBox.setSelected(true);
+        ltcBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean selected = ltcBox.isSelected();
+                if (selected) {
+                    MixerEntry mixEntry = (MixerEntry) outputBox.getSelectedItem();
+                    Mixer mixer = AudioSystem.getMixer(mixEntry.getMixerInfo());
+                    SourceDataLine.Info info = new DataLine.Info(Clip.class, format, bufferSize)
+                } else {
+                    workThread.setLTC(false);
+                }
+            }
+        });
         ltcBox.setToolTipText("Toggles the LTC output");
         
         remoteBox = new JCheckBox("DMX remote control");
@@ -222,6 +235,7 @@ public class MainGUI extends JFrame {
         lblSubnet.setEnabled(false);
         
         framerateBox = new JComboBox();
+        framerateBox.setToolTipText("Currently no effect!");
         framerateBox.setModel(new DefaultComboBoxModel(new String[] {"24", "25", "30"}));
         framerateBox.setSelectedIndex(1);
         

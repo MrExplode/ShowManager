@@ -2,6 +2,11 @@ package me.mrexplode.timecode;
 
 import java.net.SocketException;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.Mixer;
+
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
 import ch.bildspur.artnet.ArtNetServer;
@@ -13,15 +18,27 @@ import ch.bildspur.artnet.packets.PacketType;
 
 public class WorkerThread implements Runnable {
     
+    //artnet
     private ArtNetServer server;
     private ArtTimePacket packet;
     private ArtNetBuffer artBuffer;
     
+    //ltc
+    private AudioInputStream stream = null;
+    private AudioFormat format = null; 
+    private Mixer mixer = null;
+    private Clip clip = null;
+    
+    //main controls
     private boolean running = true;
     private boolean broadcast = false;
+    private boolean playLTC = false;
     private boolean playing = false;
+    //start time of playing
     private long start = 0;
+    private long elapsed = 0;
     
+    //remote
     private boolean remote = false;
     private RemoteState remoteState;
     private int dmxAddress;
@@ -79,6 +96,7 @@ public class WorkerThread implements Runnable {
             if (current >= time + (1000 / framerate)) {
                 time = current;
                 
+                elapsed = time - start;
                 if (remote) {
                     byte[] data = artBuffer.getDmxData((short) subnet, (short) universe);
                     switch (data[dmxAddress]) {
@@ -106,7 +124,7 @@ public class WorkerThread implements Runnable {
                 }
                 
                 if (playing) {
-                    packet.setFrameNumber((time - start) / (1000 / framerate));
+                    packet.setFrameNumber(elapsed / (1000 / framerate));
                 }
                 
                 if (broadcast) {
@@ -132,6 +150,9 @@ public class WorkerThread implements Runnable {
         if (start == 0) {
             start = System.currentTimeMillis();
         }
+        if (playLTC) {
+            clip.start();
+        }
         this.playing = true;
     }
     
@@ -141,20 +162,48 @@ public class WorkerThread implements Runnable {
     
     public void pause() {
         this.playing = false;
+        if (playLTC) {
+            this.clip.stop();
+        }
     }
     
     public void stop() {
         this.playing = false;
+        if (playLTC) {
+            clip.setFramePosition(0);
+            clip.stop();
+        }
         packet.setFrameNumber(0);
         start = 0;
     }
     
     public void shutdown() {
         running = false;
+        clip.stop();
+        clip.flush();
+        clip.close();
+        server.stop();
     }
     
     public void setBroadcast(boolean value) {
         this.broadcast = value;
+    }
+    
+    public boolean setLTC(boolean value) {
+        if (clip != null) {
+            this.playLTC = value;
+            if (value) {
+                //start with the actual position
+                clip.setMicrosecondPosition(elapsed * 1000);
+                clip.start();
+            } else {
+                //stop the running clip
+                clip.stop();
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
     
     public void setFramerate(int framerate) {
