@@ -17,9 +17,9 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
-          <compilerArgs>
+          <!-- <compilerArgs>
             <arg>-h</arg>
-          </compilerArgs>
+          </compilerArgs> -->
         </configuration>
       </plugin>
       
@@ -46,7 +46,7 @@
             <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
               <Main-Class>me.mrexplode.timecode.Bootstrap</Main-Class>
-              <SplashScreen-Image>add later</SplashScreen-Image>
+              <SplashScreen-Image>icons/icon256.png</SplashScreen-Image>
             </manifestEntries>
           </archive>
         </configuration>
