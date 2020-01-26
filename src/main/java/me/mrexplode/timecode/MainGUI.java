@@ -187,7 +187,7 @@ public class MainGUI extends JFrame {
                 if (selected) {
                     MixerEntry mixEntry = (MixerEntry) outputBox.getSelectedItem();
                     Mixer mixer = AudioSystem.getMixer(mixEntry.getMixerInfo());
-                    SourceDataLine.Info info = new DataLine.Info(Clip.class, format, bufferSize)
+                    //SourceDataLine.Info info = new DataLine.Info(Clip.class, format, bufferSize);
                 } else {
                     workThread.setLTC(false);
                 }
