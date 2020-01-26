@@ -1,6 +1,7 @@
 package me.mrexplode.timecode;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -67,7 +67,6 @@ public class MainGUI extends JFrame {
      * Create the frame.
      */
     public MainGUI() {
-        setResizable(false);
         setTitle("Timecode Generator");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -77,6 +76,7 @@ public class MainGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIconImages(getIcons());
         setBounds(100, 100, 450, 300);
+        setMinimumSize(new Dimension(450, 300));
         contentPane = new JPanel();
         contentPane.setBorder(null);
         setContentPane(contentPane);
@@ -115,57 +115,59 @@ public class MainGUI extends JFrame {
         });
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
-            gl_contentPane.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_contentPane.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-                        .addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-                            .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-                                .addComponent(timePanel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                                .addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-                                    .addGap(29)
-                                    .addComponent(hourField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18)
-                                    .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-                                        .addComponent(btnSetTime, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
-                                        .addGroup(gl_contentPane.createSequentialGroup()
-                                            .addComponent(minField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                                            .addComponent(secField, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)))
-                                    .addGap(18)
-                                    .addComponent(frameField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(39)))
-                            .addGap(0))
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                            .addPreferredGap(ComponentPlacement.RELATED))
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(remoteControl, GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
-                            .addPreferredGap(ComponentPlacement.RELATED)))
-                    .addComponent(settingsPanel, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap())
+        	gl_contentPane.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_contentPane.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        				.addGroup(gl_contentPane.createSequentialGroup()
+        					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        						.addComponent(timePanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE)
+        						.addGroup(gl_contentPane.createSequentialGroup()
+        							.addGap(29)
+        							.addComponent(hourField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+        							.addGap(18)
+        							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        								.addComponent(btnSetTime, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+        								.addGroup(gl_contentPane.createSequentialGroup()
+        									.addComponent(minField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+        									.addGap(16)
+        									.addComponent(secField, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+        									.addGap(0, 0, Short.MAX_VALUE)))
+        							.addGap(18)
+        							.addComponent(frameField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+        							.addGap(39)))
+        					.addGap(0))
+        				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+        					.addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
+        					.addPreferredGap(ComponentPlacement.RELATED))
+        				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+        					.addComponent(remoteControl, GroupLayout.PREFERRED_SIZE, 252, GroupLayout.PREFERRED_SIZE)
+        					.addPreferredGap(ComponentPlacement.RELATED)))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(settingsPanel, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
-            gl_contentPane.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_contentPane.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-                        .addComponent(settingsPanel, GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(timePanel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-                                .addComponent(hourField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(minField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(secField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(frameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(ComponentPlacement.UNRELATED)
-                            .addComponent(btnSetTime)
-                            .addPreferredGap(ComponentPlacement.UNRELATED)
-                            .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
-                            .addGap(18)
-                            .addComponent(remoteControl)))
-                    .addContainerGap())
+        	gl_contentPane.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_contentPane.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+        				.addComponent(settingsPanel, GroupLayout.PREFERRED_SIZE, 249, GroupLayout.PREFERRED_SIZE)
+        				.addGroup(gl_contentPane.createSequentialGroup()
+        					.addComponent(timePanel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+        						.addComponent(hourField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(minField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(secField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(frameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        					.addPreferredGap(ComponentPlacement.UNRELATED)
+        					.addComponent(btnSetTime)
+        					.addPreferredGap(ComponentPlacement.UNRELATED)
+        					.addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+        					.addGap(18)
+        					.addComponent(remoteControl)))
+        			.addContainerGap())
         );
         
         artnetBox = new JCheckBox("ArtNet timecode");
@@ -176,10 +178,10 @@ public class MainGUI extends JFrame {
                 workThread.setBroadcast(artnetBox.isSelected());
             }
         });
-        artnetBox.setSelected(true);
         artnetBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
         
         ltcBox = new JCheckBox("LTC timecode");
+        ltcBox.setEnabled(false);
         ltcBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
