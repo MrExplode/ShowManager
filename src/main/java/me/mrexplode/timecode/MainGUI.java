@@ -485,8 +485,7 @@ public class MainGUI extends JFrame {
         
         AudioInputStream stream = null;
         try {
-            stream = AudioSystem.getAudioInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav"));
-            //stream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            stream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {
@@ -523,8 +522,7 @@ public class MainGUI extends JFrame {
         
         AudioInputStream stream = null;
         try {
-            stream = AudioSystem.getAudioInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav"));
-            //stream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            stream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {

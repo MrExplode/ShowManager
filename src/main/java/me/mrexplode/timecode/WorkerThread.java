@@ -215,12 +215,15 @@ public class WorkerThread implements Runnable {
         clip.stop();
         //clip.flush();
         clip.close();
+        clip = null;
         try {
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        stream = null;
         mixer.close();
+        mixer = null;
         server.stop();
     }
     
