@@ -1,11 +1,18 @@
 package me.mrexplode.timecode;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
+import javax.swing.JOptionPane;
 
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
@@ -22,6 +29,7 @@ public class WorkerThread implements Runnable {
     private ArtNetServer server;
     private ArtTimePacket packet;
     private ArtNetBuffer artBuffer;
+    private InetAddress networkAddress;
     
     //ltc
     private AudioInputStream stream = null;
@@ -41,19 +49,23 @@ public class WorkerThread implements Runnable {
     //remote
     private boolean remote = false;
     private RemoteState remoteState;
-    private int dmxAddress;
-    private int universe;
-    private int subnet;
+    private int dmxAddress = 1;
+    private int universe = 0;
+    private int subnet = 0;
     
     private int framerate = 30;
     
     private Thread dataGrabberThread;
     
-    public WorkerThread(Thread grabber) {
-        this(grabber, null);
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber) {
+        this(stream, mixer, address, grabber, null);
     }
     
-    public WorkerThread(Thread grabber, ArtNetServer server) {
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, ArtNetServer server) {
+        this.stream = stream;
+        this.mixer = mixer;
+        this.format = stream.getFormat();
+        this.networkAddress = address;
         this.server = (server == null ? new ArtNetServer() : server);
         this.packet = new ArtTimePacket();
         this.artBuffer = new ArtNetBuffer();
@@ -70,7 +82,7 @@ public class WorkerThread implements Runnable {
         server.addListener(new ArtNetServerEventAdapter() {
             @Override
             public void artNetPacketReceived(ArtNetPacket packet) {
-                if (packet.getType() != PacketType.ART_TIMECODE)
+                if (packet.getType() != PacketType.ART_OUTPUT)
                     return;
                 
                 ArtDmxPacket dmxPacket = (ArtDmxPacket) packet;
@@ -82,14 +94,34 @@ public class WorkerThread implements Runnable {
         });
         
         try {
-            server.start();
+            server.start(networkAddress);
         } catch (SocketException | ArtNetException e) {
-            System.err.println("Failed to start ArtNet server. Shutting down WorkerThread...");
+            System.err.println("Failed to start ArtNet server");
+            displayError("Failed to start ArtNetServer: " + e.getMessage() + "\n Please restart the internals!");
             e.printStackTrace();
-            return;
         }
         
-        start = System.currentTimeMillis();
+        //setup the ltc
+        if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
+            format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big endian
+            stream = AudioSystem.getAudioInputStream(format, stream);
+        }
+        SourceDataLine.Info sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
+        try {
+            clip = (Clip) mixer.getLine(sourceInfo);
+            clip.flush();
+            clip.open(stream);
+        } catch (LineUnavailableException e) {
+            System.err.println("Failed to access specified audio output");
+            displayError("Failed to access specified audio output: " + e.getMessage() + "\n Please restart the internals!");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Failed to read LTC source");
+            displayError("Failed to read LTC source file: " + e.getMessage() + "\n Please restart the internals!");
+            e.printStackTrace();
+        }
+        
+        start = 0;
         long time = start;
         while (running) {
             long current = System.currentTimeMillis();
@@ -99,7 +131,7 @@ public class WorkerThread implements Runnable {
                 elapsed = time - start;
                 if (remote) {
                     byte[] data = artBuffer.getDmxData((short) subnet, (short) universe);
-                    switch (data[dmxAddress]) {
+                    switch (data[dmxAddress - 1]) {
                         default:
                             remoteState = RemoteState.IDLE;
                             break;
@@ -178,10 +210,17 @@ public class WorkerThread implements Runnable {
     }
     
     public void shutdown() {
+        System.out.println("Shutting down WorkThread...");
         running = false;
         clip.stop();
-        clip.flush();
+        //clip.flush();
         clip.close();
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mixer.close();
         server.stop();
     }
     
@@ -254,6 +293,14 @@ public class WorkerThread implements Runnable {
     
     public void setSubnet(int subnet) {
         this.subnet = subnet;
+    }
+    
+    private static void displayError(String errorMessage) {
+        Thread t = new Thread(() -> {
+            JOptionPane.showConfirmDialog(null, errorMessage, "Timecode Generator", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null);
+        });
+        t.setName("Error display thread");
+        t.start();
     }
 
 }

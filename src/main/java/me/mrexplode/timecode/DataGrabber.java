@@ -30,6 +30,7 @@ public class DataGrabber implements Runnable {
             gui.timeDisplay.setText(time);
             gui.btnSetTime.setEnabled(!playing);
             gui.framerateBox.setEnabled(!playing);
+            gui.btnRestart.setEnabled(!playing);
             Color defColor = UIManager.getColor("Button.background");
             gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
 
