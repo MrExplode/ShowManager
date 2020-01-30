@@ -6,8 +6,9 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -485,7 +486,8 @@ public class MainGUI extends JFrame {
         
         AudioInputStream stream = null;
         try {
-            stream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+        	InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            stream = AudioSystem.getAudioInputStream(bufferedStream);
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {
@@ -522,7 +524,8 @@ public class MainGUI extends JFrame {
         
         AudioInputStream stream = null;
         try {
-            stream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+        	InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            stream = AudioSystem.getAudioInputStream(bufferedStream);
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {
