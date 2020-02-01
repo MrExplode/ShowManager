@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 public class Bootstrap {
 
     @SuppressWarnings("restriction")
-	public static void main(String[] args) throws UnsupportedEncodingException {
+	public static void main(String[] args) {
     	if (args.length == 0) {
     		//long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
         	long freeSysMem = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
@@ -30,7 +30,7 @@ public class Bootstrap {
 				}
         	}
     	} else {
-    		if (args[0].equals("withRAM")) {
+    		if (args[0].equals("withRAM") || args[0].equals("debugStart")) {
                 //magic starts...
                   EventQueue.invokeLater(() ->{
                       try {

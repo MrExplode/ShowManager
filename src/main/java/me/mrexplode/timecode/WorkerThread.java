@@ -128,7 +128,10 @@ public class WorkerThread implements Runnable {
             if (current >= time + (1000 / framerate)) {
                 time = current;
                 
-                elapsed = time - start;
+                if (playing) {
+                    System.out.println("inc elapsed");
+                    elapsed = time - start;
+                }
                 if (remote) {
                     byte[] data = artBuffer.getDmxData((short) subnet, (short) universe);
                     switch (data[dmxAddress - 1]) {
@@ -179,8 +182,11 @@ public class WorkerThread implements Runnable {
     }
     
     public void play() {
+        //starting first
         if (start == 0) {
             start = System.currentTimeMillis();
+        } else {
+            start = System.currentTimeMillis() - elapsed;
         }
         if (playLTC) {
             clip.start();
