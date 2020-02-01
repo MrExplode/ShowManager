@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -38,12 +39,22 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
+import me.mrexplode.timecode.DataGrabber;
+import me.mrexplode.timecode.SettingsProvider;
+import me.mrexplode.timecode.WorkerThread;
+
 
 public class MainGUI extends JFrame {
+    
+    /**
+     * THe path of the base directory for the program
+     */
+    public final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\TimecodeGenerator";
     
     private WorkerThread workThread;
     private DataGrabber dataGrabber;
     private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
+    private SettingsProvider settingsProvider;
 
     private JPanel contentPane;
     private JPanel timePanel;
@@ -58,23 +69,23 @@ public class MainGUI extends JFrame {
     private JCheckBox ltcBox;
     private JCheckBox remoteBox;
     public JButton btnSetTime;
-    private JTextField dmxField;
+    public JTextField dmxField;
     private JLabel lblDmxAddress;
-    private JTextField universeField;
+    public JTextField universeField;
     private JLabel lblUniverse;
-    private JTextField subnetField;
+    public JTextField subnetField;
     private JLabel lblSubnet;
     public JComboBox framerateBox;
     private JLabel lblFramerate;
     private JButton btnSetDmx;
-    private JComboBox outputBox;
+    public JComboBox outputBox;
     private JPanel panel;
     private JTextField hourField;
     private JTextField textField;
     private JTextField textField_1;
     private JTextField textField_2;
     private JPanel dmxSettingsPanel;
-    private JComboBox addressBox;
+    public JComboBox addressBox;
     public JButton btnRestart;
 
     /**
@@ -86,6 +97,8 @@ public class MainGUI extends JFrame {
         ltcSources.put(24, "ltc/LTC_00_00_00_00__90mins_24.wav");
         ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
         ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
+        
+        this.settingsProvider = new SettingsProvider(new File(PROG_HOME + "\\settings.json"), this);
         
         setTitle("Timecode Generator");
         try {
@@ -481,6 +494,7 @@ public class MainGUI extends JFrame {
         timePanel.setLayout(gl_timePanel);
         contentPane.setLayout(gl_contentPane);
         
+        //setting up threading
         this.dataGrabber = new DataGrabber(this);
         Thread dThreadInstance = new Thread(dataGrabber);
         
@@ -503,9 +517,30 @@ public class MainGUI extends JFrame {
         
         wThreadInstance.start();
         dThreadInstance.start();
+        
+        try {
+            Thread.sleep(10);
+            settingsProvider.load();
+        } catch (IOException e1) {
+            System.err.println("An error occured while loading settings: ");
+            e1.printStackTrace();
+        } catch (InterruptedException e1) {
+            System.err.println("FUCK");
+            e1.printStackTrace();
+        }
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                settingsProvider.save();
+            } catch (IOException e1) {
+                System.out.println("An error occured while saving settings: ");
+                e1.printStackTrace();
+            }
+        }));
     }
     
-    private void restartInternals() {
+    @SuppressWarnings("resource")
+    public void restartInternals() {
         //stop
         this.dataGrabber.stop();
         this.workThread.shutdown();

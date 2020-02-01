@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.gui;
 
 import javax.sound.sampled.Mixer;
 

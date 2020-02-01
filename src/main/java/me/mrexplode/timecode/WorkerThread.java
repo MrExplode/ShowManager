@@ -269,7 +269,6 @@ public class WorkerThread implements Runnable {
     public RemoteState getRemoteState() {
         return remoteState;
     }
-
     
     public int getDmxAddress() {
         return dmxAddress;

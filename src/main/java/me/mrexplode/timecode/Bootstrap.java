@@ -2,12 +2,13 @@ package me.mrexplode.timecode;
 
 import java.awt.EventQueue;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.net.URLDecoder;
 
 import javax.swing.JOptionPane;
+
+import me.mrexplode.timecode.gui.MainGUI;
 
 public class Bootstrap {
 

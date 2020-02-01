@@ -4,6 +4,8 @@ import java.awt.Color;
 
 import javax.swing.UIManager;
 
+import me.mrexplode.timecode.gui.MainGUI;
+
 public class DataGrabber implements Runnable {
     
     private WorkerThread worker;
