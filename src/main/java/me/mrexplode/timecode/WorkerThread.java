@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -17,9 +18,11 @@ import javax.swing.JOptionPane;
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
 import ch.bildspur.artnet.ArtNetServer;
+import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.ArtDmxPacket;
 import ch.bildspur.artnet.packets.ArtNetPacket;
+import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
 
@@ -79,6 +82,7 @@ public class WorkerThread implements Runnable {
         Thread.currentThread().setName("WorkerThread");
         running = true;
         artBuffer.clear();
+        //input handling
         server.addListener(new ArtNetServerEventAdapter() {
             @Override
             public void artNetPacketReceived(ArtNetPacket packet) {
@@ -92,6 +96,22 @@ public class WorkerThread implements Runnable {
                 artBuffer.setDmxData((short) subnet, (short) universe, dmxPacket.getDmxData());
             }
         });
+        
+        //artnet node discovery reply packet
+        ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
+        replyPacket.setIp(networkAddress);
+        replyPacket.setShortName("TimecodeGen Node");
+        replyPacket.setLongName("Timecode Generator Node by MrExplode");
+        replyPacket.setVersionInfo(1);
+        replyPacket.setSubSwitch(1);
+        replyPacket.setOemCode(5);
+        PortDescriptor port = new PortDescriptor();
+        port.setCanInput(true);
+        port.setCanOutput(true);
+        replyPacket.setPorts(new PortDescriptor[] {port});
+        
+        replyPacket.translateData();
+        server.setDefaultReplyPacket(replyPacket);
         
         try {
             server.start(networkAddress);
@@ -111,6 +131,10 @@ public class WorkerThread implements Runnable {
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();
             clip.open(stream);
+            for (Control control : clip.getControls()) {
+                Control.Type type = control.getType();
+                System.out.println("Type: " + type.toString());
+            }
         } catch (LineUnavailableException e) {
             System.err.println("Failed to access specified audio output");
             displayError("Failed to access specified audio output: " + e.getMessage() + "\n Please restart the internals!");

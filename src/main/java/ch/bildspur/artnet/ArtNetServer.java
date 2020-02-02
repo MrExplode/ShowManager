@@ -181,6 +181,7 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
             }
             isRunning = true;
             serverThread = new Thread(this);
+            serverThread.setName("Artnet Server");
             serverThread.start();
         } else {
             throw new ArtNetException(

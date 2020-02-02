@@ -12,8 +12,7 @@ import me.mrexplode.timecode.gui.MainGUI;
 
 public class Bootstrap {
 
-    @SuppressWarnings("restriction")
-	public static void main(String[] args) {
+    public static void main(String[] args) {
     	if (args.length == 0) {
     		//long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
         	long freeSysMem = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
