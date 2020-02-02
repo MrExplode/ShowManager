@@ -47,11 +47,11 @@ public class SettingsProvider {
                 }
             }
             
-            int mixSize = gui.outputBox.getItemCount();
+            int mixSize = gui.ltcOutputBox.getItemCount();
             for (int i = 0; i < mixSize; i++) {
-                MixerEntry entry = (MixerEntry) gui.outputBox.getItemAt(i);
-                if (entry.getMixerInfo().getName().equals(settings.audioOutput)) {
-                    gui.outputBox.setSelectedIndex(i);
+                MixerEntry entry = (MixerEntry) gui.ltcOutputBox.getItemAt(i);
+                if (entry.getMixerInfo().getName().equals(settings.ltcAudioOutput)) {
+                    gui.ltcOutputBox.setSelectedIndex(i);
                     break;
                 }
             }
@@ -71,7 +71,7 @@ public class SettingsProvider {
     }
     
     public void save() throws IOException {
-        settings.audioOutput = ((MixerEntry) gui.outputBox.getSelectedItem()).getMixerInfo().getName();
+        settings.ltcAudioOutput = ((MixerEntry) gui.ltcOutputBox.getSelectedItem()).getMixerInfo().getName();
         settings.netInterface = ((NetEntry) gui.addressBox.getSelectedItem()).getNetworkAddress().getHostAddress();
         settings.dmxAddress = Integer.valueOf(gui.dmxField.getText());
         settings.dmxUniverse = Integer.valueOf(gui.universeField.getText());
