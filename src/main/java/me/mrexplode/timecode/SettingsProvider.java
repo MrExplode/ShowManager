@@ -73,9 +73,25 @@ public class SettingsProvider {
     public void save() throws IOException {
         settings.ltcAudioOutput = ((MixerEntry) gui.ltcOutputBox.getSelectedItem()).getMixerInfo().getName();
         settings.netInterface = ((NetEntry) gui.addressBox.getSelectedItem()).getNetworkAddress().getHostAddress();
-        settings.dmxAddress = Integer.valueOf(gui.dmxField.getText());
-        settings.dmxUniverse = Integer.valueOf(gui.universeField.getText());
-        settings.dmxSubnet = Integer.valueOf(gui.subnetField.getText());
+        
+        if (!gui.dmxField.getText().equals("")) {
+            settings.dmxAddress = Integer.valueOf(gui.dmxField.getText());
+        } else {
+            settings.dmxAddress = 0;
+        }
+        
+        if (!gui.universeField.getText().equals("")) {
+            settings.dmxUniverse = Integer.valueOf(gui.universeField.getText());
+        } else {
+            settings.dmxUniverse = 0;
+        }
+        
+        if (!gui.subnetField.getText().equals("")) {
+            settings.dmxSubnet = Integer.valueOf(gui.subnetField.getText());
+        } else {
+            settings.dmxSubnet = 0;
+        }
+        
         settings.framerate = Integer.valueOf((String) gui.framerateBox.getSelectedItem());
         
         if (!saveFile.getParentFile().exists()) {

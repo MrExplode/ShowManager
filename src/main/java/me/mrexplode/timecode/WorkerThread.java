@@ -8,7 +8,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -131,14 +130,15 @@ public class WorkerThread implements Runnable {
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();
             clip.open(stream);
-            for (Control control : clip.getControls()) {
-                Control.Type type = control.getType();
-                System.out.println("Type: " + type.toString());
-            }
         } catch (LineUnavailableException e) {
             System.err.println("Failed to access specified audio output");
             displayError("Failed to access specified audio output: " + e.getMessage() + "\n Please restart the internals!");
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unsupported line. Try an other sound output?");
+            displayError("The selected mixer doesn't support this type of line. Try an other sound output?");
+            e.printStackTrace();
+            
         } catch (IOException e) {
             System.out.println("Failed to read LTC source");
             displayError("Failed to read LTC source file: " + e.getMessage() + "\n Please restart the internals!");
@@ -153,7 +153,6 @@ public class WorkerThread implements Runnable {
                 time = current;
                 
                 if (playing) {
-                    System.out.println("inc elapsed");
                     elapsed = time - start;
                 }
                 if (remote) {
@@ -205,6 +204,17 @@ public class WorkerThread implements Runnable {
         return (var[0] < 10 ? "0" + var[0] : "" + var[0]) + " : " + (var[1] < 10 ? "0" + var[1] : "" + var[1]) + " : " + (var[2] < 10 ? "0" + var[2] : "" + var[2]) + " / " + (var[3] < 10 ? "0" + var[3] : "" + var[3]);
     }
     
+    public void setTime(int hour, int min, int sec, int frame) {
+        long frames = packet.encode(hour, min, sec, frame, packet.getFrameType());
+        packet.setTime(hour, min, sec, frame);
+        elapsed = frames * (1000 / framerate);
+        start = System.currentTimeMillis() - elapsed;
+        if (clip != null) {
+            clip.setMicrosecondPosition(elapsed * 1000);
+        }
+        System.out.println("frames: " + frames + "\nframerate: " + framerate + "\nelapsed: " + elapsed + "\nstart: " + start);
+    }
+    
     public void play() {
         //starting first
         if (start == 0) {
@@ -242,10 +252,14 @@ public class WorkerThread implements Runnable {
     public void shutdown() {
         System.out.println("Shutting down WorkThread...");
         running = false;
-        clip.stop();
-        //clip.flush();
-        clip.close();
-        clip = null;
+        
+        if (clip != null) {
+            clip.stop();
+            //clip.flush();
+            clip.close();
+            clip = null;
+        }
+        
         try {
             stream.close();
         } catch (IOException e) {
@@ -329,7 +343,7 @@ public class WorkerThread implements Runnable {
     
     private static void displayError(String errorMessage) {
         Thread t = new Thread(() -> {
-            JOptionPane.showConfirmDialog(null, errorMessage, "Timecode Generator", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null);
+            JOptionPane.showConfirmDialog(null, errorMessage, "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
         });
         t.setName("Error display thread");
         t.start();

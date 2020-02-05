@@ -1,13 +1,16 @@
 package me.mrexplode.timecode.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -17,29 +20,38 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-import javafx.application.Platform;
 import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.SettingsProvider;
 import me.mrexplode.timecode.WorkerThread;
@@ -80,7 +92,7 @@ public class MainGUI extends JFrame {
     private JLabel lblFramerate;
     private JButton btnSetDmx;
     public JComboBox ltcOutputBox;
-    private JPanel panel;
+    private JPanel setTimePanel;
     private JTextField hourField;
     private JTextField minField;
     private JTextField secField;
@@ -91,9 +103,14 @@ public class MainGUI extends JFrame {
     private JPanel playerPanel;
     private JCheckBox musicCheckBox;
     private JComboBox audioOutputBox;
-    private JLabel lblTrack;
+    private JLabel lblTrackInfo;
     private JComboBox comboBox;
-    private JPanel jfxPanel;
+    private TrackPanel jfxPanel;
+    private JButton btnRemove;
+    private JButton btnAdd;
+    private JSlider volumeSlider;
+    
+    private ArrayList<JComponent> components = new ArrayList<JComponent>();
 
     /**
      * Create the frame.
@@ -113,10 +130,10 @@ public class MainGUI extends JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setIconImages(getIcons());
-        setBounds(100, 100, 597, 469);
-        setMinimumSize(new Dimension(597, 413));
+        setBounds(100, 100, 597, 503);
+        setMinimumSize(new Dimension(597, 503));
         contentPane = new JPanel();
         contentPane.setBorder(null);
         setContentPane(contentPane);
@@ -131,23 +148,99 @@ public class MainGUI extends JFrame {
         
         controlPanel = new JPanel();
         controlPanel.setBorder(new TitledBorder(null, "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "spaceTogglePlay");
+        controlPanel.getActionMap().put("spaceTogglePlay", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (workThread.isPlaying()) {
+                    btnPause.doClick();
+                } else {
+                    btnPlay.doClick();
+                }
+            }
+            
+        });
         
         settingsPanel = new JPanel();
         
         btnSetTime = new JButton("Set time");
+        components.add(btnSetTime);
         btnSetTime.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("implement time set");
+                boolean wrong = false;
+                Pattern p = Pattern.compile("\\b\\d+\\b");
+                Matcher m = p.matcher("");
+                
+                int hour = 0;
+                int min = 0;
+                int sec = 0;
+                int frame = 0;
+                if (hourField.getText().equals("") || !m.reset(hourField.getText()).matches()) {
+                    //empty or not number
+                    hourField.setBackground(Color.RED);
+                    wrong = true;
+                } else {
+                    hour = Integer.valueOf(hourField.getText());
+                }
+                if (minField.getText().equals("") || !m.reset(minField.getText()).matches()) {
+                    //empty or not number
+                    minField.setBackground(Color.RED);
+                    wrong = true;
+                } else {
+                    min = Integer.valueOf(minField.getText());
+                    if (min > 59 || min < 0) {
+                        minField.setBackground(Color.RED);
+                        wrong = true;
+                    }
+                }
+                if (secField.getText().equals("") || !m.reset(secField.getText()).matches()) {
+                    //empty or not number
+                    secField.setBackground(Color.RED);
+                    wrong = true;
+                } else {
+                    sec = Integer.valueOf(secField.getText());
+                    if (sec > 59 || sec < 0) {
+                        secField.setBackground(Color.RED);
+                        wrong = true;
+                    }
+                }
+                if (frameField.getText().equals("") || !m.reset(frameField.getText()).matches()) {
+                    //empty or not number
+                    frameField.setBackground(Color.RED);
+                    wrong = true;
+                } else {
+                    frame = Integer.valueOf(frameField.getText());
+                    if (frame < 0 || frame > Integer.valueOf((String) framerateBox.getSelectedItem())) {
+                        frameField.setBackground(Color.RED);
+                        wrong = true;
+                    }
+                }
+                
+                if (!wrong) {
+                    workThread.setTime(hour, min, sec, frame);
+                    hourField.setText("");
+                    hourField.setBackground(Color.WHITE);
+                    minField.setText("");
+                    minField.setBackground(Color.WHITE);
+                    secField.setText("");
+                    secField.setBackground(Color.WHITE);
+                    frameField.setText("");
+                    frameField.setBackground(Color.WHITE);
+                    setTimePanel.setToolTipText("");
+                } else {
+                    setTimePanel.setToolTipText("All fields must be filled in with numbers, and match time values! (eg. min must be between 0 and 59)");
+                }
+                
             }
         });
         
-        panel = new JPanel();
+        setTimePanel = new JPanel();
         
         dmxSettingsPanel = new JPanel();
         
         playerPanel = new JPanel();
-        playerPanel.setToolTipText("All sound files must be in .wav format.");
+        playerPanel.setToolTipText("Under development");
         playerPanel.setBorder(new TitledBorder(null, "Music player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
@@ -174,7 +267,7 @@ public class MainGUI extends JFrame {
                                     .addComponent(remoteControl, GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                                     .addGap(0))
                                 .addGroup(gl_contentPane.createSequentialGroup()
-                                    .addComponent(panel, GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                                    .addComponent(setTimePanel, GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
                                     .addGap(5)))
                             .addGap(1)
                             .addComponent(settingsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -191,7 +284,7 @@ public class MainGUI extends JFrame {
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addComponent(timePanel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(panel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(setTimePanel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(btnSetTime)
                             .addPreferredGap(ComponentPlacement.UNRELATED)
@@ -203,11 +296,102 @@ public class MainGUI extends JFrame {
                     .addContainerGap())
         );
         
-        lblTrack = new JLabel("Current track");
+        lblTrackInfo = new JLabel("Current track");
+        lblTrackInfo.setEnabled(false);
         
         comboBox = new JComboBox();
+        comboBox.setEnabled(false);
         
-        jfxPanel = new JPanel();
+        jfxPanel = new TrackPanel();
+        
+        btnRemove = new JButton("Remove");
+        components.add(btnRemove);
+        btnRemove.setEnabled(false);
+        
+        btnAdd = new JButton("Add");
+        components.add(btnAdd);
+        btnAdd.setEnabled(false);
+        btnAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                float[] samples = null;
+                try {
+                    AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav"))));
+                    AudioFormat fmt = in.getFormat();
+                    
+                    if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
+                        throw new UnsupportedAudioFileException("unsigned");
+                    }
+                    
+                    boolean big = fmt.isBigEndian();
+                    int chans = fmt.getChannels();
+                    int bits = fmt.getSampleSizeInBits();
+                    int bytes = bits + 7 >> 3;
+                    
+                    int frameLength = (int) in.getFrameLength();
+                    int bufferLength = chans * bytes * 1024;
+                    
+                    samples = new float[frameLength];
+                    byte[] buf = new byte[bufferLength];
+                    
+                    int i = 0;
+                    int bRead;
+                    System.out.println(samples.length);
+                    while ( ( bRead = in.read(buf) ) > -1) {
+                        
+                        for (int b = 0; b < bRead;) {
+                            double sum = 0;
+                            
+                            // (sums to mono if multiple channels)
+                            for (int c = 0; c < chans; c++) {
+                                if (bytes == 1) {
+                                    sum += buf[b++] << 8;
+                                    
+                                } else {
+                                    int sample = 0;
+                                    
+                                    // (quantizes to 16-bit)
+                                    if (big) {
+                                        sample |= ( buf[b++] & 0xFF ) << 8;
+                                        sample |= ( buf[b++] & 0xFF );
+                                        b += bytes - 2;
+                                    } else {
+                                        b += bytes - 2;
+                                        sample |= ( buf[b++] & 0xFF );
+                                        sample |= ( buf[b++] & 0xFF ) << 8;
+                                    }
+                                    
+                                    final int sign = 1 << 15;
+                                    final int mask = -1 << 16;
+                                    if ( ( sample & sign ) == sign) {
+                                        sample |= mask;
+                                    }
+                                    
+                                    sum += sample;
+                                }
+                            }
+                            
+                            samples[i++] = (float) ( sum / chans );
+                        }
+                    }
+                    
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                
+                jfxPanel.samples = samples;
+                jfxPanel.repaint();
+            }
+        });
+        
+        volumeSlider = new JSlider();
+        components.add(volumeSlider);
+        volumeSlider.setEnabled(false);
+        volumeSlider.setToolTipText("");
+        volumeSlider.setPaintLabels(true);
+        volumeSlider.setMinorTickSpacing(5);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setMajorTickSpacing(25);
         GroupLayout gl_playerPanel = new GroupLayout(playerPanel);
         gl_playerPanel.setHorizontalGroup(
             gl_playerPanel.createParallelGroup(Alignment.LEADING)
@@ -215,24 +399,43 @@ public class MainGUI extends JFrame {
                     .addContainerGap()
                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
                         .addComponent(jfxPanel, GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
-                        .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblTrack, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(gl_playerPanel.createSequentialGroup()
+                            .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
+                                .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                                .addGroup(gl_playerPanel.createSequentialGroup()
+                                    .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING, false)
+                                        .addComponent(btnAdd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btnRemove, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGap(18)
+                            .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
+                            .addGap(59)))
                     .addContainerGap())
         );
         gl_playerPanel.setVerticalGroup(
             gl_playerPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_playerPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(lblTrack)
+                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
+                        .addGroup(gl_playerPanel.createSequentialGroup()
+                            .addComponent(lblTrackInfo)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addGroup(gl_playerPanel.createParallelGroup(Alignment.BASELINE)
+                                .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnRemove)))
+                        .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addGap(18)
+                    .addComponent(btnAdd)
+                    .addPreferredGap(ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                     .addComponent(jfxPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addContainerGap())
         );
+        jfxPanel.setLayout(null);
         playerPanel.setLayout(gl_playerPanel);
         
         remoteCheckBox = new JCheckBox("DMX remote control");
+        components.add(remoteCheckBox);
         remoteCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -272,6 +475,7 @@ public class MainGUI extends JFrame {
         lblSubnet.setEnabled(false);
         
         btnSetDmx = new JButton("Set dmx");
+        components.add(btnSetDmx);
         btnSetDmx.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -349,10 +553,10 @@ public class MainGUI extends JFrame {
         
         frameField = new JTextField();
         frameField.setColumns(10);
-        GroupLayout gl_panel = new GroupLayout(panel);
-        gl_panel.setHorizontalGroup(
-            gl_panel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_panel.createSequentialGroup()
+        GroupLayout gl_setTimePanel = new GroupLayout(setTimePanel);
+        gl_setTimePanel.setHorizontalGroup(
+            gl_setTimePanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_setTimePanel.createSequentialGroup()
                     .addGap(32)
                     .addComponent(hourField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
                     .addGap(26)
@@ -363,19 +567,20 @@ public class MainGUI extends JFrame {
                     .addComponent(frameField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
                     .addGap(24))
         );
-        gl_panel.setVerticalGroup(
-            gl_panel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_panel.createSequentialGroup()
-                    .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+        gl_setTimePanel.setVerticalGroup(
+            gl_setTimePanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_setTimePanel.createSequentialGroup()
+                    .addGroup(gl_setTimePanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(hourField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(minField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(secField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(frameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        panel.setLayout(gl_panel);
+        setTimePanel.setLayout(gl_setTimePanel);
         
         artnetCheckBox = new JCheckBox("ArtNet timecode");
+        components.add(artnetCheckBox);
         artnetCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -386,6 +591,7 @@ public class MainGUI extends JFrame {
         artnetCheckBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
         
         ltcCheckBox = new JCheckBox("LTC timecode");
+        components.add(ltcCheckBox);
         ltcCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -406,8 +612,11 @@ public class MainGUI extends JFrame {
         ltcOutputBox.setToolTipText("Select the output for LTC. Carefully! LTC should never go out on speakers!");
         //INIT list available outputs
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-            MixerEntry entry = new MixerEntry(info.getName(), info);
-            ltcOutputBox.addItem(entry);
+            //port prefixed mixers don't seem to work
+            if (!info.getName().startsWith("Port")) {
+                MixerEntry entry = new MixerEntry(info.getName(), info);
+                ltcOutputBox.addItem(entry);
+            }
         }
         ltcOutputBox.setSelectedIndex(0);
         
@@ -425,6 +634,7 @@ public class MainGUI extends JFrame {
         addressBox.setSelectedIndex(0);
         
         btnRestart = new JButton("Restart internals");
+        components.add(btnRestart);
         btnRestart.setToolTipText("In order to your changes take effect, you have to restart the internal implementation.");
         btnRestart.addActionListener(new ActionListener() {
             @Override
@@ -436,13 +646,19 @@ public class MainGUI extends JFrame {
         });
         
         musicCheckBox = new JCheckBox("Audio player");
-        musicCheckBox.setToolTipText("Toggles audio player output");
+        components.add(musicCheckBox);
+        musicCheckBox.setEnabled(false);
+        musicCheckBox.setToolTipText("Under development");
         
         audioOutputBox = new JComboBox();
-        audioOutputBox.setToolTipText("Select the output for the audio player.");
+        audioOutputBox.setEnabled(false);
+        audioOutputBox.setToolTipText("Under development");
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-            MixerEntry entry = new MixerEntry(info.getName(), info);
-            audioOutputBox.addItem(entry);
+            //port prefixed mixers don't seem to work
+            if (!info.getName().startsWith("Port")) {
+                MixerEntry entry = new MixerEntry(info.getName(), info);
+                audioOutputBox.addItem(entry);
+            }
         }
         
         GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
@@ -501,6 +717,7 @@ public class MainGUI extends JFrame {
         settingsPanel.setLayout(gl_settingsPanel);
         
         btnPlay = new JButton("Play");
+        components.add(btnPlay);
         btnPlay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -509,6 +726,7 @@ public class MainGUI extends JFrame {
         });
         
         btnPause = new JButton("Pause");
+        components.add(btnPause);
         btnPause.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -517,6 +735,7 @@ public class MainGUI extends JFrame {
         });
         
         btnStop = new JButton("Stop");
+        components.add(btnStop);
         btnStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -567,6 +786,13 @@ public class MainGUI extends JFrame {
         timePanel.setLayout(gl_timePanel);
         contentPane.setLayout(gl_contentPane);
         
+        //overriding default space actions
+        for (int i = 0; i < components.size(); i++) {
+            System.out.println(components.get(i).getClass().getName());
+            InputMap im = components.get(i).getInputMap();
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
+        }
+        
         //setting up threading
         this.dataGrabber = new DataGrabber(this);
         Thread dThreadInstance = new Thread(dataGrabber);
@@ -574,7 +800,7 @@ public class MainGUI extends JFrame {
         AudioInputStream stream = null;
         try {
         	InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
-            stream = AudioSystem.getAudioInputStream(bufferedStream);
+        	stream = AudioSystem.getAudioInputStream(bufferedStream);
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {

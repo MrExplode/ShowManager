@@ -101,6 +101,7 @@ public class DataGrabber implements Runnable {
     }
     
     public void stop() {
+        System.out.println("Shutting down DataGrabber...");
         this.running = false;
     }
 

@@ -21,7 +21,7 @@ public class Bootstrap {
         		return;
         	} else {
         		try {
-        			JOptionPane.showConfirmDialog(null, "Starting main app...", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
+        			//JOptionPane.showConfirmDialog(null, "Starting main app...", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
 					Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), "UTF-8"), "withRAM"});
 				} catch (IOException e) {
 					JOptionPane.showConfirmDialog(null, "Failed to start the process!\n " + e.getMessage(), "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
