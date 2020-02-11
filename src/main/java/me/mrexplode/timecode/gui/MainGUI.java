@@ -1,7 +1,6 @@
 package me.mrexplode.timecode.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
@@ -30,7 +29,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -39,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -68,6 +67,7 @@ public class MainGUI extends JFrame {
     private DataGrabber dataGrabber;
     private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
     private SettingsProvider settingsProvider;
+    public static MainGUI guiInstance;
 
     private JPanel contentPane;
     private JPanel timePanel;
@@ -111,6 +111,8 @@ public class MainGUI extends JFrame {
     private JSlider volumeSlider;
     
     private ArrayList<JComponent> components = new ArrayList<JComponent>();
+    private JButton btnMusicVis;
+    private JPanel moduleVisibilityPane;
 
     /**
      * Create the frame.
@@ -118,6 +120,7 @@ public class MainGUI extends JFrame {
      */
     @SuppressWarnings({ "resource" , "rawtypes", "unchecked" })
     public MainGUI() throws SocketException {
+        guiInstance = this;
         ltcSources.put(24, "ltc/LTC_00_00_00_00__90mins_24.wav");
         ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
         ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
@@ -240,7 +243,7 @@ public class MainGUI extends JFrame {
         dmxSettingsPanel = new JPanel();
         
         playerPanel = new JPanel();
-        playerPanel.setToolTipText("Under development");
+        playerPanel.setToolTipText("");
         playerPanel.setBorder(new TitledBorder(null, "Music player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
@@ -297,26 +300,29 @@ public class MainGUI extends JFrame {
         );
         
         lblTrackInfo = new JLabel("Current track");
-        lblTrackInfo.setEnabled(false);
         
         comboBox = new JComboBox();
-        comboBox.setEnabled(false);
         
         jfxPanel = new TrackPanel();
         
         btnRemove = new JButton("Remove");
         components.add(btnRemove);
-        btnRemove.setEnabled(false);
         
         btnAdd = new JButton("Add");
         components.add(btnAdd);
-        btnAdd.setEnabled(false);
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 float[] samples = null;
                 try {
-                    AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav"))));
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Choose your audio file");
+                    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    int returnval = fileChooser.showOpenDialog(null);
+                    if (returnval != JFileChooser.APPROVE_OPTION) {
+                        return;
+                    }
+                    AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(fileChooser.getSelectedFile())));
                     AudioFormat fmt = in.getFormat();
                     
                     if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
@@ -386,8 +392,7 @@ public class MainGUI extends JFrame {
         
         volumeSlider = new JSlider();
         components.add(volumeSlider);
-        volumeSlider.setEnabled(false);
-        volumeSlider.setToolTipText("");
+        volumeSlider.setToolTipText("Volume");
         volumeSlider.setPaintLabels(true);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);
@@ -485,12 +490,16 @@ public class MainGUI extends JFrame {
             }
         });
         btnSetDmx.setEnabled(false);
+        
+        moduleVisibilityPane = new JPanel();
+        moduleVisibilityPane.setBorder(new TitledBorder(null, "Module visibility", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GroupLayout gl_dmxSettingsPanel = new GroupLayout(dmxSettingsPanel);
         gl_dmxSettingsPanel.setHorizontalGroup(
             gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
                         .addComponent(remoteCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
                         .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                             .addGap(21)
@@ -510,13 +519,12 @@ public class MainGUI extends JFrame {
                         .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                             .addGap(21)
                             .addComponent(btnSetDmx, GroupLayout.PREFERRED_SIZE, 109, GroupLayout.PREFERRED_SIZE)))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addContainerGap())
         );
         gl_dmxSettingsPanel.setVerticalGroup(
             gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addGap(1)
                     .addComponent(remoteCheckBox)
                     .addGap(2)
                     .addGroup(gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
@@ -538,8 +546,44 @@ public class MainGUI extends JFrame {
                             .addComponent(lblSubnet)))
                     .addGap(6)
                     .addComponent(btnSetDmx)
-                    .addContainerGap(116, Short.MAX_VALUE))
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(moduleVisibilityPane, GroupLayout.PREFERRED_SIZE, 106, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+        
+        btnMusicVis = new JButton("Music player");
+        GroupLayout gl_moduleVisibilityPane = new GroupLayout(moduleVisibilityPane);
+        gl_moduleVisibilityPane.setHorizontalGroup(
+            gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(btnMusicVis, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                    .addContainerGap())
+        );
+        gl_moduleVisibilityPane.setVerticalGroup(
+            gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(btnMusicVis)
+                    .addContainerGap(50, Short.MAX_VALUE))
+        );
+        moduleVisibilityPane.setLayout(gl_moduleVisibilityPane);
+        btnMusicVis.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (playerPanel.isVisible()) {
+                    playerPanel.setVisible(false);
+                    remove(playerPanel);
+                    setMinimumSize(new Dimension(597, 320));
+                } else {
+                    playerPanel.setVisible(true);
+                    getContentPane().add(playerPanel);
+                    setMinimumSize(new Dimension(597, 503));
+                }
+                repaint();
+               pack();
+            }
+        });
         dmxSettingsPanel.setLayout(gl_dmxSettingsPanel);
         
         hourField = new JTextField();
@@ -788,7 +832,6 @@ public class MainGUI extends JFrame {
         
         //overriding default space actions
         for (int i = 0; i < components.size(); i++) {
-            System.out.println(components.get(i).getClass().getName());
             InputMap im = components.get(i).getInputMap();
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
         }
