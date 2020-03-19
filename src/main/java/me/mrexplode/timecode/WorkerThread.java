@@ -78,6 +78,7 @@ public class WorkerThread implements Runnable {
 
     @Override
     public void run() {
+        log("Starting thread...");
         Thread.currentThread().setName("WorkerThread");
         running = true;
         artBuffer.clear();
@@ -115,9 +116,9 @@ public class WorkerThread implements Runnable {
         try {
             server.start(networkAddress);
         } catch (SocketException | ArtNetException e) {
-            System.err.println("Failed to start ArtNet server");
+            err("Failed to start ArtNet server");
             displayError("Failed to start ArtNetServer: " + e.getMessage() + "\n Please restart the internals!");
-            e.printStackTrace();
+            throw new RuntimeException("Failed to start WorkerThread.", e);
         }
         
         //setup the ltc
@@ -131,18 +132,18 @@ public class WorkerThread implements Runnable {
             clip.flush();
             clip.open(stream);
         } catch (LineUnavailableException e) {
-            System.err.println("Failed to access specified audio output");
+            err("Failed to access specified audio output");
             displayError("Failed to access specified audio output: " + e.getMessage() + "\n Please restart the internals!");
-            e.printStackTrace();
+            throw new RuntimeException("Failed to start WorkerThread", e);
         } catch (IllegalArgumentException e) {
-            System.err.println("Unsupported line. Try an other sound output?");
+            err("Unsupported line. Try an other sound output?");
             displayError("The selected mixer doesn't support this type of line. Try an other sound output?");
-            e.printStackTrace();
+            throw new RuntimeException("Failed to start WorkerThread", e);
             
         } catch (IOException e) {
-            System.out.println("Failed to read LTC source");
+            err("Failed to read LTC source");
             displayError("Failed to read LTC source file: " + e.getMessage() + "\n Please restart the internals!");
-            e.printStackTrace();
+            throw new RuntimeException("Failed to start WorkerThread", e);
         }
         
         start = 0;
@@ -199,6 +200,11 @@ public class WorkerThread implements Runnable {
         }
     }
     
+    public Timecode getCurrentTimecode() {
+        int[] var = packet.decode(packet.encoded, packet.getFrameType());
+        return new Timecode(var[0], var[1], var[2], var[3]);
+    }
+    
     public String getCurrentTime() {
         int[] var = packet.decode(packet.encoded, packet.getFrameType());
         return (var[0] < 10 ? "0" + var[0] : "" + var[0]) + " : " + (var[1] < 10 ? "0" + var[1] : "" + var[1]) + " : " + (var[2] < 10 ? "0" + var[2] : "" + var[2]) + " / " + (var[3] < 10 ? "0" + var[3] : "" + var[3]);
@@ -250,7 +256,7 @@ public class WorkerThread implements Runnable {
     }
     
     public void shutdown() {
-        System.out.println("Shutting down WorkThread...");
+        log("Shutting down...");
         running = false;
         
         if (clip != null) {
@@ -263,6 +269,7 @@ public class WorkerThread implements Runnable {
         try {
             stream.close();
         } catch (IOException e) {
+            err("IOException during the closing of the ltc stream. you can ignore this error");
             e.printStackTrace();
         }
         stream = null;
@@ -347,6 +354,14 @@ public class WorkerThread implements Runnable {
         });
         t.setName("Error display thread");
         t.start();
+    }
+    
+    private static void log(String message) {
+        System.out.println("[WorkerThread] " + message);
+    }
+    
+    private static void err(String errorMessage) {
+        System.err.println("[WorkerThread] " + errorMessage);
     }
 
 }

@@ -11,6 +11,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
+    <!-- JavaOSC -->
+    <dependency>
+	  <groupId>com.illposed.osc</groupId>
+	  <artifactId>javaosc-core</artifactId>
+	  <version>0.6</version>
+    </dependency>
     <!-- Gson -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
