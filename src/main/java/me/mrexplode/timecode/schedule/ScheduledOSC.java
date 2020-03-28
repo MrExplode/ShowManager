@@ -19,6 +19,13 @@ public class ScheduledOSC extends ScheduledEvent {
         this.value = value;
     }
 
+    /**
+     * 
+     * @return true if every field is filled with data.
+     */
+    public boolean isReady() {
+        return path != null && !path.equals("") && dataType != null && value != null && this.getExecTime() != null;
+    }
     
     public String getPath() {
         return path;
@@ -48,5 +55,33 @@ public class ScheduledOSC extends ScheduledEvent {
     public void setValue(String value) {
         this.value = value;
     }
+    
+    /*
+     * Cell implementations
+     */
 
+    @Override
+    public Object getFirstColumn() {
+        return this.getExecTime();
+    }
+    
+    @Override
+    public Object getSecondColumn() {
+        return this.getType();
+    }
+    
+    @Override
+    public Object getThirdColumn() {
+        return getPath();
+    }
+    
+    @Override
+    public Object getFourthColumn() {
+        return getDataType();
+    }
+    
+    @Override
+    public Object getFifthColumn() {
+        return getValue();
+    }
 }

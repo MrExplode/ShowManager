@@ -29,13 +29,19 @@ public class EventHandler {
                 System.err.println("[EventHandler] Unknown event type: " + e.getName());
             break;
             case "TimeChangeEvent":
-                
+                for (TimeListener listener : listeners) {
+                    listener.onTimeChangeEvent((TimeChangeEvent) e); 
+                }
             break;
             case"TimeEvent":
-                
+                for (TimeListener listener : listeners) {
+                    listener.onTimeEvent((TimeEvent) e);
+                }
             break;
             case "OscEvent":
-                
+                for (TimeListener listener : listeners) {
+                    listener.onOscEvent((OscEvent) e);
+                }
             break;
         }
     }
