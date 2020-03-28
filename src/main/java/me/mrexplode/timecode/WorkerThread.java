@@ -58,12 +58,13 @@ public class WorkerThread implements Runnable {
     private int framerate = 30;
     
     private Thread dataGrabberThread;
+    private Object dataLock;
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber) {
-        this(stream, mixer, address, grabber, null);
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, Object dataLock) {
+        this(stream, mixer, address, grabber, dataLock, null);
     }
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, ArtNetServer server) {
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, Object dataLock, ArtNetServer server) {
         this.stream = stream;
         this.mixer = mixer;
         this.format = stream.getFormat();
@@ -73,6 +74,7 @@ public class WorkerThread implements Runnable {
         this.artBuffer = new ArtNetBuffer();
         this.remoteState = RemoteState.IDLE;
         this.dataGrabberThread = grabber;
+        this.dataLock = dataLock;
         packet.setFrameNumber(0);
     }
 
@@ -191,8 +193,8 @@ public class WorkerThread implements Runnable {
                 }
                 
                 if (dataGrabberThread.isAlive()) {
-                    synchronized (this.dataGrabberThread) {
-                        this.dataGrabberThread.notify();
+                    synchronized (dataLock) {
+                        this.dataLock.notify();
                     }
                 }
             }

@@ -46,6 +46,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -56,6 +57,7 @@ import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.SettingsProvider;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.schedule.ScheduleType;
+import me.mrexplode.timecode.schedule.ScheduledEvent;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -134,6 +136,14 @@ public class MainGUI extends JFrame {
     private JTextField oscIPField;
     private JLabel lblOSCPort;
     private JTextField oscPortField;
+    private JButton btnNow;
+    private JButton btnInsert;
+    private JButton btnInsertTime;
+    private JButton btnSort;
+
+    private Thread dThreadInstance;
+
+    private Thread wThreadInstance;
 
     /**
      * Create the frame.
@@ -199,6 +209,28 @@ public class MainGUI extends JFrame {
         
         oscPortField = new JTextField();
         oscPortField.setColumns(10);
+        
+        btnNow = new JButton("Now");
+        btnNow.addActionListener(e -> {
+            ((SchedulerTableModel) table.getModel()).getEvent(table.getSelectedRow()).setExecTime(dataGrabber.getCurrentTime());
+        });
+        
+        btnInsert = new JButton("Insert");
+        btnInsert.addActionListener(e -> {
+            ((SchedulerTableModel) table.getModel()).insertEmptyRow(table.getSelectedRow());
+        });
+        btnInsert.setToolTipText("Insert an empty element befor the currently selected element");
+        
+        btnInsertTime = new JButton("Insert with time");
+        btnInsertTime.addActionListener(e -> {
+            ((SchedulerTableModel) table.getModel()).inserRow(table.getSelectedRow(), new ScheduledEvent(null, dataGrabber.getCurrentTime()));
+        });
+        btnInsertTime.setToolTipText("Insert an empty element, with the current timecode");
+        
+        btnSort = new JButton("Sort");
+        btnSort.addActionListener(e-> {
+            ((SchedulerTableModel) table.getModel()).sort();
+        });
         GroupLayout gl_oscPanel = new GroupLayout(oscPanel);
         gl_oscPanel.setHorizontalGroup(
             gl_oscPanel.createParallelGroup(Alignment.LEADING)
@@ -207,15 +239,28 @@ public class MainGUI extends JFrame {
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                         .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 471, Short.MAX_VALUE)
                         .addGroup(gl_oscPanel.createSequentialGroup()
-                            .addComponent(chckbxOsc)
-                            .addGap(18)
-                            .addComponent(lblTargetIp)
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
+                                .addGroup(gl_oscPanel.createSequentialGroup()
+                                    .addComponent(chckbxOsc)
+                                    .addGap(18)
+                                    .addComponent(lblTargetIp))
+                                .addGroup(gl_oscPanel.createSequentialGroup()
+                                    .addComponent(btnNow)
+                                    .addGap(18)
+                                    .addComponent(btnSort)))
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addGap(18)
-                            .addComponent(lblOSCPort)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
+                                .addGroup(gl_oscPanel.createSequentialGroup()
+                                    .addComponent(btnInsert)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(btnInsertTime))
+                                .addGroup(gl_oscPanel.createSequentialGroup()
+                                    .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18)
+                                    .addComponent(lblOSCPort)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                            .addGap(107)))
                     .addContainerGap())
         );
         gl_oscPanel.setVerticalGroup(
@@ -228,29 +273,25 @@ public class MainGUI extends JFrame {
                         .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(lblOSCPort)
                         .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addGroup(gl_oscPanel.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(btnNow)
+                        .addComponent(btnInsert)
+                        .addComponent(btnInsertTime)
+                        .addComponent(btnSort))
+                    .addGap(22)
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
                     .addContainerGap())
         );
         
         //creating scheduler table
         table = new JTable();
-        /*table.setModel(new DefaultTableModel(
-            new Object[][] {
-                {null, null, null, null},
-                {null, null, null, null},
-            },
-            new String[] {
-                "Time", "Path", "Type", "Value"
-            }
-        ));*/
         table.setModel(new SchedulerTableModel());
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        JComboBox scType = new JComboBox();
-        for (ScheduleType t : ScheduleType.values()) {
-            scType.addItem(t);
-        }
-        table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(scType));
+        table.getColumnModel().getColumns().asIterator().forEachRemaining(e -> e.setCellEditor(new CustomCellEditor()));
+        table.getColumnModel().getColumn(0).setCellEditor(new TimecodeCellEditor());
+        //table.getColumnModel().getColumns().asIterator().forEachRemaining(e -> e.setCellRenderer(cellRenderer));
         
         scrollPane.setViewportView(table);
         oscPanel.setLayout(gl_oscPanel);
@@ -293,12 +334,9 @@ public class MainGUI extends JFrame {
         
         ltcCheckBox = new JCheckBox("LTC timecode");
         components.add(ltcCheckBox);
-        ltcCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean selected = ltcCheckBox.isSelected();
-                workThread.setLTC(selected);
-            }
+        ltcCheckBox.addActionListener(e -> {
+            boolean selected = ltcCheckBox.isSelected();
+            workThread.setLTC(selected);
         });
         ltcCheckBox.setToolTipText("Toggles the LTC output");
         
@@ -318,13 +356,10 @@ public class MainGUI extends JFrame {
         btnRestart = new JButton("Restart internals");
         components.add(btnRestart);
         btnRestart.setToolTipText("In order to your changes take effect, you have to restart the internal implementation.");
-        btnRestart.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //just in case
-                workThread.stop();
-                restartInternals();
-            }
+        btnRestart.addActionListener(e -> {
+            //just in case
+            workThread.stop();
+            restartInternals();
         });
         
         musicCheckBox = new JCheckBox("Audio player");
@@ -1004,10 +1039,11 @@ public class MainGUI extends JFrame {
         contentPane.setLayout(gl_contentPane);
         
         //overriding default space actions
+        /*
         for (int i = 0; i < components.size(); i++) {
             InputMap im = components.get(i).getInputMap();
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
-        }
+        }*/
         
         //setting up threading
         start();
@@ -1036,7 +1072,7 @@ public class MainGUI extends JFrame {
     @SuppressWarnings("resource")
     private void start() {
         this.dataGrabber = new DataGrabber(this);
-        Thread dThreadInstance = new Thread(dataGrabber);
+        dThreadInstance = new Thread(dataGrabber);
         
         AudioInputStream stream = null;
         try {
@@ -1049,9 +1085,9 @@ public class MainGUI extends JFrame {
         }
         Mixer mixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
         InetAddress address = ((NetEntry) addressBox.getSelectedItem()).getNetworkAddress();
-        this.workThread = new WorkerThread(stream, mixer, address, dThreadInstance);
+        this.workThread = new WorkerThread(stream, mixer, address, dThreadInstance, dataGrabber.getLock());
         this.workThread.setFramerate(Integer.valueOf((String) framerateBox.getSelectedItem()));
-        Thread wThreadInstance = new Thread(workThread);
+        wThreadInstance = new Thread(workThread);
         
         this.dataGrabber.setWorkerInstance(workThread);
         
@@ -1066,10 +1102,18 @@ public class MainGUI extends JFrame {
     }
     
     private void stop() {
-        this.dataGrabber.stop();
+        this.dataGrabber.shutdown();
         this.workThread.shutdown();
         this.dataGrabber = null;
         this.workThread = null;
+        try {
+            this.wThreadInstance.join();
+            this.wThreadInstance = null;
+            this.dThreadInstance.join();
+            this.dThreadInstance = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.gc();
     }
     

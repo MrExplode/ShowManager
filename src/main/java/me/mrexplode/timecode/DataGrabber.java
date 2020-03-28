@@ -1,14 +1,11 @@
 package me.mrexplode.timecode;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.UIManager;
 
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.TimeChangeEvent;
-import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.gui.MainGUI;
 
 public class DataGrabber implements Runnable {
@@ -19,12 +16,19 @@ public class DataGrabber implements Runnable {
     private MainGUI gui;
     private boolean running;
     private RemoteState previousState;
+    private Timecode currentTime = new Timecode(0, 0, 0, 0);
+    
+    private Object dataLock = new Object();
     
     public DataGrabber(MainGUI guiInstance) {
         this.gui = guiInstance;
         this.running = true;
         this.previousState = RemoteState.DISABLED;
         eventHandler = new EventHandler();
+    }
+    
+    public Object getLock() {
+        return dataLock;
     }
     
     public static EventHandler getEventHandler() {
@@ -45,7 +49,7 @@ public class DataGrabber implements Runnable {
         Thread.currentThread().setName("DataGrabber Thread");
         while (running) {
             String timeString = worker.getCurrentTime();
-            Timecode timecode = worker.getCurrentTimecode();
+            currentTime = worker.getCurrentTimecode();
             RemoteState remoteState = worker.getRemoteState();
             
             boolean playing = worker.isPlaying();
@@ -112,33 +116,42 @@ public class DataGrabber implements Runnable {
                 }
             }
             
-            TimeChangeEvent event = new TimeChangeEvent(timecode);
+            TimeChangeEvent event = new TimeChangeEvent(currentTime);
             eventHandler.callEvent(event);
             
-            try {
-                synchronized (Thread.currentThread()) {
-                    //sleeping until the next iteration
-                    Thread.currentThread().wait();
+            if (running) {
+                try {
+                    synchronized (dataLock) {
+                        //sleeping until the next iteration
+                        dataLock.wait();
+                    }
+                } catch (InterruptedException e) {
+                    err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
+                    e.printStackTrace();
+                    shutdown();
+                    throw new RuntimeException("Thread got interrupted while trying to wait.", e);
                 }
-            } catch (InterruptedException e) {
-                err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
-                e.printStackTrace();
-                stop();
-                throw new RuntimeException("Thread got interrupted while trying to wait.", e);
             }
         }
     }
     
-    public void stop() {
-        System.out.println("[DataGrabber] Shutting down...");
+    public void shutdown() {
+        log("Shutting down...");
         this.running = false;
+        synchronized (dataLock) {
+            this.dataLock.notify();
+        }
     }
     
-    private void log(String message) {
+    public Timecode getCurrentTime() {
+        return currentTime;
+    }
+    
+    private static void log(String message) {
         System.out.println("[DataGrabber] " + message);
     }
     
-    private void err(String errorMessage) {
+    private static void err(String errorMessage) {
         System.err.println("[DataGrabber] " + errorMessage);
     }
 
