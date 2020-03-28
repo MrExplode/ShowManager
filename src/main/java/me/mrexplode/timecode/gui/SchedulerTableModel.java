@@ -42,7 +42,7 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     }
     
     public void sort() {
-        Collections.sort((List) data);
+        Collections.sort((List<ScheduledEvent>) data);
         fireTableDataChanged();
     }
 
@@ -87,6 +87,8 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
                                 data.set(rowIndex, new ScheduledOSC(time, null, null, null));
                                 fireTableRowsUpdated(rowIndex, rowIndex);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -118,6 +120,8 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
                     }
                 }
             break;
+            default:
+                break;
         }
     }
 

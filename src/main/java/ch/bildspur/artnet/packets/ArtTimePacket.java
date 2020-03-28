@@ -112,7 +112,7 @@ public class ArtTimePacket extends ArtNetPacket {
      * 
      * @param frames the encoded time data
      * @param frameType the type of the timecode
-     * @return
+     * @return the array containing the decoded elements
      */
     public int[] decode(long frames, int frameType) {
         int framerate = 30;

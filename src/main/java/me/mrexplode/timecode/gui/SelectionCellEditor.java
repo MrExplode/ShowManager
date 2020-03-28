@@ -3,8 +3,6 @@ package me.mrexplode.timecode.gui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -16,12 +14,12 @@ public class SelectionCellEditor extends AbstractCellEditor implements TableCell
 
     private static final long serialVersionUID = -4589883770575558611L;
     
-    private JComboBox comboBox;
+    private JComboBox<?> comboBox;
     private JTable table;
     private int row = 0;
     private int column = 0;
     
-    public SelectionCellEditor(JComboBox box, JTable table) {
+    public SelectionCellEditor(JComboBox<?> box, JTable table) {
         this.comboBox = box;
         this.table = table;
         this.comboBox.addActionListener(this);

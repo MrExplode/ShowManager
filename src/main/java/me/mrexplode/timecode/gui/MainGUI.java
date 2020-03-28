@@ -29,11 +29,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractAction;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -42,7 +40,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -56,21 +56,17 @@ import javax.swing.border.TitledBorder;
 import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.SettingsProvider;
 import me.mrexplode.timecode.WorkerThread;
-import me.mrexplode.timecode.schedule.ScheduleType;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
-
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 
 public class MainGUI extends JFrame {
-    
+
     /**
      * THe path of the base directory for the program
      */
     public final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\TimecodeGenerator";
     
+    private static final long serialVersionUID = -7342971032020137377L;
     private WorkerThread workThread;
     private DataGrabber dataGrabber;
     private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
@@ -98,21 +94,21 @@ public class MainGUI extends JFrame {
     private JLabel lblUniverse;
     public JTextField subnetField;
     private JLabel lblSubnet;
-    public JComboBox framerateBox;
+    public JComboBox<String> framerateBox;
     private JLabel lblFramerate;
     private JButton btnSetDmx;
-    public JComboBox ltcOutputBox;
+    public JComboBox<MixerEntry> ltcOutputBox;
     private JPanel setTimePanel;
     private JTextField hourField;
     private JTextField minField;
     private JTextField secField;
     private JTextField frameField;
     private JPanel dmxSettingsPanel;
-    public JComboBox addressBox;
+    public JComboBox<NetEntry> addressBox;
     public JButton btnRestart;
     private JPanel playerPanel;
     private JCheckBox musicCheckBox;
-    private JComboBox audioOutputBox;
+    private JComboBox<MixerEntry> audioOutputBox;
     private JLabel lblTrackInfo;
     private JComboBox comboBox;
     private TrackPanel jfxPanel;
