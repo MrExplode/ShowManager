@@ -7,5 +7,20 @@ public enum OSCDataType {
     BOOLEAN,
     FLOAT,
     STRING;
+    
+    public static Object castTo(String value, OSCDataType to) {
+        switch (to) {
+            case BOOLEAN:
+                return Boolean.valueOf(value);
+            case FLOAT:
+                return Float.valueOf(value);
+            case INTEGER:
+                return Integer.valueOf(value);
+            case STRING:
+                return value;
+            default:
+                return value;
+        }
+    }
 
 }

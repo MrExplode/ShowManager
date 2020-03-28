@@ -7,6 +7,7 @@ import javax.swing.UIManager;
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.gui.MainGUI;
+import me.mrexplode.timecode.gui.SchedulerTableModel;
 
 public class DataGrabber implements Runnable {
     
@@ -57,6 +58,7 @@ public class DataGrabber implements Runnable {
             gui.btnSetTime.setEnabled(!playing);
             gui.framerateBox.setEnabled(!playing);
             gui.btnRestart.setEnabled(!playing);
+            ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
             Color defColor = UIManager.getColor("Button.background");
             gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
 

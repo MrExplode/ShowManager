@@ -39,7 +39,6 @@ public class SelectionCellEditor extends AbstractCellEditor implements TableCell
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
         if (e.getActionCommand().equals("comboBoxChanged")) {
             table.setValueAt(comboBox.getSelectedItem(), row, column);
             fireEditingStopped();

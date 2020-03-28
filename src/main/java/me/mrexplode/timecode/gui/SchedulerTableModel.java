@@ -22,6 +22,8 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     private String[] columnNames = new String[] {"Time", "Type", "Path", "Data Type", "Value"};
     private ArrayList<ScheduledEvent> data;
     
+    private boolean editable = true;
+    
     public SchedulerTableModel() {
         data = new ArrayList<ScheduledEvent>();
         data.add(new ScheduledEvent(null, null));
@@ -44,6 +46,23 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     public void sort() {
         Collections.sort((List<ScheduledEvent>) data);
         fireTableDataChanged();
+    }
+    
+    public List<ScheduledEvent> getCurrentFor(Timecode current) {
+        ArrayList<ScheduledEvent> curr = new ArrayList<ScheduledEvent>();
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).getExecTime() != null && data.get(i).getExecTime().equals(current)) {
+                curr.add(data.get(i));
+            }
+        }
+        if (curr.isEmpty()) {
+            return null;
+        }
+        return curr;
+    }
+    
+    public void setEditable(boolean value) {
+        this.editable = value;
     }
 
     @Override
@@ -161,7 +180,7 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return editable;
     }
 
     @Override

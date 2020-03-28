@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -127,7 +129,7 @@ public class MainGUI extends JFrame {
     private JPanel threadIndicator5;
     private JCheckBox chckbxOsc;
     private JScrollPane scrollPane;
-    private JTable table;
+    public JTable table;
     private JLabel lblTargetIp;
     private JTextField oscIPField;
     private JLabel lblOSCPort;
@@ -193,6 +195,9 @@ public class MainGUI extends JFrame {
         );
         
         chckbxOsc = new JCheckBox("OSC control");
+        chckbxOsc.addActionListener(e -> {
+            workThread.setOSC(chckbxOsc.isSelected());
+        });
         
         scrollPane = new JScrollPane();
         
@@ -1072,7 +1077,8 @@ public class MainGUI extends JFrame {
         
         AudioInputStream stream = null;
         try {
-            InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            //InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
+            InputStream bufferedStream = new BufferedInputStream(new FileInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav")));
             stream = AudioSystem.getAudioInputStream(bufferedStream);
         } catch (UnsupportedAudioFileException e1) {
             e1.printStackTrace();
@@ -1081,7 +1087,20 @@ public class MainGUI extends JFrame {
         }
         Mixer mixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
         InetAddress address = ((NetEntry) addressBox.getSelectedItem()).getNetworkAddress();
-        this.workThread = new WorkerThread(stream, mixer, address, dThreadInstance, dataGrabber.getLock());
+        InetAddress oscAddress = null;
+        try {
+            oscAddress = InetAddress.getByName(oscIPField.getText());
+        } catch (UnknownHostException e) {
+            JOptionPane.showConfirmDialog(null, "Unknown host exception, try another valid ip", "OSC target ip", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
+            e.printStackTrace();
+        }
+        int oscPort = 0;
+        try {
+            oscPort = Integer.valueOf(oscPortField.getText());
+        } catch (NumberFormatException e) {
+            oscPortField.setText("0");
+        }
+        this.workThread = new WorkerThread(stream, mixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber.getLock());
         this.workThread.setFramerate(Integer.valueOf((String) framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
         

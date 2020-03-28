@@ -3,6 +3,8 @@ package me.mrexplode.timecode;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -14,6 +16,10 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JOptionPane;
 
+import com.illposed.osc.OSCMessage;
+import com.illposed.osc.OSCSerializeException;
+import com.illposed.osc.transport.udp.OSCPortOut;
+
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
 import ch.bildspur.artnet.ArtNetServer;
@@ -24,6 +30,10 @@ import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
+import me.mrexplode.timecode.gui.SchedulerTableModel;
+import me.mrexplode.timecode.schedule.OSCDataType;
+import me.mrexplode.timecode.schedule.ScheduledEvent;
+import me.mrexplode.timecode.schedule.ScheduledOSC;
 
 public class WorkerThread implements Runnable {
     
@@ -31,7 +41,7 @@ public class WorkerThread implements Runnable {
     private ArtNetServer server;
     private ArtTimePacket packet;
     private ArtNetBuffer artBuffer;
-    private InetAddress networkAddress;
+    private InetAddress artnetAddress;
     
     //ltc
     private AudioInputStream stream = null;
@@ -39,10 +49,17 @@ public class WorkerThread implements Runnable {
     private Mixer mixer = null;
     private Clip clip = null;
     
+    //OSC
+    private OSCPortOut oscOut = null;
+    private InetAddress oscAddress = null;
+    private int oscPort = 0;
+    private SchedulerTableModel model = null;
+    
     //main controls
     private boolean running = true;
     private boolean broadcast = false;
     private boolean playLTC = false;
+    private boolean sendOSC = false;
     private boolean playing = false;
     //start time of playing
     private long start = 0;
@@ -60,15 +77,18 @@ public class WorkerThread implements Runnable {
     private Thread dataGrabberThread;
     private Object dataLock;
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, Object dataLock) {
-        this(stream, mixer, address, grabber, dataLock, null);
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, Object dataLock) {
+        this(stream, mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataLock, null);
     }
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress address, Thread grabber, Object dataLock, ArtNetServer server) {
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, Object dataLock, ArtNetServer server) {
         this.stream = stream;
         this.mixer = mixer;
         this.format = stream.getFormat();
-        this.networkAddress = address;
+        this.model = model;
+        this.oscAddress = oscAddress;
+        this.oscPort = oscPort;
+        this.artnetAddress = artnetAddress;
         this.server = (server == null ? new ArtNetServer() : server);
         this.packet = new ArtTimePacket();
         this.artBuffer = new ArtNetBuffer();
@@ -101,7 +121,7 @@ public class WorkerThread implements Runnable {
         
         //artnet node discovery reply packet
         ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
-        replyPacket.setIp(networkAddress);
+        replyPacket.setIp(artnetAddress);
         replyPacket.setShortName("TimecodeGen Node");
         replyPacket.setLongName("Timecode Generator Node by MrExplode");
         replyPacket.setVersionInfo(1);
@@ -116,7 +136,7 @@ public class WorkerThread implements Runnable {
         server.setDefaultReplyPacket(replyPacket);
         
         try {
-            server.start(networkAddress);
+            server.start(artnetAddress);
         } catch (SocketException | ArtNetException e) {
             err("Failed to start ArtNet server");
             displayError("Failed to start ArtNetServer: " + e.getMessage() + "\n Please restart the internals!");
@@ -146,6 +166,14 @@ public class WorkerThread implements Runnable {
             err("Failed to read LTC source");
             displayError("Failed to read LTC source file: " + e.getMessage() + "\n Please restart the internals!");
             throw new RuntimeException("Failed to start WorkerThread", e);
+        }
+        
+        try {
+            oscOut = new OSCPortOut(oscAddress, oscPort);
+        } catch (IOException e) {
+            err("Failed to start OSC server");
+            displayError("Failed to start OSC server: " + e.getMessage() + "\n Please restart the internals!");
+            e.printStackTrace();
         }
         
         start = 0;
@@ -186,6 +214,26 @@ public class WorkerThread implements Runnable {
                 
                 if (playing) {
                     packet.setFrameNumber(elapsed / (1000 / framerate));
+                    
+                    //OSC stuff. idk about performance, but it might need to be moved from here if it slows down the loop
+                    if (sendOSC) {
+                        ArrayList<ScheduledEvent> events = (ArrayList<ScheduledEvent>) model.getCurrentFor(getCurrentTimecode());
+                        if (events != null) {
+                            for (int i = 0; i < events.size(); i++) {
+                                if (events.get(i) instanceof ScheduledOSC) {
+                                    ScheduledOSC oscMessage = (ScheduledOSC) events.get(i);
+                                    try {
+                                        oscOut.send(new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType())))));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    } catch (OSCSerializeException e) {
+                                        displayError("Failed to serialize osc message: " + oscMessage.getPath());
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 if (broadcast) {
@@ -299,6 +347,10 @@ public class WorkerThread implements Runnable {
         } else {
             return false;
         }
+    }
+    
+    public void setOSC(boolean value) {
+        this.sendOSC = value;
     }
     
     public void setFramerate(int framerate) {
