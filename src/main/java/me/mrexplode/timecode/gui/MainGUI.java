@@ -76,6 +76,7 @@ public class MainGUI extends JFrame {
     public static MainGUI guiInstance;
     private ArrayList<JComponent> components = new ArrayList<JComponent>();
     private ArrayList<JPanel> threadIndicators = new ArrayList<JPanel>();
+    public TimeMonitor timeMonitor;
 
     private JPanel contentPane;
     private JPanel timePanel;
@@ -134,14 +135,15 @@ public class MainGUI extends JFrame {
     private JTextField oscIPField;
     private JLabel lblOSCPort;
     private JTextField oscPortField;
-    private JButton btnNow;
-    private JButton btnInsert;
-    private JButton btnInsertTime;
-    private JButton btnSort;
+    public JButton btnNow;
+    public JButton btnInsert;
+    public JButton btnInsertTime;
+    public JButton btnSort;
 
     private Thread dThreadInstance;
 
     private Thread wThreadInstance;
+    private JButton btnTimeMonitor;
 
     /**
      * Create the frame.
@@ -150,6 +152,8 @@ public class MainGUI extends JFrame {
     @SuppressWarnings({ "resource" , "rawtypes", "unchecked" })
     public MainGUI() throws SocketException {
         guiInstance = this;
+        timeMonitor = new TimeMonitor();
+        timeMonitor.setIconImages(getIcons());
         ltcSources.put(24, "ltc/LTC_00_00_00_00__90mins_24.wav");
         ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
         ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
@@ -489,7 +493,7 @@ public class MainGUI extends JFrame {
                 .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                        .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
                         .addComponent(remoteCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
                         .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                             .addGap(21)
@@ -537,8 +541,7 @@ public class MainGUI extends JFrame {
                     .addGap(6)
                     .addComponent(btnSetDmx)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(moduleVisibilityPane, GroupLayout.PREFERRED_SIZE, 106, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
         );
         
         btnMusicVis = new JButton("Music player");
@@ -561,24 +564,32 @@ public class MainGUI extends JFrame {
                 pack();
             }
         });
+        
+        btnTimeMonitor = new JButton("Time monitor");
+        btnTimeMonitor.addActionListener(e -> {
+            timeMonitor.setVisible(true);
+        });
         GroupLayout gl_moduleVisibilityPane = new GroupLayout(moduleVisibilityPane);
         gl_moduleVisibilityPane.setHorizontalGroup(
-            gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
-                .addGroup(Alignment.TRAILING, gl_moduleVisibilityPane.createSequentialGroup()
+            gl_moduleVisibilityPane.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(gl_moduleVisibilityPane.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(btnOscVis, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                        .addComponent(btnMusicVis, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE))
+                    .addGroup(gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
+                        .addComponent(btnMusicVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                        .addComponent(btnOscVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                        .addComponent(btnTimeMonitor, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                     .addContainerGap())
         );
         gl_moduleVisibilityPane.setVerticalGroup(
             gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
-                    .addContainerGap()
+                    .addGap(4)
                     .addComponent(btnMusicVis)
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(btnOscVis)
-                    .addContainerGap(16, Short.MAX_VALUE))
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(btnTimeMonitor)
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         moduleVisibilityPane.setLayout(gl_moduleVisibilityPane);
         btnMusicVis.addActionListener(new ActionListener() {

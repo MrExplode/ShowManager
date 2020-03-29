@@ -49,16 +49,33 @@ public class DataGrabber implements Runnable {
         log("Starting thread...");
         Thread.currentThread().setName("DataGrabber Thread");
         while (running) {
-            String timeString = worker.getCurrentTime();
             currentTime = worker.getCurrentTimecode();
+            String timeString = currentTime.toString();
             RemoteState remoteState = worker.getRemoteState();
             
             boolean playing = worker.isPlaying();
+            if (gui.timeMonitor.isVisible()) {
+                gui.timeMonitor.timeDisplay.setText(timeString);
+                if (!gui.timeMonitor.getAnimator().isRunning()) {
+                    if (playing) {
+                        gui.timeMonitor.getAnimator().startFlash(Color.RED);
+                    }
+                } else {
+                    if (!playing) {
+                        gui.timeMonitor.getAnimator().stopFlash();
+                    }
+                }
+            }
             gui.timeDisplay.setText(timeString);
             gui.btnSetTime.setEnabled(!playing);
             gui.framerateBox.setEnabled(!playing);
             gui.btnRestart.setEnabled(!playing);
             ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
+            gui.table.setRowSelectionAllowed(!playing);
+            gui.btnNow.setEnabled(!playing);
+            gui.btnSort.setEnabled(!playing);
+            gui.btnInsert.setEnabled(!playing);
+            gui.btnInsertTime.setEnabled(!playing);
             Color defColor = UIManager.getColor("Button.background");
             gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
 
