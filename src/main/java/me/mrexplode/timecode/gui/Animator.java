@@ -18,7 +18,6 @@ public class Animator implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("Display Animator");
-        System.out.println("started animator");
         long time = 0;
         running = true;
         while (running) {

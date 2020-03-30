@@ -145,6 +145,7 @@ public class MainGUI extends JFrame {
 
     private Thread wThreadInstance;
     private JButton btnTimeMonitor;
+    private JButton btnRemoveOSC;
 
     /**
      * Create the frame.
@@ -200,6 +201,7 @@ public class MainGUI extends JFrame {
         );
         
         chckbxOsc = new JCheckBox("OSC control");
+        components.add(chckbxOsc);
         chckbxOsc.addActionListener(e -> {
             workThread.setOSC(chckbxOsc.isSelected());
         });
@@ -217,26 +219,39 @@ public class MainGUI extends JFrame {
         oscPortField.setColumns(10);
         
         btnNow = new JButton("Now");
+        components.add(btnNow);
+        btnNow.setToolTipText("Set the selected event's time to the current time");
         btnNow.addActionListener(e -> {
             ((SchedulerTableModel) table.getModel()).getEvent(table.getSelectedRow()).setExecTime(dataGrabber.getCurrentTime());
         });
         
         btnInsert = new JButton("Insert");
+        components.add(btnInsert);
         btnInsert.addActionListener(e -> {
             ((SchedulerTableModel) table.getModel()).insertEmptyRow(table.getSelectedRow());
         });
         btnInsert.setToolTipText("Insert an empty element befor the currently selected element");
         
         btnInsertTime = new JButton("Insert with time");
+        components.add(btnInsertTime);
         btnInsertTime.addActionListener(e -> {
-            ((SchedulerTableModel) table.getModel()).inserRow(table.getSelectedRow(), new ScheduledEvent(null, dataGrabber.getCurrentTime()));
+            ((SchedulerTableModel) table.getModel()).insertRow(table.getSelectedRow(), new ScheduledEvent(null, dataGrabber.getCurrentTime()));
         });
         btnInsertTime.setToolTipText("Insert an empty element, with the current timecode");
         
         btnSort = new JButton("Sort");
+        components.add(btnSort);
+        btnSort.setToolTipText("Sort the table with the time values");
         btnSort.addActionListener(e-> {
             ((SchedulerTableModel) table.getModel()).sort();
         });
+        
+        btnRemoveOSC = new JButton("Remove");
+        components.add(btnRemoveOSC);
+        btnRemoveOSC.addActionListener(e -> {
+            ((SchedulerTableModel) table.getModel()).removeRow(table.getSelectedRow());
+        });
+        btnRemoveOSC.setToolTipText("Remove the selected event");
         GroupLayout gl_oscPanel = new GroupLayout(oscPanel);
         gl_oscPanel.setHorizontalGroup(
             gl_oscPanel.createParallelGroup(Alignment.LEADING)
@@ -259,14 +274,16 @@ public class MainGUI extends JFrame {
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(btnInsert)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(btnInsertTime))
+                                    .addComponent(btnInsertTime)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(btnRemoveOSC))
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addGap(18)
                                     .addComponent(lblOSCPort)
                                     .addPreferredGap(ComponentPlacement.RELATED)
                                     .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-                            .addGap(107)))
+                            .addGap(52)))
                     .addContainerGap())
         );
         gl_oscPanel.setVerticalGroup(
@@ -284,7 +301,8 @@ public class MainGUI extends JFrame {
                         .addComponent(btnNow)
                         .addComponent(btnInsert)
                         .addComponent(btnInsertTime)
-                        .addComponent(btnSort))
+                        .addComponent(btnSort)
+                        .addComponent(btnRemoveOSC))
                     .addGap(22)
                     .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
                     .addContainerGap())
@@ -546,8 +564,11 @@ public class MainGUI extends JFrame {
         );
         
         btnMusicVis = new JButton("Music player");
+        btnMusicVis.setToolTipText("Under development");
+        btnMusicVis.setEnabled(false);
         
         btnOscVis = new JButton("OSC control");
+        components.add(btnOscVis);
         btnOscVis.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -567,6 +588,7 @@ public class MainGUI extends JFrame {
         });
         
         btnTimeMonitor = new JButton("Time monitor");
+        components.add(btnTimeMonitor);
         btnTimeMonitor.addActionListener(e -> {
             timeMonitor.setVisible(true);
         });
@@ -784,19 +806,22 @@ public class MainGUI extends JFrame {
         remoteControl.setForeground(Color.RED);
         
         playerPanel = new JPanel();
-        playerPanel.setToolTipText("");
+        playerPanel.setToolTipText("Under development");
         playerPanel.setBorder(new TitledBorder(null, "Music player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         lblTrackInfo = new JLabel("Current track");
+        lblTrackInfo.setToolTipText("Under development");
         
         comboBox = new JComboBox();
         
         jfxPanel = new TrackPanel();
         
         btnRemove = new JButton("Remove");
+        btnRemove.setToolTipText("Under development");
         components.add(btnRemove);
         
         btnAdd = new JButton("Add");
+        btnAdd.setToolTipText("Under development");
         components.add(btnAdd);
         btnAdd.addActionListener(new ActionListener() {
             @Override
@@ -883,7 +908,7 @@ public class MainGUI extends JFrame {
         volumeSlider = new JSlider();
         volumeSlider.setValue(75);
         components.add(volumeSlider);
-        volumeSlider.setToolTipText("Volume");
+        volumeSlider.setToolTipText("Under development");
         volumeSlider.setPaintLabels(true);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);

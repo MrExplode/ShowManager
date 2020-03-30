@@ -31,6 +31,7 @@ import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
 import me.mrexplode.timecode.events.EventType;
+import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;
@@ -225,7 +226,9 @@ public class WorkerThread implements Runnable {
                                 if (events.get(i) instanceof ScheduledOSC) {
                                     ScheduledOSC oscMessage = (ScheduledOSC) events.get(i);
                                     try {
-                                        oscOut.send(new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType())))));
+                                        OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType()))));
+                                        oscOut.send(oscPacket);
+                                        DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } catch (OSCSerializeException e) {

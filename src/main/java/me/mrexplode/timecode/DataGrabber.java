@@ -60,6 +60,12 @@ public class DataGrabber implements Runnable {
             public void onTimeEvent(TimeEvent e) {
                 if (e.getType() == EventType.TC_START) {
                     prevDispatched = new ArrayList<Integer>();
+                    if (gui.timeMonitor.isVisible()) {
+                        gui.timeMonitor.getAnimator().startFlash(Color.RED);
+                    }
+                }
+                if (e.getType() == EventType.TC_PAUSE || e.getType() == EventType.TC_STOP) {
+                    gui.timeMonitor.getAnimator().stopFlash();
                 }
             }
         });
@@ -73,15 +79,6 @@ public class DataGrabber implements Runnable {
             
             if (gui.timeMonitor.isVisible()) {
                 gui.timeMonitor.timeDisplay.setText(timeString);
-                if (!gui.timeMonitor.getAnimator().isRunning()) {
-                    if (playing) {
-                        gui.timeMonitor.getAnimator().startFlash(Color.RED);
-                    }
-                } else {
-                    if (!playing) {
-                        gui.timeMonitor.getAnimator().stopFlash();
-                    }
-                }
             }
             gui.timeDisplay.setText(timeString);
             gui.btnSetTime.setEnabled(!playing);

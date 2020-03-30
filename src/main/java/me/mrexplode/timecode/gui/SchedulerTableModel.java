@@ -52,9 +52,16 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
         fireTableRowsInserted(index, index);
     }
     
-    public void inserRow(int index, ScheduledEvent event) {
+    public void insertRow(int index, ScheduledEvent event) {
         data.add(index, event);
         fireTableRowsInserted(index, index);
+    }
+    
+    public void removeRow(int index) {
+        if (index > 0 && index < data.size()) {
+            data.remove(index);
+            fireTableRowsDeleted(index, index);
+        }
     }
     
     public ScheduledEvent getEvent(int index) {
