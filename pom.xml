@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.mrexplode</groupId>
   <artifactId>timecode</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <name>Timecode</name>
   <description>ArtNet and LTC timecode generator.</description>
   <url>https://github.com/MrExplode/Timecode</url>
