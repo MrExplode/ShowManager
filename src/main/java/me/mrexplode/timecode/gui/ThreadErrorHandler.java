@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -14,9 +15,11 @@ import javax.swing.JPanel;
 public class ThreadErrorHandler implements UncaughtExceptionHandler {
     
     private JPanel displayPanel;
+    private JButton restartBtn;
     
-    public ThreadErrorHandler(JPanel errorPanel, String name) {
+    public ThreadErrorHandler(JButton restart, JPanel errorPanel, String name) {
         this.displayPanel = errorPanel;
+        this.restartBtn = restart;
         this.displayPanel.setBackground(Color.GREEN);
         this.displayPanel.setToolTipText(name + " is running");
     }
@@ -24,6 +27,7 @@ public class ThreadErrorHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         e.printStackTrace();
+        restartBtn.setEnabled(true);
         displayPanel.setBackground(Color.RED);
         displayPanel.setToolTipText(e.getMessage());
         displayPanel.addMouseListener(new MouseAdapter() {

@@ -64,6 +64,15 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
         }
     }
     
+    public ArrayList<ScheduledEvent> getData() {
+        return data;
+    }
+    
+    public void setData(ArrayList<ScheduledEvent> data) {
+        this.data = data;
+        fireTableDataChanged();
+    }
+    
     public ScheduledEvent getEvent(int index) {
         return data.get(index);
     }

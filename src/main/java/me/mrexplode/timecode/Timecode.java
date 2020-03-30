@@ -101,7 +101,7 @@ public class Timecode implements Comparable<Timecode> {
     @Override
     public int compareTo(Timecode tc) {
         if (tc == null) {
-            return 1;
+            return -1;
         }
         if (this.equals(tc)) {
             return 0;

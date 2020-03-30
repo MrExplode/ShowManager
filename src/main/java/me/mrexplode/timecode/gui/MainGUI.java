@@ -133,9 +133,9 @@ public class MainGUI extends JFrame {
     private JScrollPane scrollPane;
     public JTable table;
     private JLabel lblTargetIp;
-    private JTextField oscIPField;
+    public JTextField oscIPField;
     private JLabel lblOSCPort;
-    private JTextField oscPortField;
+    public JTextField oscPortField;
     public JButton btnNow;
     public JButton btnInsert;
     public JButton btnInsertTime;
@@ -1134,8 +1134,8 @@ public class MainGUI extends JFrame {
         
         this.dataGrabber.setWorkerInstance(workThread);
         
-        ThreadErrorHandler wHandler = new ThreadErrorHandler(threadIndicator2, "WorkerThread");
-        ThreadErrorHandler dHandler = new ThreadErrorHandler(threadIndicator3, "DataGrabber");
+        ThreadErrorHandler wHandler = new ThreadErrorHandler(btnRestart, threadIndicator2, "WorkerThread");
+        ThreadErrorHandler dHandler = new ThreadErrorHandler(btnRestart, threadIndicator3, "DataGrabber");
         
         wThreadInstance.setUncaughtExceptionHandler(wHandler);
         dThreadInstance.setUncaughtExceptionHandler(dHandler);

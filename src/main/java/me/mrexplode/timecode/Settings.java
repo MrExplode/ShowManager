@@ -1,5 +1,7 @@
 package me.mrexplode.timecode;
 
+import me.mrexplode.timecode.schedule.ScheduledEvent;
+import me.mrexplode.timecode.schedule.ScheduledOSC;
 
 public class Settings {
     
@@ -11,5 +13,11 @@ public class Settings {
     public int dmxUniverse;
     public int dmxSubnet;
     public Music[] musicTracks;
+    
+    //osc
+    public String oscTargetIP;
+    public int oscPort;
+    public ScheduledEvent[] genericEvents;
+    public ScheduledOSC[] oscEvents;
 
 }

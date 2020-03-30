@@ -225,15 +225,17 @@ public class WorkerThread implements Runnable {
                             for (int i = 0; i < events.size(); i++) {
                                 if (events.get(i) instanceof ScheduledOSC) {
                                     ScheduledOSC oscMessage = (ScheduledOSC) events.get(i);
-                                    try {
-                                        OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType()))));
-                                        oscOut.send(oscPacket);
-                                        DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } catch (OSCSerializeException e) {
-                                        displayError("Failed to serialize osc message: " + oscMessage.getPath());
-                                        e.printStackTrace();
+                                    if (oscMessage.isReady()) {
+                                        try {
+                                            OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType()))));
+                                            oscOut.send(oscPacket);
+                                            DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        } catch (OSCSerializeException e) {
+                                            displayError("Failed to serialize osc message: " + oscMessage.getPath());
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             }
