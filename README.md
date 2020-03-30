@@ -4,6 +4,7 @@ ArtNet and LTC timecode generator.
 ## Features
  - ArtNet Timecode
  - LTC Timecode
+ - OSC command dispatcher
  - Selectable outputs for everything
  - Multiple framerates
  - Play / Pause /Stop
