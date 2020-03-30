@@ -33,6 +33,7 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -738,29 +739,21 @@ public class MainGUI extends JFrame {
         
         btnPlay = new JButton("Play");
         components.add(btnPlay);
-        btnPlay.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                workThread.play();
-            }
+        btnPlay.addActionListener(e -> {
+            workThread.play();
+            table.clearSelection();
         });
         
         btnPause = new JButton("Pause");
         components.add(btnPause);
-        btnPause.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                workThread.pause();
-            }
+        btnPause.addActionListener(e -> {
+            workThread.pause();
         });
         
         btnStop = new JButton("Stop");
         components.add(btnStop);
-        btnStop.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                workThread.stop();
-            }
+        btnStop.addActionListener(e -> {
+            workThread.stop();
         });
         GroupLayout gl_controlPanel = new GroupLayout(controlPanel);
         gl_controlPanel.setHorizontalGroup(
@@ -1051,11 +1044,10 @@ public class MainGUI extends JFrame {
         contentPane.setLayout(gl_contentPane);
         
         //overriding default space actions
-        /*
         for (int i = 0; i < components.size(); i++) {
             InputMap im = components.get(i).getInputMap();
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
-        }*/
+        }
         
         //setting up threading
         start();

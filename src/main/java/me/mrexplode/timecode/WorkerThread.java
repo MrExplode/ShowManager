@@ -30,6 +30,8 @@ import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
+import me.mrexplode.timecode.events.EventType;
+import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
@@ -268,7 +270,7 @@ public class WorkerThread implements Runnable {
         if (clip != null) {
             clip.setMicrosecondPosition(elapsed * 1000);
         }
-        System.out.println("frames: " + frames + "\nframerate: " + framerate + "\nelapsed: " + elapsed + "\nstart: " + start);
+        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_SET));
     }
     
     public void play() {
@@ -282,6 +284,7 @@ public class WorkerThread implements Runnable {
             clip.start();
         }
         this.playing = true;
+        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_START));
     }
     
     public boolean isPlaying() {
@@ -293,6 +296,7 @@ public class WorkerThread implements Runnable {
         if (playLTC) {
             this.clip.stop();
         }
+        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_PAUSE));
     }
     
     public void stop() {
@@ -303,6 +307,7 @@ public class WorkerThread implements Runnable {
         }
         packet.setFrameNumber(0);
         start = 0;
+        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_STOP));
     }
     
     public void shutdown() {

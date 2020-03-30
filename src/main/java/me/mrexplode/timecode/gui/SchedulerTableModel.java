@@ -1,5 +1,6 @@
 package me.mrexplode.timecode.gui;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,11 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
+import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.events.EventType;
+import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduleType;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
@@ -24,9 +29,22 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     
     private boolean editable = true;
     
+    private ArrayList<Integer> dispatchedIndexes = new ArrayList<Integer>();
+    
     public SchedulerTableModel() {
         data = new ArrayList<ScheduledEvent>();
         data.add(new ScheduledEvent(null, null));
+        
+        EventQueue.invokeLater(() -> {
+            DataGrabber.getEventHandler().addListener(new TimecodeEventAdapter() {
+                @Override
+                public void onTimeEvent(TimeEvent e) {
+                    if (e.getType() == EventType.TC_START) {
+                        dispatchedIndexes = new ArrayList<Integer>();
+                    }
+                }
+            });
+        });
     }
     
     public void insertEmptyRow(int index) {
@@ -53,12 +71,20 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
         for (int i = 0; i < data.size(); i++) {
             if (data.get(i).getExecTime() != null && data.get(i).getExecTime().equals(current)) {
                 curr.add(data.get(i));
+                if (curr.size() == 1) {
+                    dispatchedIndexes.clear();
+                }
+                dispatchedIndexes.add(i);
             }
         }
         if (curr.isEmpty()) {
             return null;
         }
         return curr;
+    }
+    
+    public List<Integer> getLatestDispatched() {
+        return dispatchedIndexes;
     }
     
     public void setEditable(boolean value) {

@@ -1,11 +1,15 @@
 package me.mrexplode.timecode;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import javax.swing.UIManager;
 
 import me.mrexplode.timecode.events.EventHandler;
+import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.TimeChangeEvent;
+import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.gui.MainGUI;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 
@@ -17,6 +21,7 @@ public class DataGrabber implements Runnable {
     private MainGUI gui;
     private boolean running;
     private RemoteState previousState;
+    private ArrayList<Integer> prevDispatched;
     private Timecode currentTime = new Timecode(0, 0, 0, 0);
     
     private Object dataLock = new Object();
@@ -25,6 +30,7 @@ public class DataGrabber implements Runnable {
         this.gui = guiInstance;
         this.running = true;
         this.previousState = RemoteState.DISABLED;
+        this.prevDispatched = new ArrayList<Integer>();
         eventHandler = new EventHandler();
     }
     
@@ -48,12 +54,23 @@ public class DataGrabber implements Runnable {
     public void run() {
         log("Starting thread...");
         Thread.currentThread().setName("DataGrabber Thread");
+        
+        eventHandler.addListener(new TimecodeEventAdapter() {
+            @Override
+            public void onTimeEvent(TimeEvent e) {
+                if (e.getType() == EventType.TC_START) {
+                    prevDispatched = new ArrayList<Integer>();
+                }
+            }
+        });
+        
         while (running) {
             currentTime = worker.getCurrentTimecode();
-            String timeString = currentTime.toString();
+            String timeString = worker.getCurrentTime();
             RemoteState remoteState = worker.getRemoteState();
             
             boolean playing = worker.isPlaying();
+            
             if (gui.timeMonitor.isVisible()) {
                 gui.timeMonitor.timeDisplay.setText(timeString);
                 if (!gui.timeMonitor.getAnimator().isRunning()) {
@@ -70,12 +87,13 @@ public class DataGrabber implements Runnable {
             gui.btnSetTime.setEnabled(!playing);
             gui.framerateBox.setEnabled(!playing);
             gui.btnRestart.setEnabled(!playing);
+            //OSC
             ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
-            gui.table.setRowSelectionAllowed(!playing);
-            gui.btnNow.setEnabled(!playing);
-            gui.btnSort.setEnabled(!playing);
-            gui.btnInsert.setEnabled(!playing);
-            gui.btnInsertTime.setEnabled(!playing);
+            if (!((SchedulerTableModel) gui.table.getModel()).getLatestDispatched().equals(this.prevDispatched)) {
+                this.prevDispatched =  new ArrayList<Integer>(((SchedulerTableModel) gui.table.getModel()).getLatestDispatched());
+                gui.table.clearSelection();
+                gui.table.setRowSelectionInterval(prevDispatched.get(0), prevDispatched.get(prevDispatched.size() - 1));
+            }
             Color defColor = UIManager.getColor("Button.background");
             gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
 
@@ -89,18 +107,31 @@ public class DataGrabber implements Runnable {
                         gui.btnPlay.setEnabled(true);
                         gui.btnPause.setEnabled(true);
                         gui.btnStop.setEnabled(true);
+                        gui.btnNow.setEnabled(true);
+                        gui.btnSort.setEnabled(true);
+                        gui.btnInsert.setEnabled(true);
+                        gui.btnInsertTime.setEnabled(true);
                         break;
                     case FORCE_IDLE:
                         gui.remoteControl.setText("Remote control: Force takeover");
                         gui.btnPlay.setEnabled(false);
                         gui.btnPause.setEnabled(false);
                         gui.btnStop.setEnabled(false);
+                        gui.btnNow.setEnabled(false);
+                        gui.btnSort.setEnabled(false);
+                        gui.btnInsert.setEnabled(false);
+                        gui.btnInsertTime.setEnabled(false);
                         break;
                     case IDLE:
                         gui.remoteControl.setText("Remote control: Waiting");
                         gui.btnPlay.setEnabled(true);
                         gui.btnPause.setEnabled(true);
                         gui.btnStop.setEnabled(true);
+                        gui.btnStop.setEnabled(true);
+                        gui.btnNow.setEnabled(true);
+                        gui.btnSort.setEnabled(true);
+                        gui.btnInsert.setEnabled(true);
+                        gui.btnInsertTime.setEnabled(true);
                         break;
                     case PAUSE:
                         gui.remoteControl.setText("Remote control: Paused");
@@ -110,6 +141,10 @@ public class DataGrabber implements Runnable {
                         gui.btnPlay.setEnabled(false);
                         gui.btnPause.setEnabled(false);
                         gui.btnStop.setEnabled(false);
+                        gui.btnNow.setEnabled(false);
+                        gui.btnSort.setEnabled(false);
+                        gui.btnInsert.setEnabled(false);
+                        gui.btnInsertTime.setEnabled(false);
                         break;
                     case PLAYING:
                         gui.remoteControl.setText("Remote control: Playing");
@@ -119,6 +154,10 @@ public class DataGrabber implements Runnable {
                         gui.btnPlay.setEnabled(false);
                         gui.btnPause.setEnabled(false);
                         gui.btnStop.setEnabled(false);
+                        gui.btnNow.setEnabled(false);
+                        gui.btnSort.setEnabled(false);
+                        gui.btnInsert.setEnabled(false);
+                        gui.btnInsertTime.setEnabled(false);
                         break;
                     case STOPPED:
                         gui.remoteControl.setText("Remote control: Stopped");
@@ -128,6 +167,10 @@ public class DataGrabber implements Runnable {
                         gui.btnPlay.setEnabled(false);
                         gui.btnPause.setEnabled(false);
                         gui.btnStop.setEnabled(false);
+                        gui.btnNow.setEnabled(false);
+                        gui.btnSort.setEnabled(false);
+                        gui.btnInsert.setEnabled(false);
+                        gui.btnInsertTime.setEnabled(false);
                         break;
                     default:
                         break;
