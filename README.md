@@ -1,4 +1,4 @@
-# Timecode
+# ![icon](https://mrexplode.github.io/resources/icon32.png)  Timecode
 ArtNet and LTC timecode generator.
 
 ![GUI showcase](https://mrexplode.github.io/resources/Timecode.png)
