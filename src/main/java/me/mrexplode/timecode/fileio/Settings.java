@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.fileio;
 
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;

@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.fileio;
 
 import java.io.BufferedReader;
 import java.io.File;

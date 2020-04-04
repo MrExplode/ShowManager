@@ -57,8 +57,8 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
-import me.mrexplode.timecode.SettingsProvider;
 import me.mrexplode.timecode.WorkerThread;
+import me.mrexplode.timecode.fileio.SettingsProvider;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 
 
