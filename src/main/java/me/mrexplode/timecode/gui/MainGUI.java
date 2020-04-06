@@ -146,6 +146,8 @@ public class MainGUI extends JFrame {
     private Thread wThreadInstance;
     private JButton btnTimeMonitor;
     private JButton btnRemoveOSC;
+    private JButton btnImport;
+    private JButton btnExport;
 
     /**
      * Create the frame.
@@ -252,6 +254,24 @@ public class MainGUI extends JFrame {
             ((SchedulerTableModel) table.getModel()).removeRow(table.getSelectedRow());
         });
         btnRemoveOSC.setToolTipText("Remove the selected event");
+        
+        btnImport = new JButton("Import...");
+        components.add(btnImport);
+        btnImport.addActionListener(e -> {
+            FileIOPrompt prompt = new FileIOPrompt(true, (SchedulerTableModel) table.getModel());
+            prompt.setIconImages(getIcons());
+            prompt.setVisible(true);
+        });
+        btnImport.setToolTipText("Import data structure from an external source");
+        
+        btnExport = new JButton("Export...");
+        btnExport.addActionListener(e -> {
+            FileIOPrompt prompt = new FileIOPrompt(false, (SchedulerTableModel) table.getModel());
+            prompt.setIconImages(getIcons());
+            prompt.setVisible(true);
+        });
+        components.add(btnExport);
+        btnExport.setToolTipText("Export current data");
         GroupLayout gl_oscPanel = new GroupLayout(oscPanel);
         gl_oscPanel.setHorizontalGroup(
             gl_oscPanel.createParallelGroup(Alignment.LEADING)
@@ -260,30 +280,31 @@ public class MainGUI extends JFrame {
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                         .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 471, Short.MAX_VALUE)
                         .addGroup(gl_oscPanel.createSequentialGroup()
-                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING, false)
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(chckbxOsc)
                                     .addGap(18)
-                                    .addComponent(lblTargetIp))
+                                    .addComponent(lblTargetIp)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                                    .addComponent(lblOSCPort)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(oscPortField))
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(btnNow)
-                                    .addGap(18)
-                                    .addComponent(btnSort)))
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
-                                .addGroup(gl_oscPanel.createSequentialGroup()
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(btnSort)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
                                     .addComponent(btnInsert)
                                     .addPreferredGap(ComponentPlacement.RELATED)
                                     .addComponent(btnInsertTime)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(btnRemoveOSC))
-                                .addGroup(gl_oscPanel.createSequentialGroup()
-                                    .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18)
-                                    .addComponent(lblOSCPort)
-                                    .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-                            .addGap(52)))
+                                    .addComponent(btnRemoveOSC)))
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING, false)
+                                .addComponent(btnExport, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnImport, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE))))
                     .addContainerGap())
         );
         gl_oscPanel.setVerticalGroup(
@@ -295,16 +316,18 @@ public class MainGUI extends JFrame {
                         .addComponent(lblTargetIp)
                         .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(lblOSCPort)
-                        .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnImport))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(btnNow)
+                        .addComponent(btnSort)
                         .addComponent(btnInsert)
                         .addComponent(btnInsertTime)
-                        .addComponent(btnSort)
-                        .addComponent(btnRemoveOSC))
-                    .addGap(22)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
+                        .addComponent(btnRemoveOSC)
+                        .addComponent(btnExport))
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
                     .addContainerGap())
         );
         

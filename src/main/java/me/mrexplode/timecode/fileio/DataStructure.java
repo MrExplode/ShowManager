@@ -3,8 +3,18 @@ package me.mrexplode.timecode.fileio;
 
 public enum DataStructure {
     
-    CSV,
-    REAPER_MARKER,
-    JSON;
+    CSV(".csv"),
+    REAPER_MARKER(".csv"),
+    JSON(".json");
+    
+    private String fileExtension;
+    
+    DataStructure(String fileExtension) {
+        this.fileExtension = fileExtension;
+    }
+    
+    public String getFileExtension() {
+        return fileExtension;
+    }
 
 }

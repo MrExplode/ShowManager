@@ -45,26 +45,25 @@ public class TableIO {
                     
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        if (line.equals(CSV_HEADER)) {
-                            continue;
+                        if (!line.equals(CSV_HEADER)) {
+                            String[] values = line.split(",");
+                            String[] time = values[0].split(":");
+                            Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
+                            ScheduleType scType = ScheduleType.valueOf(values[1]);
+                            
+                            ScheduledEvent event = new ScheduledEvent(null, null);
+                            switch (scType) {
+                                case OSC:
+                                    event = new ScheduledOSC(timecode, values[2], OSCDataType.valueOf(values[3]), values[4]);
+                                break;
+                                case INTERNAL:
+                                    event = new ScheduledEvent(scType, timecode);
+                                break;
+                                default:
+                                break;
+                            }
+                            events.add(event);
                         }
-                        String[] values = line.split(",");
-                        String[] time = values[0].split(":");
-                        Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
-                        ScheduleType scType = ScheduleType.valueOf(values[1]);
-                        
-                        ScheduledEvent event = new ScheduledEvent(null, null);
-                        switch (scType) {
-                            case OSC:
-                                event = new ScheduledOSC(timecode, values[2], OSCDataType.valueOf(values[3]), values[4]);
-                            break;
-                            case INTERNAL:
-                                event = new ScheduledEvent(scType, timecode);
-                            break;
-                            default:
-                            break;
-                        }
-                        events.add(event);
                     }
                     model.setData(events);
                     model.sort();
@@ -101,8 +100,11 @@ public class TableIO {
                         if (line.equals("#,Name,Start"))
                             continue;
                         String[] var = line.split(",");
-                        String[] time = var[2].split(":");
-                        Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
+                        Timecode timecode = null;
+                        if (!var[0].equals("")) {
+                            String[] time = var[2].split(":");
+                            timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
+                        }
                         oscEvents.add(new ScheduledOSC(timecode, var[1], null, null));
                     }
                     reader.close();
@@ -134,11 +136,14 @@ public class TableIO {
                     for (int i = 0; i < events.size(); i++) {
                         ScheduledEvent event = events.get(i);
                         Timecode t = event.getExecTime();
-                        String timeString = t.getHour() + ":" + t.getMin() + ":" + t.getSec() + ":" + t.getFrame();
-                        writer.println(timeString + "," + event.getType() + "," + event.getThirdColumn() + "," + event.getFourthColumn() + "," + event.getFifthColumn());
+                        String timeString = null;
+                        if (t != null) {
+                            timeString = t.getHour() + ":" + t.getMin() + ":" + t.getSec() + ":" + t.getFrame();
+                        }
+                        writer.println(nullable(timeString) + "," + nullable(event.getType()) + "," + nullable(event.getThirdColumn()) + "," + nullable(event.getFourthColumn()) + "," + nullable(event.getFifthColumn()));
                     }
                     writer.close();
-                } catch (FileNotFoundException e) {
+                } catch (FileNotFoundException | ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                     return false;
                 }
@@ -174,5 +179,9 @@ public class TableIO {
             
         }
         return true;
+    }
+    
+    public String nullable(Object obj) {
+        return obj == null ? "" : obj.toString();
     }
 }

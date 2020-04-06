@@ -1,6 +1,5 @@
 package me.mrexplode.timecode.gui;
 
-import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.GroupLayout;
