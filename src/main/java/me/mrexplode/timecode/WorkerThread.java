@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -227,7 +227,7 @@ public class WorkerThread implements Runnable {
                                     ScheduledOSC oscMessage = (ScheduledOSC) events.get(i);
                                     if (oscMessage.isReady()) {
                                         try {
-                                            OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), new ArrayList<>(Arrays.asList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType()))));
+                                            OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), Collections.singletonList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType())));
                                             oscOut.send(oscPacket);
                                             DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
                                         } catch (IOException e) {

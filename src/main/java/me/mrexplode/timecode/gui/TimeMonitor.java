@@ -16,7 +16,7 @@ import javax.swing.border.TitledBorder;
 public class TimeMonitor extends JFrame {
 
     private static final long serialVersionUID = -4048782286191563689L;
-    public JPanel contentPane;
+    private JPanel contentPane;
     private JPanel timePanel;
     public JLabel timeDisplay;
     private Animator anim;
@@ -25,7 +25,6 @@ public class TimeMonitor extends JFrame {
      * Create the frame.
      */
     public TimeMonitor() {
-        this.anim = new Animator(this);
         setAutoRequestFocus(false);
         setAlwaysOnTop(true);
         setTitle("Time monitor");
@@ -37,6 +36,7 @@ public class TimeMonitor extends JFrame {
         
         timePanel = new JPanel();
         timePanel.setBorder(new TitledBorder(null, "Current time", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        this.anim = new Animator(contentPane);
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
             gl_contentPane.createParallelGroup(Alignment.LEADING)

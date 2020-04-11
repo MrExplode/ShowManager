@@ -2,17 +2,19 @@ package me.mrexplode.timecode.gui;
 
 import java.awt.Color;
 
+import javax.swing.JComponent;
+
 public class Animator implements Runnable {
     
-    private TimeMonitor instance;
+    private JComponent component;
     private Color color;
     private Color base;
     private boolean running = false;
     private boolean value = true;
     private Thread animThread;
     
-    public Animator(TimeMonitor instance) {
-        this.instance = instance;
+    public Animator(JComponent component) {
+        this.component = component;
     }
     
     @Override
@@ -24,10 +26,10 @@ public class Animator implements Runnable {
             if (System.currentTimeMillis() > time + 750) {
                 time = System.currentTimeMillis();
                 if (value) {
-                    instance.contentPane.setBackground(color);
+                    component.setBackground(color);
                     value = !value;
                 } else {
-                    instance.contentPane.setBackground(base);
+                    component.setBackground(base);
                     value = !value;
                 }
             }
@@ -36,14 +38,14 @@ public class Animator implements Runnable {
     
     public void startFlash(Color color) {
         this.color = color;
-        this.base = instance.contentPane.getBackground();
+        this.base = component.getBackground();
         this.animThread = new Thread(this);
         this.animThread.start();
     }
     
     public void stopFlash() {
         running = false;
-        instance.contentPane.setBackground(base);
+        component.setBackground(base);
     }
     
     public boolean isRunning() {

@@ -1,5 +1,6 @@
 package me.mrexplode.timecode.gui;
 
+import java.awt.Color;
 import java.io.File;
 
 import javax.swing.GroupLayout;
@@ -8,20 +9,16 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
 import me.mrexplode.timecode.fileio.DataStructure;
 import me.mrexplode.timecode.fileio.TableIO;
-
-import java.awt.event.ActionListener;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 
 
 public class FileIOPrompt extends JFrame {
@@ -39,12 +36,11 @@ public class FileIOPrompt extends JFrame {
     /**
      * Create the frame.
      */
-    @SuppressWarnings("deprecation")
     public FileIOPrompt(boolean isImport, SchedulerTableModel model) {
         this.isImport = isImport;
         this.model = model;
         setTitle(isImport ? "Import data" : "Export data");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 314, 104);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

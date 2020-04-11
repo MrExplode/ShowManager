@@ -11,27 +11,27 @@ import java.util.Arrays;
 
 import com.google.gson.Gson;
 
-import me.mrexplode.timecode.gui.MainGUI;
+import me.mrexplode.timecode.gui.ServerGUI;
 import me.mrexplode.timecode.gui.MixerEntry;
 import me.mrexplode.timecode.gui.NetEntry;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;
 
-public class SettingsProvider {
+public class ServerSettingsProvider {
     
     private File saveFile;
-    private MainGUI gui;
-    private Settings settings;
+    private ServerGUI gui;
+    private ServerSettings settings;
     private SchedulerTableModel tableModel;
     
     private Gson gson;
     
-    public SettingsProvider(File file, MainGUI gui) {
+    public ServerSettingsProvider(File file, ServerGUI gui) {
         this.saveFile = file;
         this.gui = gui;
         this.gson = new Gson();
-        this.settings = new Settings();
+        this.settings = new ServerSettings();
     }
     
     public void load() throws IOException {
@@ -40,7 +40,7 @@ public class SettingsProvider {
         }
         if (saveFile.exists()) {
             BufferedReader reader = new BufferedReader(new FileReader(saveFile));
-            settings = gson.fromJson(reader, Settings.class);
+            settings = gson.fromJson(reader, ServerSettings.class);
             reader.close();
             
             gui.dmxField.setText(String.valueOf(settings.dmxAddress));

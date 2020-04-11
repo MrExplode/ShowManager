@@ -58,11 +58,12 @@ import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.WorkerThread;
-import me.mrexplode.timecode.fileio.SettingsProvider;
+import me.mrexplode.timecode.fileio.ServerSettingsProvider;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
+import javax.swing.border.EtchedBorder;
 
 
-public class MainGUI extends JFrame {
+public class ServerGUI extends JFrame {
 
     /**
      * THe path of the base directory for the program
@@ -73,8 +74,8 @@ public class MainGUI extends JFrame {
     private WorkerThread workThread;
     private DataGrabber dataGrabber;
     private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
-    private SettingsProvider settingsProvider;
-    public static MainGUI guiInstance;
+    private ServerSettingsProvider settingsProvider;
+    public static ServerGUI guiInstance;
     private ArrayList<JComponent> components = new ArrayList<JComponent>();
     private ArrayList<JPanel> threadIndicators = new ArrayList<JPanel>();
     public TimeMonitor timeMonitor;
@@ -120,7 +121,7 @@ public class MainGUI extends JFrame {
     private JButton btnAdd;
     private JSlider volumeSlider;
     private JButton btnMusicVis;
-    private JPanel moduleVisibilityPane;
+    private JPanel modulePane;
     private JButton btnOscVis;
     private JPanel oscPanel;
     private JPanel mainPanel;
@@ -154,7 +155,7 @@ public class MainGUI extends JFrame {
      * @throws SocketException 
      */
     @SuppressWarnings({ "resource" , "rawtypes", "unchecked" })
-    public MainGUI() throws SocketException {
+    public ServerGUI() throws SocketException {
         guiInstance = this;
         timeMonitor = new TimeMonitor();
         timeMonitor.setIconImages(getIcons());
@@ -162,9 +163,9 @@ public class MainGUI extends JFrame {
         ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
         ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
         
-        this.settingsProvider = new SettingsProvider(new File(PROG_HOME + "\\settings.json"), this);
+        this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\masterSettings.json"), this);
         
-        setTitle("Timecode Generator");
+        setTitle("Timecode Generator - Server");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
@@ -527,15 +528,15 @@ public class MainGUI extends JFrame {
         });
         btnSetDmx.setEnabled(false);
         
-        moduleVisibilityPane = new JPanel();
-        moduleVisibilityPane.setBorder(new TitledBorder(null, "Module visibility", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        modulePane = new JPanel();
+        modulePane.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Additional windows", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
         GroupLayout gl_dmxSettingsPanel = new GroupLayout(dmxSettingsPanel);
         gl_dmxSettingsPanel.setHorizontalGroup(
             gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_dmxSettingsPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+                        .addComponent(modulePane, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
                         .addComponent(remoteCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
                         .addGroup(gl_dmxSettingsPanel.createSequentialGroup()
                             .addGap(21)
@@ -583,7 +584,7 @@ public class MainGUI extends JFrame {
                     .addGap(6)
                     .addComponent(btnSetDmx)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(moduleVisibilityPane, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                    .addComponent(modulePane, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
         );
         
         btnMusicVis = new JButton("Music player");
@@ -592,22 +593,8 @@ public class MainGUI extends JFrame {
         
         btnOscVis = new JButton("OSC control");
         components.add(btnOscVis);
-        btnOscVis.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //show OSC panel
-                if (oscPanel.isVisible()) {
-                    oscPanel.setVisible(false);
-                    remove(oscPanel);
-                    setMinimumSize(new Dimension(597, getHeight()));
-                } else {
-                    oscPanel.setVisible(true);
-                    getContentPane().add(oscPanel);
-                    setMinimumSize(new Dimension(1150, getHeight()));
-                }
-                repaint();
-                pack();
-            }
+        btnOscVis.addActionListener(e -> {
+            
         });
         
         btnTimeMonitor = new JButton("Time monitor");
@@ -615,20 +602,20 @@ public class MainGUI extends JFrame {
         btnTimeMonitor.addActionListener(e -> {
             timeMonitor.setVisible(true);
         });
-        GroupLayout gl_moduleVisibilityPane = new GroupLayout(moduleVisibilityPane);
-        gl_moduleVisibilityPane.setHorizontalGroup(
-            gl_moduleVisibilityPane.createParallelGroup(Alignment.TRAILING)
-                .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
+        GroupLayout gl_modulePane = new GroupLayout(modulePane);
+        gl_modulePane.setHorizontalGroup(
+            gl_modulePane.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_modulePane.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
+                    .addGroup(gl_modulePane.createParallelGroup(Alignment.LEADING)
                         .addComponent(btnMusicVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                         .addComponent(btnOscVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                         .addComponent(btnTimeMonitor, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                     .addContainerGap())
         );
-        gl_moduleVisibilityPane.setVerticalGroup(
-            gl_moduleVisibilityPane.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_moduleVisibilityPane.createSequentialGroup()
+        gl_modulePane.setVerticalGroup(
+            gl_modulePane.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_modulePane.createSequentialGroup()
                     .addGap(4)
                     .addComponent(btnMusicVis)
                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -637,7 +624,7 @@ public class MainGUI extends JFrame {
                     .addComponent(btnTimeMonitor)
                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        moduleVisibilityPane.setLayout(gl_moduleVisibilityPane);
+        modulePane.setLayout(gl_modulePane);
         btnMusicVis.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1123,7 +1110,7 @@ public class MainGUI extends JFrame {
     
     @SuppressWarnings("resource")
     private void start() {
-        this.dataGrabber = new DataGrabber(this);
+        this.dataGrabber = new DataGrabber(this, 7100);
         dThreadInstance = new Thread(dataGrabber);
         
         AudioInputStream stream = null;
@@ -1201,12 +1188,12 @@ public class MainGUI extends JFrame {
         start();
     }
     
-    private List<Image> getIcons() {
+    public static List<Image> getIcons() {
         List<Image> list = new ArrayList<Image>();
         int[] sizes = new int[] {32, 64, 256};
         for (int i : sizes) {
             try {
-                list.add(ImageIO.read(this.getClass().getResource("/icons/icon" + i + ".png")));
+                list.add(ImageIO.read(ServerGUI.class.getResource("/icons/icon" + i + ".png")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

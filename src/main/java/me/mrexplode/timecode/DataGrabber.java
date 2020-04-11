@@ -1,6 +1,7 @@
 package me.mrexplode.timecode;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.UIManager;
@@ -10,7 +11,7 @@ import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimecodeEventAdapter;
-import me.mrexplode.timecode.gui.MainGUI;
+import me.mrexplode.timecode.gui.ServerGUI;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 
 public class DataGrabber implements Runnable {
@@ -18,7 +19,7 @@ public class DataGrabber implements Runnable {
     private static EventHandler eventHandler;
     
     private WorkerThread worker;
-    private MainGUI gui;
+    private ServerGUI gui;
     private boolean running;
     private RemoteState previousState;
     private ArrayList<Integer> prevDispatched;
@@ -26,12 +27,18 @@ public class DataGrabber implements Runnable {
     
     private Object dataLock = new Object();
     
-    public DataGrabber(MainGUI guiInstance) {
+    public DataGrabber(ServerGUI guiInstance, int networkPort) {
         this.gui = guiInstance;
         this.running = true;
         this.previousState = RemoteState.DISABLED;
         this.prevDispatched = new ArrayList<Integer>();
         eventHandler = new EventHandler();
+        try {
+            eventHandler.startNetworking(networkPort);
+        } catch (IOException e) {
+            err("Failed to start network event handling!");
+            e.printStackTrace();
+        }
     }
     
     public Object getLock() {
@@ -60,12 +67,12 @@ public class DataGrabber implements Runnable {
             public void onTimeEvent(TimeEvent e) {
                 if (e.getType() == EventType.TC_START) {
                     prevDispatched = new ArrayList<Integer>();
-                    if (gui.timeMonitor.isVisible()) {
+                    if (gui.timeMonitor.isVisible())
                         gui.timeMonitor.getAnimator().startFlash(Color.RED);
-                    }
                 }
                 if (e.getType() == EventType.TC_PAUSE || e.getType() == EventType.TC_STOP) {
-                    gui.timeMonitor.getAnimator().stopFlash();
+                    if (gui.timeMonitor.isVisible())
+                        gui.timeMonitor.getAnimator().stopFlash();
                 }
             }
         });
@@ -175,8 +182,10 @@ public class DataGrabber implements Runnable {
                 }
             }
             
-            TimeChangeEvent event = new TimeChangeEvent(currentTime);
-            eventHandler.callEvent(event);
+            if (playing) {
+                TimeChangeEvent event = new TimeChangeEvent(currentTime);
+                eventHandler.callEvent(event);
+            }
             
             if (running) {
                 try {
