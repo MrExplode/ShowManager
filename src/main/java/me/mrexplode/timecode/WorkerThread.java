@@ -230,6 +230,7 @@ public class WorkerThread implements Runnable {
                                             OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), Collections.singletonList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType())));
                                             oscOut.send(oscPacket);
                                             DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
+                                            System.err.println("sent osc message " + oscMessage.getPath());
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         } catch (OSCSerializeException e) {

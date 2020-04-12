@@ -27,6 +27,8 @@ import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPacketEvent;
 import com.illposed.osc.OSCPacketListener;
 import com.illposed.osc.transport.udp.OSCPortIn;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
 
 import me.mrexplode.timecode.Timecode;
 import me.mrexplode.timecode.events.EventHandler;
@@ -36,6 +38,7 @@ import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
+import javax.swing.JScrollPane;
 
 
 public class ClientGUI extends JFrame implements TimeListener {
@@ -46,6 +49,8 @@ public class ClientGUI extends JFrame implements TimeListener {
     private EventHandler eventHandler;
     private TimeMonitor monitor;
     private OSCPortIn oscIn;
+    private Parser parser;
+    private HtmlRenderer renderer;
     private JPanel animPanel;
     private JPanel timePanel;
     private JLabel timeLabel;
@@ -55,6 +60,7 @@ public class ClientGUI extends JFrame implements TimeListener {
     private JTextField portField;
     private JButton btnSet;
     private JButton btnTimeMonitor;
+    private JScrollPane scrollPane;
     
 
     /**
@@ -77,6 +83,8 @@ public class ClientGUI extends JFrame implements TimeListener {
         monitor = new TimeMonitor();
         monitor.setIconImages(ServerGUI.getIcons());
         eventHandler = new EventHandler();
+        parser = Parser.builder().build();
+        renderer = HtmlRenderer.builder().build();
         
         animPanel = new JPanel();
         animPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -116,21 +124,22 @@ public class ClientGUI extends JFrame implements TimeListener {
         );
         animPanel.setLayout(gl_animPanel);
         
-        textPane = new JTextPane();
         
         controlPanel = new JPanel();
+        
+        scrollPane = new JScrollPane();
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
-            gl_contentPane.createParallelGroup(Alignment.LEADING)
-                .addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-                    .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addGap(10)
-                            .addComponent(textPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE))
+            gl_contentPane.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_contentPane.createSequentialGroup()
+                    .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addComponent(animPanel, GroupLayout.PREFERRED_SIZE, 472, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)))
+                            .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
+                        .addGroup(gl_contentPane.createSequentialGroup()
+                            .addGap(10)
+                            .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)))
                     .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
@@ -142,9 +151,14 @@ public class ClientGUI extends JFrame implements TimeListener {
                             .addGap(11)
                             .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(textPane, GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
-                    .addContainerGap())
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                    .addGap(10))
         );
+        
+        textPane = new JTextPane();
+        textPane.setEditable(false);
+        scrollPane.setViewportView(textPane);
+        textPane.setContentType("text/html");
         
         lblPort = new JLabel("Communication port");
         
@@ -221,6 +235,19 @@ public class ClientGUI extends JFrame implements TimeListener {
                         if (msg.getAddress().startsWith("/timecode/events/call/")) {
                             eventHandler.fromNetwork(msg);
                         }
+                        
+                        if (msg.getAddress().equals("/timecode/network/displayinfo")) {
+                            System.out.println("[Client] Recieved display info");
+                            String html = null;
+                            System.out.println("asd");
+                            System.out.println("asd");
+                            System.out.println("asd");
+                            System.out.println("asd");
+                            System.out.println("asd");
+                            System.out.println(html);
+                            html = renderer.render(parser.parse((String) msg.getArguments().get(0)));
+                            textPane.setText("<html>" + html + "</html>");
+                        }
                     }
                 }
 
@@ -252,7 +279,6 @@ public class ClientGUI extends JFrame implements TimeListener {
 
     @Override
     public void onTimeChangeEvent(TimeChangeEvent e) {
-        System.out.println("timechange");
         Timecode time = e.getTime();
         String timeString = (time.getHour() < 10 ? "0" + time.getHour() : time.getHour()) + " : " + (time.getMin() < 10 ? "0" + time.getMin() : time.getMin()) + " : " + (time.getSec() < 10 ? "0" + time.getSec() : time.getSec()) + " / " + (time.getFrame() < 10 ? "0" + time.getFrame() : time.getFrame());
         timeLabel.setText(timeString);
@@ -263,7 +289,6 @@ public class ClientGUI extends JFrame implements TimeListener {
 
     @Override
     public void onTimeEvent(TimeEvent e) {
-        System.out.println("timeevent");
         if (e.getType() == EventType.TC_PAUSE || e.getType() == EventType.TC_STOP) {
             animator.stopFlash();
             if (monitor.isVisible())
