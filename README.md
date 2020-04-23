@@ -1,7 +1,7 @@
 # ![icon](https://mrexplode.github.io/resources/icon32.png)  Timecode
 ArtNet and LTC timecode generator.
 
-![GUI showcase](/https://mrexplode.github.io/resources/Timecode.png)
+![GUI showcase](https://mrexplode.github.io/resources/Timecode.png)
 
 ## Features
  - ArtNet Timecode
@@ -9,7 +9,7 @@ ArtNet and LTC timecode generator.
  - OSC command dispatcher
  - Selectable outputs for everything
  - Multiple framerates
- - Play / Pause /Stop
+ - Play / Pause / Stop
  - Set time
  - DMX remote control over ArtNet
  - In development: Music player
