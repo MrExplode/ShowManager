@@ -40,6 +40,7 @@ public class FileIOPrompt extends JFrame {
         this.isImport = isImport;
         this.model = model;
         setTitle(isImport ? "Import data" : "Export data");
+        setIconImages(ServerGUI.getIcons());
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 314, 104);
         contentPane = new JPanel();
@@ -56,7 +57,6 @@ public class FileIOPrompt extends JFrame {
         
         btnChooseFile = new JButton("Choose file");
         btnChooseFile.addActionListener(e -> {
-            System.out.println("filechooser");
             JFileChooser chooser = new JFileChooser();
             chooser.setFileHidingEnabled(false);
             chooser.setFileFilter(new FileFilter() {

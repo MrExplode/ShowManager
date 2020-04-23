@@ -21,7 +21,7 @@ public class TrackPanel extends JPanel {
     private JProgressBar progressBar;
     private JPanel self;
     
-    public float[] samples;
+    private float[] samples;
     
     public TrackPanel() {
         this.progressBar = new JProgressBar();
@@ -29,7 +29,8 @@ public class TrackPanel extends JPanel {
         this.progressBar.setBorderPainted(false);
         //at this time the panel doesn't have size, probably
         this.progressBar.setBounds(0, 0, 100, 20);
-        this.progressBar.setValue(50);
+        this.progressBar.setValue(0);
+        this.progressBar.setMaximum(1000);
         this.progressBar.setUI(new TrackProgressUI());
         this.add(progressBar);
         this.progressBar.setOpaque(false);
@@ -46,7 +47,16 @@ public class TrackPanel extends JPanel {
         });
     }
     
-    public void drawWaveform(float[] samples) {
+    public void setSamples(float[] samples) {
+        this.samples = samples;
+        this.repaint();
+    }
+    
+    public void setValue(int n) {
+        this.progressBar.setValue(n);
+    }
+    
+    private void drawWaveform(float[] samples) {
         Graphics2D g2d = waveImage.createGraphics();
         
         int numSubsets = this.getWidth() / boxWidth;

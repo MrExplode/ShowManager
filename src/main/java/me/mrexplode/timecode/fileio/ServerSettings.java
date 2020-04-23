@@ -12,6 +12,7 @@ public class ServerSettings {
     public int dmxAddress;
     public int dmxUniverse;
     public int dmxSubnet;
+    
     public Music[] musicTracks;
     
     //osc

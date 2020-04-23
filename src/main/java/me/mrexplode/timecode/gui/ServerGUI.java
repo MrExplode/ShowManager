@@ -54,13 +54,17 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
+import me.mrexplode.timecode.MusicThread;
 import me.mrexplode.timecode.WorkerThread;
+import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
-import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 
 public class ServerGUI extends JFrame {
@@ -73,6 +77,7 @@ public class ServerGUI extends JFrame {
     private static final long serialVersionUID = -7342971032020137377L;
     private WorkerThread workThread;
     private DataGrabber dataGrabber;
+    private MusicThread musicThread;
     private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
     private ServerSettingsProvider settingsProvider;
     public static ServerGUI guiInstance;
@@ -112,13 +117,13 @@ public class ServerGUI extends JFrame {
     public JComboBox<NetEntry> addressBox;
     public JButton btnRestart;
     private JPanel playerPanel;
-    private JCheckBox musicCheckBox;
-    private JComboBox<MixerEntry> audioOutputBox;
+    public JCheckBox musicCheckBox;
+    public JComboBox<MixerEntry> audioOutputBox;
     private JLabel lblTrackInfo;
-    private JComboBox comboBox;
-    private TrackPanel jfxPanel;
-    private JButton btnRemove;
-    private JButton btnAdd;
+    public JComboBox<Music> musicListBox;
+    private TrackPanel trackPanel;
+    public JButton btnRemove;
+    public JButton btnAdd;
     private JSlider volumeSlider;
     private JButton btnMusicVis;
     private JPanel modulePane;
@@ -143,8 +148,9 @@ public class ServerGUI extends JFrame {
     public JButton btnSort;
 
     private Thread dThreadInstance;
-
     private Thread wThreadInstance;
+    private Thread mThreadInstance;
+    
     private JButton btnTimeMonitor;
     private JButton btnRemoveOSC;
     private JButton btnImport;
@@ -260,7 +266,6 @@ public class ServerGUI extends JFrame {
         components.add(btnImport);
         btnImport.addActionListener(e -> {
             FileIOPrompt prompt = new FileIOPrompt(true, (SchedulerTableModel) table.getModel());
-            prompt.setIconImages(getIcons());
             prompt.setVisible(true);
         });
         btnImport.setToolTipText("Import data structure from an external source");
@@ -268,7 +273,6 @@ public class ServerGUI extends JFrame {
         btnExport = new JButton("Export...");
         btnExport.addActionListener(e -> {
             FileIOPrompt prompt = new FileIOPrompt(false, (SchedulerTableModel) table.getModel());
-            prompt.setIconImages(getIcons());
             prompt.setVisible(true);
         });
         components.add(btnExport);
@@ -281,13 +285,13 @@ public class ServerGUI extends JFrame {
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                         .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 471, Short.MAX_VALUE)
                         .addGroup(gl_oscPanel.createSequentialGroup()
-                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING, false)
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(chckbxOsc)
                                     .addGap(18)
                                     .addComponent(lblTargetIp)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(oscIPField, GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
                                     .addPreferredGap(ComponentPlacement.UNRELATED)
                                     .addComponent(lblOSCPort)
                                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -301,11 +305,11 @@ public class ServerGUI extends JFrame {
                                     .addPreferredGap(ComponentPlacement.RELATED)
                                     .addComponent(btnInsertTime)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(btnRemoveOSC)))
+                                    .addComponent(btnRemoveOSC, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING, false)
-                                .addComponent(btnExport, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnImport, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
+                                .addComponent(btnExport, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                                .addComponent(btnImport, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE))))
                     .addContainerGap())
         );
         gl_oscPanel.setVerticalGroup(
@@ -328,7 +332,7 @@ public class ServerGUI extends JFrame {
                         .addComponent(btnRemoveOSC)
                         .addComponent(btnExport))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
                     .addContainerGap())
         );
         
@@ -384,6 +388,7 @@ public class ServerGUI extends JFrame {
         components.add(ltcCheckBox);
         ltcCheckBox.addActionListener(e -> {
             boolean selected = ltcCheckBox.isSelected();
+            System.out.println((selected ? "Enabled" : "Disabled") + " LTC timecode");
             workThread.setLTC(selected);
         });
         ltcCheckBox.setToolTipText("Toggles the LTC output");
@@ -411,13 +416,14 @@ public class ServerGUI extends JFrame {
         });
         
         musicCheckBox = new JCheckBox("Audio player");
+        musicCheckBox.addActionListener(e -> {
+            musicThread.setEnabled(musicCheckBox.isSelected());
+        });
         components.add(musicCheckBox);
-        musicCheckBox.setEnabled(false);
-        musicCheckBox.setToolTipText("Under development");
+        musicCheckBox.setToolTipText("Toggles the audio output");
         
         audioOutputBox = new JComboBox();
-        audioOutputBox.setEnabled(false);
-        audioOutputBox.setToolTipText("Under development");
+        audioOutputBox.setToolTipText("Select the output for the audio player");
         
         GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
         gl_settingsPanel.setHorizontalGroup(
@@ -591,7 +597,7 @@ public class ServerGUI extends JFrame {
         btnMusicVis.setToolTipText("Under development");
         btnMusicVis.setEnabled(false);
         
-        btnOscVis = new JButton("OSC control");
+        btnOscVis = new JButton("Cue Pilot");
         components.add(btnOscVis);
         btnOscVis.addActionListener(e -> {
             
@@ -822,103 +828,34 @@ public class ServerGUI extends JFrame {
         lblTrackInfo = new JLabel("Current track");
         lblTrackInfo.setToolTipText("Under development");
         
-        comboBox = new JComboBox();
+        musicListBox = new JComboBox<Music>();
         
-        jfxPanel = new TrackPanel();
+        trackPanel = new TrackPanel();
         
         btnRemove = new JButton("Remove");
-        btnRemove.setToolTipText("Under development");
+        btnRemove.addActionListener(e -> {
+            musicListBox.removeItemAt(musicListBox.getSelectedIndex());
+        });
+        btnRemove.setToolTipText("Remove the current track");
         components.add(btnRemove);
         
         btnAdd = new JButton("Add");
-        btnAdd.setToolTipText("Under development");
+        btnAdd.setToolTipText("Requres a restart after adding.");
         components.add(btnAdd);
-        btnAdd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //FIXME not final action
-                System.out.println("[INDEV] Drawing demo waveform");
-                float[] samples = null;
-                try {
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setDialogTitle("Choose your audio file");
-                    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    int returnval = fileChooser.showOpenDialog(null);
-                    if (returnval != JFileChooser.APPROVE_OPTION) {
-                        return;
-                    }
-                    AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(fileChooser.getSelectedFile())));
-                    AudioFormat fmt = in.getFormat();
-                    
-                    if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
-                        throw new UnsupportedAudioFileException("unsigned");
-                    }
-                    
-                    boolean big = fmt.isBigEndian();
-                    int chans = fmt.getChannels();
-                    int bits = fmt.getSampleSizeInBits();
-                    int bytes = bits + 7 >> 3;
-                    
-                    int frameLength = (int) in.getFrameLength();
-                    int bufferLength = chans * bytes * 1024;
-                    
-                    samples = new float[frameLength];
-                    byte[] buf = new byte[bufferLength];
-                    
-                    int i = 0;
-                    int bRead;
-                    System.out.println(samples.length);
-                    while ( ( bRead = in.read(buf) ) > -1) {
-                        
-                        for (int b = 0; b < bRead;) {
-                            double sum = 0;
-                            
-                            // (sums to mono if multiple channels)
-                            for (int c = 0; c < chans; c++) {
-                                if (bytes == 1) {
-                                    sum += buf[b++] << 8;
-                                    
-                                } else {
-                                    int sample = 0;
-                                    
-                                    // (quantizes to 16-bit)
-                                    if (big) {
-                                        sample |= ( buf[b++] & 0xFF ) << 8;
-                                        sample |= ( buf[b++] & 0xFF );
-                                        b += bytes - 2;
-                                    } else {
-                                        b += bytes - 2;
-                                        sample |= ( buf[b++] & 0xFF );
-                                        sample |= ( buf[b++] & 0xFF ) << 8;
-                                    }
-                                    
-                                    final int sign = 1 << 15;
-                                    final int mask = -1 << 16;
-                                    if ( ( sample & sign ) == sign) {
-                                        sample |= mask;
-                                    }
-                                    
-                                    sum += sample;
-                                }
-                            }
-                            
-                            samples[i++] = (float) ( sum / chans );
-                        }
-                    }
-                    
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                
-                jfxPanel.samples = samples;
-                jfxPanel.repaint();
-            }
+        btnAdd.addActionListener(e -> {
+            MusicAdder musicPrompt = new MusicAdder(musicListBox);
+            musicPrompt.setVisible(true);
         });
         
         volumeSlider = new JSlider();
+        volumeSlider.addChangeListener(e -> {
+            if (musicThread != null)
+                musicThread.setVolume((float) volumeSlider.getValue() / 100);
+        });
+        
         volumeSlider.setValue(75);
         components.add(volumeSlider);
-        volumeSlider.setToolTipText("Under development");
+        volumeSlider.setToolTipText("Volume");
         volumeSlider.setPaintLabels(true);
         volumeSlider.setMinorTickSpacing(5);
         volumeSlider.setPaintTicks(true);
@@ -929,12 +866,12 @@ public class ServerGUI extends JFrame {
                 .addGroup(gl_playerPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(jfxPanel, GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+                        .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
                         .addGroup(gl_playerPanel.createSequentialGroup()
                             .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
                                 .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
                                 .addGroup(gl_playerPanel.createSequentialGroup()
-                                    .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(musicListBox, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(ComponentPlacement.RELATED)
                                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING, false)
                                         .addComponent(btnAdd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -953,16 +890,16 @@ public class ServerGUI extends JFrame {
                             .addComponent(lblTrackInfo)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addGroup(gl_playerPanel.createParallelGroup(Alignment.BASELINE)
-                                .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(musicListBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(btnRemove)))
                         .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(btnAdd)
                     .addPreferredGap(ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                    .addComponent(jfxPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(trackPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())
         );
-        jfxPanel.setLayout(null);
+        trackPanel.setLayout(null);
         playerPanel.setLayout(gl_playerPanel);
         
         threadIndicator1 = new JPanel();
@@ -1110,9 +1047,11 @@ public class ServerGUI extends JFrame {
     
     @SuppressWarnings("resource")
     private void start() {
+        //datagrabber setup
         this.dataGrabber = new DataGrabber(this, 7100);
         dThreadInstance = new Thread(dataGrabber);
         
+        //workerthread setup
         AudioInputStream stream = null;
         try {
             //InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
@@ -1123,7 +1062,7 @@ public class ServerGUI extends JFrame {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        Mixer mixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
+        Mixer ltcMixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
         InetAddress address = ((NetEntry) addressBox.getSelectedItem()).getNetworkAddress();
         InetAddress oscAddress = null;
         try {
@@ -1138,32 +1077,50 @@ public class ServerGUI extends JFrame {
         } catch (NumberFormatException e) {
             oscPortField.setText("0");
         }
-        this.workThread = new WorkerThread(stream, mixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber.getLock());
+        this.workThread = new WorkerThread(stream, ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
         this.workThread.setFramerate(Integer.valueOf((String) framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
         
         this.dataGrabber.setWorkerInstance(workThread);
         
+        //musicthread setup
+        Mixer audioMixer = AudioSystem.getMixer(((MixerEntry) audioOutputBox.getSelectedItem()).getMixerInfo());
+        ArrayList<Music> musicList = new ArrayList<Music>();
+        for (int i = 0; i < musicListBox.getModel().getSize(); i++) {
+            musicList.add(musicListBox.getItemAt(i));
+        }
+        musicThread = new MusicThread(audioMixer, trackPanel, musicList, Integer.valueOf((String) framerateBox.getSelectedItem()), DataGrabber.getEventHandler(), dataGrabber.getLock());
+        mThreadInstance = new Thread(musicThread);
+        
+        //thread error handling
         ThreadErrorHandler wHandler = new ThreadErrorHandler(btnRestart, threadIndicator2, "WorkerThread");
         ThreadErrorHandler dHandler = new ThreadErrorHandler(btnRestart, threadIndicator3, "DataGrabber");
+        ThreadErrorHandler mHandler = new ThreadErrorHandler(btnRestart, threadIndicator4, "MusicThread");
         
         wThreadInstance.setUncaughtExceptionHandler(wHandler);
         dThreadInstance.setUncaughtExceptionHandler(dHandler);
+        mThreadInstance.setUncaughtExceptionHandler(mHandler);
         
+        //actual start
         wThreadInstance.start();
         dThreadInstance.start();
+        mThreadInstance.start();
     }
     
     private void stop() {
         this.dataGrabber.shutdown();
         this.workThread.shutdown();
+        this.musicThread.shutdown();
         this.dataGrabber = null;
         this.workThread = null;
+        this.musicThread = null;
         try {
             this.wThreadInstance.join();
             this.wThreadInstance = null;
             this.dThreadInstance.join();
             this.dThreadInstance = null;
+            //this.mThreadInstance.join();
+            this.mThreadInstance = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
