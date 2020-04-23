@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import me.mrexplode.timecode.events.EventHandler;
@@ -78,12 +79,35 @@ public class DataGrabber implements Runnable {
         });
         
         while (running) {
-            currentTime = worker.getCurrentTimecode();
-            String timeString = worker.getCurrentTime();
-            RemoteState remoteState = worker.getRemoteState();
-            
-            boolean playing = worker.isPlaying();
-            
+            if (running) {
+                try {
+                    synchronized (dataLock) {
+                        //sleeping until the next iteration
+                        dataLock.wait();
+                    }
+                } catch (InterruptedException e) {
+                    err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
+                    e.printStackTrace();
+                    shutdown();
+                    throw new RuntimeException("Thread got interrupted while trying to wait.", e);
+                }
+            }
+        }
+    }
+    
+    public void update() {
+        currentTime = worker.getCurrentTimecode();
+        String timeString = worker.getCurrentTime();
+        RemoteState remoteState = worker.getRemoteState();
+        
+        boolean playing = worker.isPlaying();
+        
+        if (playing) {
+            TimeChangeEvent event = new TimeChangeEvent(currentTime);
+            eventHandler.callEvent(event);
+        }
+        
+        onEDT(() -> {
             if (gui.timeMonitor.isVisible()) {
                 gui.timeMonitor.timeDisplay.setText(timeString);
             }
@@ -91,6 +115,7 @@ public class DataGrabber implements Runnable {
             gui.btnSetTime.setEnabled(!playing);
             gui.framerateBox.setEnabled(!playing);
             gui.btnRestart.setEnabled(!playing);
+            gui.musicCheckBox.setEnabled(!playing);
             //OSC
             ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
             if (!((SchedulerTableModel) gui.table.getModel()).getLatestDispatched().equals(this.prevDispatched)) {
@@ -115,6 +140,8 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(true);
                         gui.btnInsert.setEnabled(true);
                         gui.btnInsertTime.setEnabled(true);
+                        gui.btnAdd.setEnabled(true);
+                        gui.btnRemove.setEnabled(true);
                         break;
                     case FORCE_IDLE:
                         gui.remoteControl.setText("Remote control: Force takeover");
@@ -125,6 +152,8 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(false);
                         gui.btnInsert.setEnabled(false);
                         gui.btnInsertTime.setEnabled(false);
+                        gui.btnAdd.setEnabled(false);
+                        gui.btnRemove.setEnabled(false);
                         break;
                     case IDLE:
                         gui.remoteControl.setText("Remote control: Waiting");
@@ -136,6 +165,8 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(true);
                         gui.btnInsert.setEnabled(true);
                         gui.btnInsertTime.setEnabled(true);
+                        gui.btnAdd.setEnabled(true);
+                        gui.btnRemove.setEnabled(true);
                         break;
                     case PAUSE:
                         gui.remoteControl.setText("Remote control: Paused");
@@ -149,6 +180,8 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(false);
                         gui.btnInsert.setEnabled(false);
                         gui.btnInsertTime.setEnabled(false);
+                        gui.btnAdd.setEnabled(false);
+                        gui.btnRemove.setEnabled(false);
                         break;
                     case PLAYING:
                         gui.remoteControl.setText("Remote control: Playing");
@@ -162,6 +195,8 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(false);
                         gui.btnInsert.setEnabled(false);
                         gui.btnInsertTime.setEnabled(false);
+                        gui.btnAdd.setEnabled(false);
+                        gui.btnRemove.setEnabled(false);
                         break;
                     case STOPPED:
                         gui.remoteControl.setText("Remote control: Stopped");
@@ -175,32 +210,15 @@ public class DataGrabber implements Runnable {
                         gui.btnSort.setEnabled(false);
                         gui.btnInsert.setEnabled(false);
                         gui.btnInsertTime.setEnabled(false);
+                        gui.btnAdd.setEnabled(false);
+                        gui.btnRemove.setEnabled(false);
                         break;
                     default:
                         break;
                     
                 }
             }
-            
-            if (playing) {
-                TimeChangeEvent event = new TimeChangeEvent(currentTime);
-                eventHandler.callEvent(event);
-            }
-            
-            if (running) {
-                try {
-                    synchronized (dataLock) {
-                        //sleeping until the next iteration
-                        dataLock.wait();
-                    }
-                } catch (InterruptedException e) {
-                    err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
-                    e.printStackTrace();
-                    shutdown();
-                    throw new RuntimeException("Thread got interrupted while trying to wait.", e);
-                }
-            }
-        }
+        });
     }
     
     public void shutdown() {
@@ -213,6 +231,10 @@ public class DataGrabber implements Runnable {
     
     public Timecode getCurrentTime() {
         return currentTime;
+    }
+    
+    private static void onEDT(Runnable task) {
+        SwingUtilities.invokeLater(task);
     }
     
     private static void log(String message) {

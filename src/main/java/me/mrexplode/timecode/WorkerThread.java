@@ -32,6 +32,7 @@ import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
 import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.OscEvent;
+import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;
@@ -39,6 +40,8 @@ import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;
 
 public class WorkerThread implements Runnable {
+    
+    private ArrayList<TimePair> times = new ArrayList<TimePair>();
     
     //artnet
     private ArtNetServer server;
@@ -78,13 +81,14 @@ public class WorkerThread implements Runnable {
     private int framerate = 30;
     
     private Thread dataGrabberThread;
+    private DataGrabber dataGrabber;
     private Object dataLock;
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, Object dataLock) {
-        this(stream, mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataLock, null);
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock) {
+        this(stream, mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataGrabber, dataLock, null);
     }
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, Object dataLock, ArtNetServer server) {
+    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock, ArtNetServer server) {
         this.stream = stream;
         this.mixer = mixer;
         this.format = stream.getFormat();
@@ -97,6 +101,7 @@ public class WorkerThread implements Runnable {
         this.artBuffer = new ArtNetBuffer();
         this.remoteState = RemoteState.IDLE;
         this.dataGrabberThread = grabber;
+        this.dataGrabber = dataGrabber;
         this.dataLock = dataLock;
         packet.setFrameNumber(0);
     }
@@ -182,7 +187,7 @@ public class WorkerThread implements Runnable {
         start = 0;
         long time = start;
         while (running) {
-            long current = System.currentTimeMillis();
+            final long current = System.currentTimeMillis();
             if (current >= time + (1000 / framerate)) {
                 time = current;
                 
@@ -217,7 +222,18 @@ public class WorkerThread implements Runnable {
                 
                 if (playing) {
                     packet.setFrameNumber(elapsed / (1000 / framerate));
-                    
+                }
+                
+                if (dataGrabberThread.isAlive()) {
+                    synchronized (dataLock) {
+                        this.dataLock.notify();
+                    }
+                }
+                
+                dataGrabber.update();
+                
+                if (playing) {
+                  //TODO: move to datagrabber
                     //OSC stuff. idk about performance, but it might need to be moved from here if it slows down the loop
                     if (sendOSC) {
                         ArrayList<ScheduledEvent> events = (ArrayList<ScheduledEvent>) model.getCurrentFor(getCurrentTimecode());
@@ -247,39 +263,37 @@ public class WorkerThread implements Runnable {
                 if (broadcast) {
                     server.broadcastPacket(packet);
                 }
-                
-                if (dataGrabberThread.isAlive()) {
-                    synchronized (dataLock) {
-                        this.dataLock.notify();
-                    }
-                }
-            }
-            
+            } 
         }
     }
     
     public Timecode getCurrentTimecode() {
-        int[] var = packet.decode(packet.encoded, packet.getFrameType());
-        return new Timecode(var[0], var[1], var[2], var[3]);
+        int[] var = ArtTimePacket.decode(packet.encoded, packet.getFrameType());
+        Timecode tc = new Timecode(var[0], var[1], var[2], var[3]);
+        return tc;
     }
     
     public String getCurrentTime() {
-        int[] var = packet.decode(packet.encoded, packet.getFrameType());
+        int[] var = ArtTimePacket.decode(packet.encoded, packet.getFrameType());
         return (var[0] < 10 ? "0" + var[0] : "" + var[0]) + " : " + (var[1] < 10 ? "0" + var[1] : "" + var[1]) + " : " + (var[2] < 10 ? "0" + var[2] : "" + var[2]) + " / " + (var[3] < 10 ? "0" + var[3] : "" + var[3]);
     }
     
     public void setTime(int hour, int min, int sec, int frame) {
-        long frames = packet.encode(hour, min, sec, frame, packet.getFrameType());
+        long frames = ArtTimePacket.encode(hour, min, sec, frame, packet.getFrameType());
         packet.setTime(hour, min, sec, frame);
         elapsed = frames * (1000 / framerate);
         start = System.currentTimeMillis() - elapsed;
         if (clip != null) {
             clip.setMicrosecondPosition(elapsed * 1000);
         }
-        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_SET));
+        TimeEvent event = new TimeEvent(EventType.TC_SET);
+        event.setAdditionalValue(getCurrentTimecode());
+        DataGrabber.getEventHandler().callEvent(event);
+        DataGrabber.getEventHandler().callEvent(new TimeChangeEvent(getCurrentTimecode()));
     }
     
     public void play() {
+        times.clear();
         //starting first
         if (start == 0) {
             start = System.currentTimeMillis();
@@ -314,6 +328,11 @@ public class WorkerThread implements Runnable {
         packet.setFrameNumber(0);
         start = 0;
         DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_STOP));
+        
+        for (int i = 0; i < times.size(); i++) {
+            TimePair pair = times.get(i);
+            System.out.println(pair.timecode + " : " + pair.raw + "    difference: " + (pair.timecode * 40 - pair.raw));
+        }
     }
     
     public void shutdown() {
@@ -348,7 +367,7 @@ public class WorkerThread implements Runnable {
             this.playLTC = value;
             if (value) {
                 //start with the actual position
-                clip.setMicrosecondPosition(elapsed * 1000);
+                clip.setMicrosecondPosition(elapsed / 1000);
                 clip.start();
             } else {
                 //stop the running clip
@@ -429,4 +448,13 @@ public class WorkerThread implements Runnable {
         System.err.println("[WorkerThread] " + errorMessage);
     }
 
+} class TimePair {
+    
+    public long timecode;
+    public long raw;
+    
+    public TimePair (long tc, long raw) {
+        this.timecode = tc;
+        this.raw = raw;
+    }
 }
