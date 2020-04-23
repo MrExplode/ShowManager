@@ -12,7 +12,7 @@ ArtNet and LTC timecode generator.
  - Play / Pause / Stop
  - Set time
  - DMX remote control over ArtNet
- - In development: Music player
+ - Music player (Very alpha)
 
 ### DMX Remote control
 
