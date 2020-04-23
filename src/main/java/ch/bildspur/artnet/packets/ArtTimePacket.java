@@ -72,7 +72,7 @@ public class ArtTimePacket extends ArtNetPacket {
      * @param frameType the type of the timecode
      * @return the encoded time value
      */
-    public long encode(int hour, int min, int sec, int frame, int frameType) {
+    public static long encode(int hour, int min, int sec, int frame, int frameType) {
         int framerate = 30;
         switch (frameType) {
             case 0:
@@ -114,7 +114,8 @@ public class ArtTimePacket extends ArtNetPacket {
      * @param frameType the type of the timecode
      * @return the array containing the decoded elements
      */
-    public int[] decode(long frames, int frameType) {
+    public static int[] decode(final long frames, final int frameType) {
+        long frames0 = frames;
         int framerate = 30;
         switch (frameType) {
             case 0:
@@ -135,19 +136,19 @@ public class ArtTimePacket extends ArtNetPacket {
         
         int[] dec = new int[4];
         
-        int hour = ((int) frames / 60 / 60 / framerate);
-        frames = frames - (hour * 60 * 60 * framerate);
+        int hour = ((int) frames0 / 60 / 60 / framerate);
+        frames0 = frames0 - (hour * 60 * 60 * framerate);
         dec[0] = hour;
         
-        int min = ((int) frames / 60 / framerate);
-        frames = frames - (min * 60 * framerate);
+        int min = ((int) frames0 / 60 / framerate);
+        frames0 = frames0 - (min * 60 * framerate);
         dec[1] = min;
         
-        int sec = ((int) frames / framerate);
-        frames = frames - (sec * framerate);
+        int sec = ((int) frames0 / framerate);
+        frames0 = frames0 - (sec * framerate);
         dec[2] = sec;
         
-        int frame = (int) frames;
+        int frame = (int) frames0;
         dec[3] = frame;
         
         return dec;
@@ -192,7 +193,7 @@ public class ArtTimePacket extends ArtNetPacket {
 
     
     public void setFrames(int frames) {
-        this.frames = frames & 0x0f;
+        this.frames = frames;
         this.encoded = encode(hours, minutes, seconds, this.frames, type);
         updateData();
     }

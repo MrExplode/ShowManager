@@ -139,7 +139,7 @@ public class ClientGUI extends JFrame implements TimeListener {
                             .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addGap(10)
-                            .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)))
+                            .addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 386, GroupLayout.PREFERRED_SIZE)))
                     .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
@@ -151,7 +151,7 @@ public class ClientGUI extends JFrame implements TimeListener {
                             .addGap(11)
                             .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
                     .addGap(10))
         );
         
