@@ -19,6 +19,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -37,6 +38,7 @@ public class MusicThread implements Runnable, TimeListener {
     
     private EventHandler eventHandler;
     private TrackPanel trackPanel;
+    private JLabel infoLabel;
     private Mixer mixer;
     private AudioInputStream audioStream;
     private AudioFormat format;
@@ -50,9 +52,10 @@ public class MusicThread implements Runnable, TimeListener {
     private int timeout = 0;
     private Object lock;
     
-    public MusicThread(Mixer mixer, TrackPanel trackPanel, List<Music> musicList, int framerate, EventHandler eventHandler, Object lock) {
+    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, int framerate, EventHandler eventHandler, Object lock) {
         this.mixer = mixer;
         this.trackPanel = trackPanel;
+        this.infoLabel = infoLabel;
         this.trackList = musicList;
         timeout = 1000 / framerate;
         this.eventHandler = eventHandler;
@@ -71,8 +74,15 @@ public class MusicThread implements Runnable, TimeListener {
         while (running) {
             if (currentClip != null && currentClip.isRunning()) {
                 playing =  true;
+                /*SwingUtilities.invokeLater(() -> {
+                    infoLabel.setText("Current track: " + new File(trackList.get(played).file).getName());
+                });*/
             } else {
                 playing = false;
+                /*SwingUtilities.invokeLater(() -> {
+                    infoLabel.setText("Current track");
+                });*/
+                
             }
             if (playing) {
                 int pos = currentClip.getFramePosition();

@@ -119,7 +119,7 @@ public class ServerGUI extends JFrame {
     private JPanel playerPanel;
     public JCheckBox musicCheckBox;
     public JComboBox<MixerEntry> audioOutputBox;
-    private JLabel lblTrackInfo;
+    public JLabel lblTrackInfo;
     public JComboBox<Music> musicListBox;
     private TrackPanel trackPanel;
     public JButton btnRemove;
@@ -593,11 +593,13 @@ public class ServerGUI extends JFrame {
                     .addComponent(modulePane, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
         );
         
-        btnMusicVis = new JButton("Music player");
+        btnMusicVis = new JButton("Under development");
         btnMusicVis.setToolTipText("Under development");
         btnMusicVis.setEnabled(false);
         
         btnOscVis = new JButton("Cue Pilot");
+        btnOscVis.setToolTipText("Under development");
+        btnOscVis.setEnabled(false);
         components.add(btnOscVis);
         btnOscVis.addActionListener(e -> {
             
@@ -822,11 +824,9 @@ public class ServerGUI extends JFrame {
         remoteControl.setForeground(Color.RED);
         
         playerPanel = new JPanel();
-        playerPanel.setToolTipText("Under development");
         playerPanel.setBorder(new TitledBorder(null, "Music player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         lblTrackInfo = new JLabel("Current track");
-        lblTrackInfo.setToolTipText("Under development");
         
         musicListBox = new JComboBox<Music>();
         
@@ -1089,7 +1089,7 @@ public class ServerGUI extends JFrame {
         for (int i = 0; i < musicListBox.getModel().getSize(); i++) {
             musicList.add(musicListBox.getItemAt(i));
         }
-        musicThread = new MusicThread(audioMixer, trackPanel, musicList, Integer.valueOf((String) framerateBox.getSelectedItem()), DataGrabber.getEventHandler(), dataGrabber.getLock());
+        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, Integer.valueOf((String) framerateBox.getSelectedItem()), DataGrabber.getEventHandler(), dataGrabber.getLock());
         mThreadInstance = new Thread(musicThread);
         
         //thread error handling
