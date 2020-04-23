@@ -60,6 +60,63 @@ public class Timecode implements Comparable<Timecode> {
         this.frame = frame;
     }
     
+    public Timecode abs() {
+        return new Timecode(Math.abs(this.hour), Math.abs(this.min), Math.abs(this.sec), Math.abs(this.frame));
+    }
+    
+    public long frames(int framerate) {
+        return hour * 60 * 60 * framerate + min * 60 * framerate + sec * framerate + frame;
+    }
+    
+    public long millis(int framerate) {
+        return frames(framerate) * (1000 / framerate);
+    }
+    
+    //FIXME: not finished
+    public Timecode subtract(Timecode t) {
+        int frame = this.frame - t.frame;
+        int sec = this.sec - t.sec;
+        int min = this.min - t.min;
+        int hour = this.hour - t.hour; 
+             
+        if (frame < 0) {
+            frame = 0;
+            sec--;
+        }
+        
+        if (sec < 0) {
+            min -= (sec < -60 ? Math.abs(sec) / 60 : 1);
+            sec = 0;
+        }
+        if (min < 0) {
+            hour -= (min < -60 ? Math.abs(min) / 60 : 1);
+            min = 0;
+        }
+        return new Timecode(hour, min, sec, frame);
+    }
+    
+    public Timecode add(Timecode t, int framerate) {
+        int frame = this.frame + t.frame;
+        int sec = this.sec + t.sec;
+        int min = this.min + t.min;
+        int hour = this.hour + t.hour;
+        if (frame > framerate) {
+            sec += frame / framerate;
+            frame = frame % framerate;
+        }
+        
+        if (sec > 60) {
+            min += sec / 60;
+            sec = sec % 60;
+        }
+        
+        if (min > 60) {
+            hour += min / 60;
+            min = min % 60;
+        }
+        return new Timecode(hour, min, sec, frame);
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;
