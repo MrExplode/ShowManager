@@ -38,12 +38,14 @@ public class MusicThread implements Runnable, TimeListener {
     
     private EventHandler eventHandler;
     private TrackPanel trackPanel;
+    @SuppressWarnings("unused")
     private JLabel infoLabel;
     private Mixer mixer;
     private AudioInputStream audioStream;
     private AudioFormat format;
     private Clip currentClip;
     private List<Music> trackList;
+    private Tracker tracker;
     private int played = 0;
     private boolean running = true;
     private boolean playing = false;
@@ -57,6 +59,7 @@ public class MusicThread implements Runnable, TimeListener {
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
         this.trackList = musicList;
+        this.framerate = framerate;
         timeout = 1000 / framerate;
         this.eventHandler = eventHandler;
         this.lock = lock;
@@ -123,6 +126,7 @@ public class MusicThread implements Runnable, TimeListener {
         });
     }
     
+    @SuppressWarnings("resource")
     private void loadTrack(int index) {
         if (trackList.size() == 0)
             return;
@@ -159,19 +163,26 @@ public class MusicThread implements Runnable, TimeListener {
         
         currentClip.addLineListener(e -> {
             if (e.getType() == LineEvent.Type.STOP) {
-                currentClip.close();
-                currentClip = null;
-                played++;
-                if (played < trackList.size()) {
-                    //when clip stops, load next
-                    loadTrack(played);
+                if (tracker.isNaturalEnd()) {
+                    currentClip.close();
+                    currentClip = null;
+                    played++;
+                    if (played < trackList.size()) {
+                        //when clip stops, load next
+                        loadTrack(played);
+                    }
                 }
             }
         });
         
+        int[] val = ArtTimePacket.decode(currentClip.getMicrosecondLength() / 1000 / timeout, toType(framerate));
+        Timecode end = trackList.get(index).startingTime.add(new Timecode(val[0], val[1], val[2], val[3]), framerate);
+        tracker = new Tracker(index, trackList.get(index).startingTime, end);
+        
         log("Loaded file");
     }
     
+    @SuppressWarnings("resource")
     private static float[] sampler(File audioFile) throws FileNotFoundException, UnsupportedAudioFileException, IOException {
         log("Sampling file: " + audioFile.getName());
         float[] samples = null;
@@ -272,12 +283,15 @@ public class MusicThread implements Runnable, TimeListener {
     
     @Override
     public void onTimeChangeEvent(TimeChangeEvent e) {
-        for (int i = 0; i < trackList.size(); i++) {
-            if (trackList.get(i).startingTime.equals(e.getTime())) {
-                if (i == played) {
-                    playing = true;
-                    log("Start playing " + trackList.get(i).file);
-                    currentClip.start();
+        if (enabled) {
+            for (int i = 0; i < trackList.size(); i++) {
+                if (trackList.get(i).startingTime.equals(e.getTime())) {
+                    if (i == played) {
+                        playing = true;
+                        tracker.setnaturalEnd(true);
+                        currentClip.start();
+                        log("Start playing " + trackList.get(i).file);
+                    }
                 }
             }
         }
@@ -286,8 +300,10 @@ public class MusicThread implements Runnable, TimeListener {
     @Override
     public void onTimeEvent(TimeEvent e) {
         if (e.getType() == EventType.TC_START) {
-            if (currentClip != null && enabled && currentClip.getFramePosition() != 0) {
+            if (enabled && currentClip != null && tracker.inTrack(e.getValue())) {
                 playing = true;
+                tracker.setnaturalEnd(true);
+                log("Continue playing " + trackList.get(played).file);
                 currentClip.start();
             }
         }
@@ -296,6 +312,7 @@ public class MusicThread implements Runnable, TimeListener {
             playing = false;
             trackPanel.setValue(0);
             if (currentClip != null)
+                tracker.setnaturalEnd(false);
                 currentClip.stop();
             played = 0;
             loadTrack(played);
@@ -304,35 +321,13 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.TC_PAUSE) {
             playing = false;
             if (currentClip != null)
+                tracker.setnaturalEnd(false);
                 currentClip.stop();
         }
         
         if (e.getType() == EventType.TC_SET) {
-            Timecode time = e.getValue();
-            Timecode start = trackList.get(played).startingTime;
-            int[] val = ArtTimePacket.decode(currentClip.getMicrosecondLength() / 1000 / timeout, toType(framerate));
-            Timecode end = start.add(new Timecode(val[0], val[1], val[2], val[3]), framerate);
-            if (time.compareTo(start) >= 0 && time.compareTo(end) <= 0) {
-                currentClip.setMicrosecondPosition(time.subtract(start).millis(framerate) * 1000);
-            } else {
-                boolean preload = true;
-                for (int i = 0; i < trackList.size(); i++) {
-                    Timecode var1 = trackList.get(i).startingTime;
-                    int[] var3 = ArtTimePacket.decode(trackList.get(i).length / timeout, toType(framerate));
-                    Timecode var2 = var1.add(new Timecode(var3[0], var3[1], var3[2], var3[3]), framerate);
-                    if (time.compareTo(var1) <= 0) {
-                        played = i;
-                    }
-                    if (time.compareTo(var1) >= 0 && time.compareTo(var2) <= 0) {
-                        played = i;
-                        preload = false;
-                        loadTrack(i);
-                        currentClip.setMicrosecondPosition(time.millis(framerate) * 1000);
-                        break;
-                    }
-                }
-                if (preload)
-                    loadTrack(played);
+            if (tracker.inTrack(e.getValue())) {
+                currentClip.setMicrosecondPosition(e.getValue().subtract(tracker.getStart()).millis(framerate) * 1000);
             }
         }
     }

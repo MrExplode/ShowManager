@@ -304,7 +304,9 @@ public class WorkerThread implements Runnable {
             clip.start();
         }
         this.playing = true;
-        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_START));
+        TimeEvent event = new TimeEvent(EventType.TC_START);
+        event.setAdditionalValue(getCurrentTimecode());
+        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public boolean isPlaying() {
@@ -316,7 +318,9 @@ public class WorkerThread implements Runnable {
         if (playLTC) {
             this.clip.stop();
         }
-        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_PAUSE));
+        TimeEvent event = new TimeEvent(EventType.TC_PAUSE);
+        event.setAdditionalValue(getCurrentTimecode());
+        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public void stop() {
@@ -327,12 +331,10 @@ public class WorkerThread implements Runnable {
         }
         packet.setFrameNumber(0);
         start = 0;
-        DataGrabber.getEventHandler().callEvent(new TimeEvent(EventType.TC_STOP));
         
-        for (int i = 0; i < times.size(); i++) {
-            TimePair pair = times.get(i);
-            System.out.println(pair.timecode + " : " + pair.raw + "    difference: " + (pair.timecode * 40 - pair.raw));
-        }
+        TimeEvent event = new TimeEvent(EventType.TC_STOP);
+        event.setAdditionalValue(getCurrentTimecode());
+        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public void shutdown() {

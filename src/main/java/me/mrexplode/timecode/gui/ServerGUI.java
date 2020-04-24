@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
@@ -38,7 +37,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -63,8 +61,6 @@ import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 
 public class ServerGUI extends JFrame {
@@ -160,7 +156,7 @@ public class ServerGUI extends JFrame {
      * Create the frame.
      * @throws SocketException 
      */
-    @SuppressWarnings({ "resource" , "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked" })
     public ServerGUI() throws SocketException {
         guiInstance = this;
         timeMonitor = new TimeMonitor();
