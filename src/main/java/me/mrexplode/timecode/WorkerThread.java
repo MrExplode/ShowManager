@@ -41,8 +41,6 @@ import me.mrexplode.timecode.schedule.ScheduledOSC;
 
 public class WorkerThread implements Runnable {
     
-    private ArrayList<TimePair> times = new ArrayList<TimePair>();
-    
     //artnet
     private ArtNetServer server;
     private ArtTimePacket packet;
@@ -292,7 +290,6 @@ public class WorkerThread implements Runnable {
     }
     
     public void play() {
-        times.clear();
         //starting first
         if (start == 0) {
             start = System.currentTimeMillis();
@@ -449,13 +446,4 @@ public class WorkerThread implements Runnable {
         System.err.println("[WorkerThread] " + errorMessage);
     }
 
-} class TimePair {
-    
-    public long timecode;
-    public long raw;
-    
-    public TimePair (long tc, long raw) {
-        this.timecode = tc;
-        this.raw = raw;
-    }
 }

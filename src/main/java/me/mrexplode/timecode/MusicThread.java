@@ -336,6 +336,22 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.TC_SET) {
             if (tracker.inTrack(e.getValue())) {
                 currentClip.setMicrosecondPosition(e.getValue().subtract(tracker.getStart()).millis(framerate) * 1000);
+            } else {
+                boolean preloaded = true;
+                for (int i = 0; i < trackList.size(); i++) {
+                    Timecode start = trackList.get(i).startingTime;
+                    Timecode end = Timecode.from(trackList.get(i).length, framerate);
+                    Timecode current = e.getValue();
+                    played = i;
+                    if (current.compareTo(start) >= 0 && current.compareTo(end) <= 0) {
+                        preloaded = false;
+                        loadTrack(played);
+                        currentClip.setMicrosecondPosition(current.subtract(start).millis(framerate) * 1000);
+                        break;
+                    }
+                }
+                if (preloaded)
+                    loadTrack(played);
             }
         }
     }

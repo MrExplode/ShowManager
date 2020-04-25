@@ -414,6 +414,7 @@ public class ServerGUI extends JFrame {
         
         musicCheckBox = new JCheckBox("Audio player");
         musicCheckBox.addActionListener(e -> {
+            System.out.println((musicCheckBox.isSelected() ? "Enabled" : "Disabled") + " music player");
             musicThread.setEnabled(musicCheckBox.isSelected());
         });
         components.add(musicCheckBox);
