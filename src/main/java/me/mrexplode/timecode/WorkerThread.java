@@ -278,10 +278,9 @@ public class WorkerThread implements Runnable {
         return (var[0] < 10 ? "0" + var[0] : "" + var[0]) + " : " + (var[1] < 10 ? "0" + var[1] : "" + var[1]) + " : " + (var[2] < 10 ? "0" + var[2] : "" + var[2]) + " / " + (var[3] < 10 ? "0" + var[3] : "" + var[3]);
     }
     
-    public void setTime(int hour, int min, int sec, int frame) {
-        long frames = ArtTimePacket.encode(hour, min, sec, frame, packet.getFrameType());
-        packet.setTime(hour, min, sec, frame);
-        elapsed = frames * (1000 / framerate);
+    public void setTime(Timecode time) {
+        packet.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
+        elapsed = time.millis(framerate);
         start = System.currentTimeMillis() - elapsed;
         if (clip != null) {
             clip.setMicrosecondPosition(elapsed * 1000);

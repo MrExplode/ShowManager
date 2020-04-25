@@ -57,6 +57,7 @@ import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.MusicThread;
+import me.mrexplode.timecode.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;
@@ -741,7 +742,8 @@ public class ServerGUI extends JFrame {
                 }
                 
                 if (!wrong) {
-                    workThread.setTime(hour, min, sec, frame);
+                    Timecode time = new Timecode(hour, min, sec, frame);
+                    workThread.setTime(time);
                     hourField.setText("");
                     hourField.setBackground(Color.WHITE);
                     minField.setText("");
@@ -862,20 +864,25 @@ public class ServerGUI extends JFrame {
                 .addGroup(gl_playerPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
                         .addGroup(gl_playerPanel.createSequentialGroup()
                             .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                                .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
                                 .addGroup(gl_playerPanel.createSequentialGroup()
-                                    .addComponent(musicListBox, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING, false)
-                                        .addComponent(btnAdd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(btnRemove, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                            .addGap(18)
-                            .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
-                            .addGap(59)))
-                    .addContainerGap())
+                                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
+                                        .addGroup(gl_playerPanel.createSequentialGroup()
+                                            .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                            .addGap(18))
+                                        .addGroup(gl_playerPanel.createSequentialGroup()
+                                            .addComponent(musicListBox, 0, 327, Short.MAX_VALUE)
+                                            .addPreferredGap(ComponentPlacement.RELATED)))
+                                    .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(59)))
+                            .addContainerGap())
+                        .addGroup(gl_playerPanel.createSequentialGroup()
+                            .addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 71, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(btnRemove)
+                            .addContainerGap(419, Short.MAX_VALUE))))
         );
         gl_playerPanel.setVerticalGroup(
             gl_playerPanel.createParallelGroup(Alignment.LEADING)
@@ -885,12 +892,12 @@ public class ServerGUI extends JFrame {
                         .addGroup(gl_playerPanel.createSequentialGroup()
                             .addComponent(lblTrackInfo)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_playerPanel.createParallelGroup(Alignment.BASELINE)
-                                .addComponent(musicListBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnRemove)))
+                            .addComponent(musicListBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(btnAdd)
+                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(btnAdd)
+                        .addComponent(btnRemove))
                     .addPreferredGap(ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                     .addComponent(trackPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())
@@ -1087,6 +1094,7 @@ public class ServerGUI extends JFrame {
         }
         musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, Integer.valueOf((String) framerateBox.getSelectedItem()), DataGrabber.getEventHandler(), dataGrabber.getLock());
         mThreadInstance = new Thread(musicThread);
+        trackPanel.dependencies(musicThread, workThread);
         
         //thread error handling
         ThreadErrorHandler wHandler = new ThreadErrorHandler(btnRestart, threadIndicator2, "WorkerThread");

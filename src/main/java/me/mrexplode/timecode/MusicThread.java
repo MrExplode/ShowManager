@@ -120,6 +120,14 @@ public class MusicThread implements Runnable, TimeListener {
         enabled = value;
     }
     
+    public Tracker getTracker() {
+        return this.tracker;
+    }
+    
+    public int getFramerate() {
+        return this.framerate;
+    }
+    
     private static void progressBarUpdate(TrackPanel panel, int val) {
         SwingUtilities.invokeLater(() -> {
             panel.setValue(val);

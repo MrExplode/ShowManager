@@ -6,10 +6,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+
+import me.mrexplode.timecode.MusicThread;
+import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.Tracker;
+import me.mrexplode.timecode.WorkerThread;
 
 
 public class TrackPanel extends JPanel {
@@ -20,6 +27,8 @@ public class TrackPanel extends JPanel {
     private int boxWidth = 1;
     private JProgressBar progressBar;
     private JPanel self;
+    private MusicThread musicThread;
+    private WorkerThread workerThread;
     
     private float[] samples;
     
@@ -45,6 +54,36 @@ public class TrackPanel extends JPanel {
                 progressBar.setBounds(0, 0, self.getWidth(), self.getHeight());
             }
         });
+        this.progressBar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (getMusicThread() != null && getWorkerThread() != null) {
+                    int x = e.getX();
+                    int width = progressBar.getWidth();
+                    int max = progressBar.getMaximum();
+                    int newValue = (int) Math.round(((double) x / (double) width) * max);
+                    progressBar.setValue(newValue);
+                    Tracker tracker = getMusicThread().getTracker();
+                    long length = tracker.getEnd().subtract(tracker.getStart()).millis(getMusicThread().getFramerate());
+                    long val = (length / 1000) * newValue;
+                    Timecode newTime = Timecode.from(val, getMusicThread().getFramerate());
+                    getWorkerThread().setTime(newTime);
+                }
+            }
+        });
+    }
+    
+    public void dependencies(MusicThread m, WorkerThread w) {
+        this.musicThread = m;
+        this.workerThread = w;
+    }
+    
+    private MusicThread getMusicThread() {
+        return this.musicThread;
+    }
+    
+    private WorkerThread getWorkerThread() {
+        return this.workerThread;
     }
     
     public void setSamples(float[] samples) {

@@ -117,6 +117,24 @@ public class Timecode implements Comparable<Timecode> {
         return new Timecode(hour, min, sec, frame);
     }
     
+    public static Timecode from(final long lengthInMillis, int framerate) {
+        int timeout = 1000 / framerate;
+        long frames = lengthInMillis / timeout;
+        
+        int hour = (int) (frames / 60 / 60 / framerate);
+        frames = frames - (hour * 60 * 60 * framerate);
+        
+        int min = (int) (frames / 60 / framerate);
+        frames = frames - (min * 60 * framerate);
+        
+        int sec = (int) (frames / framerate);
+        frames = frames - (sec * framerate);
+        
+        int frame = (int) frames;
+        
+        return new Timecode(hour, min, sec, frame);
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;
