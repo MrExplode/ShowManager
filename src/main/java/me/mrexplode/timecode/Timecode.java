@@ -69,7 +69,9 @@ public class Timecode implements Comparable<Timecode> {
     }
     
     public long millis(int framerate) {
-        return frames(framerate) * (1000 / framerate);
+        //int timeout = 1000 / framerate;
+        double value = hour * 60 * 60 * 1000 + min * 60 * 1000 + sec * 1000 + (1000d / framerate * frame);
+        return Math.round(value);
     }
     
     public Timecode subtract(Timecode t) {

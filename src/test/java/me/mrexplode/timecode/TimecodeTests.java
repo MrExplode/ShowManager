@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
-import org.junit.jupiter.api.Test;
 
 public class TimecodeTests {
     
@@ -53,10 +52,10 @@ public class TimecodeTests {
     public void frames() {
         assertEquals(0, time1.frames(framerate));
         if (framerate == 24) {
-            assertEquals(89354, time2.frames(framerate));
+            assertEquals(89356, time2.frames(framerate));
         }
         if (framerate == 25) {
-            assertEquals(93300, time2.frames(framerate));
+            assertEquals(93079, time2.frames(framerate));
         }
         
         if (framerate == 30) {
@@ -65,9 +64,14 @@ public class TimecodeTests {
     }
     
     @RepeatedTest(3)
-    public void millis() {
-        assertEquals(time1.millis(framerate), 0);
-        assertEquals(time2.millis(framerate), 3723160);
+    public void toMillis() {
+        assertEquals(0, time1.millis(framerate));
+        if (framerate == 24)
+            assertEquals(3723167, time2.millis(framerate));
+        if (framerate == 25)
+            assertEquals(3723160, time2.millis(framerate));
+        if (framerate == 30)
+            assertEquals(3723133, time2.millis(framerate));
     }
     
     @RepeatedTest(3)
@@ -84,9 +88,14 @@ public class TimecodeTests {
     }
     
     @RepeatedTest(3)
-    public void from() {
+    public void fromMillis() {
         assertEquals(time1, Timecode.from(0, framerate));
-        assertEquals(time2, Timecode.from(3723160, framerate));
+        if (framerate == 24)
+            assertEquals(time2, Timecode.from(3723167, framerate));
+        if (framerate == 25)
+            assertEquals(time2, Timecode.from(3723160, framerate));
+        if (framerate == 30)
+            assertEquals(time2, Timecode.from(3723133, framerate));
     }
 
 }
