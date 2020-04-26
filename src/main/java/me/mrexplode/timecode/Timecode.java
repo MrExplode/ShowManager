@@ -72,7 +72,6 @@ public class Timecode implements Comparable<Timecode> {
         return frames(framerate) * (1000 / framerate);
     }
     
-    //FIXME: not finished
     public Timecode subtract(Timecode t) {
         int frame = this.frame - t.frame;
         int sec = this.sec - t.sec;
