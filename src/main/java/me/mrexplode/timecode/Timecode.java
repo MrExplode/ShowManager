@@ -3,6 +3,9 @@ package me.mrexplode.timecode;
 /**
  * A wrapper class for holding a timecode value.
  * 
+ * Inner calculations are made with milliseconds value.
+ * Calculation methods return UNSYNCED values!
+ * 
  * @author <a href="https://mrexplode.github.io">MrExplode</a>
  *
  */
@@ -45,6 +48,11 @@ public class Timecode implements Comparable<Timecode> {
         syncFrom(this.framerate);
     }
     
+    /**
+     * Creates a synced instance from the parameter, by calculating the H:MM:SS:f value from millisecond value
+     * @param framerate
+     * @return synced instance
+     */
     public Timecode syncedInstance(int framerate) {
         return new Timecode(this.millisecLength, framerate);
     }
@@ -68,6 +76,11 @@ public class Timecode implements Comparable<Timecode> {
         this.millisecLength = hourM + minM + secM + frameM;
     }
     
+    /**
+     * 
+     * @return hour value
+     * @throws NullPointerException if the instance is unsynced
+     */
     public int getHour() {
         return hour;
     }
@@ -77,7 +90,11 @@ public class Timecode implements Comparable<Timecode> {
         this.hour = hour;
     }
 
-    
+    /**
+     * 
+     * @return minute value
+     * @throws NullPointerException if the instance is unsynced
+     */
     public int getMin() {
         return min;
     }
@@ -87,7 +104,11 @@ public class Timecode implements Comparable<Timecode> {
         this.min = min;
     }
 
-    
+    /**
+     * 
+     * @return second value
+     * @throws NullPointerException if the instance is unsynced
+     */
     public int getSec() {
         return sec;
     }
@@ -97,7 +118,11 @@ public class Timecode implements Comparable<Timecode> {
         this.sec = sec;
     }
 
-    
+    /**
+     * 
+     * @return frame value
+     * @throws NullPointerException if the instance is unsynced
+     */
     public int getFrame() {
         return frame;
     }
@@ -107,18 +132,36 @@ public class Timecode implements Comparable<Timecode> {
         this.frame = frame;
     }
     
+    /**
+     * 
+     * @return absolute value, if the timecode negative, unsynced.
+     */
     public Timecode abs() {
         return new Timecode(Math.abs(millisecLength));
     }
     
+    /**
+     * 
+     * @return the millisecond value of the timecode
+     */
     public long millis() {
         return millisecLength;
     }
     
+    /**
+     * Subtracts the specified timecode value from the instance
+     * @param t
+     * @return the subtracted value, unsynced
+     */
     public Timecode subtract(Timecode t) {
         return new Timecode(this.millisecLength - t.millisecLength);
     }
     
+    /**
+     * Adds togheter the two timecodes
+     * @param t
+     * @return the result, unsynced
+     */
     public Timecode add(Timecode t) {
         long time = this.millisecLength + t.millisecLength;
         return new Timecode(time);
@@ -163,6 +206,10 @@ public class Timecode implements Comparable<Timecode> {
         return (hour < 10 ? "0" + hour : hour) + ":" + (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec) + "/" + (frame < 10 ? "0" + frame : frame); 
     }
     
+    /**
+     * Same as {@link #toString()}, but it's spaced
+     * @return
+     */
     public String guiFormatted() {
         return (hour < 10 ? "0" + hour : hour) + " : " + (min < 10 ? "0" + min : min) + " : " + (sec < 10 ? "0" + sec : sec) + " / " + (frame < 10 ? "0" + frame : frame); 
     }
