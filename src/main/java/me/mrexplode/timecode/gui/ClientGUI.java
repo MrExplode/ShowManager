@@ -139,7 +139,7 @@ public class ClientGUI extends JFrame implements TimeListener {
                             .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addGap(10)
-                            .addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 386, GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)))
                     .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
@@ -239,12 +239,6 @@ public class ClientGUI extends JFrame implements TimeListener {
                         if (msg.getAddress().equals("/timecode/network/displayinfo")) {
                             System.out.println("[Client] Recieved display info");
                             String html = null;
-                            System.out.println("asd");
-                            System.out.println("asd");
-                            System.out.println("asd");
-                            System.out.println("asd");
-                            System.out.println("asd");
-                            System.out.println(html);
                             html = renderer.render(parser.parse((String) msg.getArguments().get(0)));
                             textPane.setText("<html>" + html + "</html>");
                         }
