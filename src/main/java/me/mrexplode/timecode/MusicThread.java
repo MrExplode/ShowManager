@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import ch.bildspur.artnet.packets.ArtTimePacket;
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.MarkerEvent;
@@ -50,8 +49,6 @@ public class MusicThread implements Runnable, TimeListener {
     private boolean running = true;
     private boolean playing = false;
     private boolean enabled = false;
-    private int framerate = 0;
-    private int timeout = 0;
     private Object lock;
     
     public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, int framerate, EventHandler eventHandler, Object lock) {
@@ -59,8 +56,6 @@ public class MusicThread implements Runnable, TimeListener {
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
         this.trackList = musicList;
-        this.framerate = framerate;
-        timeout = 1000 / framerate;
         this.eventHandler = eventHandler;
         this.lock = lock;
     }
@@ -124,10 +119,6 @@ public class MusicThread implements Runnable, TimeListener {
         return this.tracker;
     }
     
-    public int getFramerate() {
-        return this.framerate;
-    }
-    
     private static void progressBarUpdate(TrackPanel panel, int val) {
         SwingUtilities.invokeLater(() -> {
             panel.setValue(val);
@@ -183,8 +174,7 @@ public class MusicThread implements Runnable, TimeListener {
             }
         });
         
-        int[] val = ArtTimePacket.decode(currentClip.getMicrosecondLength() / 1000 / timeout, toType(framerate));
-        Timecode end = trackList.get(index).startingTime.add(new Timecode(val[0], val[1], val[2], val[3]), framerate);
+        Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
         tracker = new Tracker(index, trackList.get(index).startingTime, end);
         
         log("Loaded file");
@@ -257,16 +247,6 @@ public class MusicThread implements Runnable, TimeListener {
         return samples;
     }
     
-    private static int toType(int framerate) {
-        if (framerate == 24)
-            return 0;
-        if (framerate == 25)
-            return 1;
-        if (framerate == 30)
-            return 3;
-        return 0;
-    }
-    
     public void shutdown() {
         running = false;
         playing = false;
@@ -319,34 +299,36 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.TC_STOP) {
             playing = false;
             trackPanel.setValue(0);
-            if (currentClip != null)
+            if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
+            }
             played = 0;
             loadTrack(played);
         }
         
         if (e.getType() == EventType.TC_PAUSE) {
             playing = false;
-            if (currentClip != null)
+            if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
+            }
         }
         
         if (e.getType() == EventType.TC_SET) {
             if (tracker.inTrack(e.getValue())) {
-                currentClip.setMicrosecondPosition(e.getValue().subtract(tracker.getStart()).millis(framerate) * 1000);
+                currentClip.setMicrosecondPosition(e.getValue().subtract(tracker.getStart()).millis() * 1000);
             } else {
                 boolean preloaded = true;
                 for (int i = 0; i < trackList.size(); i++) {
                     Timecode start = trackList.get(i).startingTime;
-                    Timecode end = Timecode.from(trackList.get(i).length, framerate);
+                    Timecode end = start.add(new Timecode(trackList.get(i).length));
                     Timecode current = e.getValue();
                     played = i;
                     if (current.compareTo(start) >= 0 && current.compareTo(end) <= 0) {
                         preloaded = false;
                         loadTrack(played);
-                        currentClip.setMicrosecondPosition(current.subtract(start).millis(framerate) * 1000);
+                        currentClip.setMicrosecondPosition(current.subtract(start).millis() * 1000);
                         break;
                     }
                 }

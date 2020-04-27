@@ -15,6 +15,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
 import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.gui.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduleType;
@@ -48,7 +49,7 @@ public class TableIO {
                         if (!line.equals(CSV_HEADER)) {
                             String[] values = line.split(",");
                             String[] time = values[0].split(":");
-                            Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
+                            Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]), WorkerThread.getFramerate());
                             ScheduleType scType = ScheduleType.valueOf(values[1]);
                             
                             ScheduledEvent event = new ScheduledEvent(null, null);
@@ -103,7 +104,7 @@ public class TableIO {
                         Timecode timecode = null;
                         if (!var[0].equals("")) {
                             String[] time = var[2].split(":");
-                            timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]));
+                            timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]), WorkerThread.getFramerate());
                         }
                         oscEvents.add(new ScheduledOSC(timecode, var[1], null, null));
                     }

@@ -209,6 +209,7 @@ public class ServerGUI extends JFrame {
         chckbxOsc = new JCheckBox("OSC control");
         components.add(chckbxOsc);
         chckbxOsc.addActionListener(e -> {
+            System.out.println((chckbxOsc.isSelected() ? "Enabled" : "Disabled") + " OSC message dispatch");
             workThread.setOSC(chckbxOsc.isSelected());
         });
         
@@ -743,7 +744,7 @@ public class ServerGUI extends JFrame {
                 }
                 
                 if (!wrong) {
-                    Timecode time = new Timecode(hour, min, sec, frame);
+                    Timecode time = new Timecode(hour, min, sec, frame, WorkerThread.getFramerate());
                     workThread.setTime(time);
                     hourField.setText("");
                     hourField.setBackground(Color.WHITE);

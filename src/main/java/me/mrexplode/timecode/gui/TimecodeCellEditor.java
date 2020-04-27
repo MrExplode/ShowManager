@@ -14,6 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
 import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.WorkerThread;
 
 
 public class TimecodeCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
@@ -74,7 +75,7 @@ public class TimecodeCellEditor extends AbstractCellEditor implements TableCellE
                 int secValue = Integer.valueOf(sec.getText());
                 int frameValue = Integer.valueOf(frame.getText());
                 
-                newValue = new Timecode(hourValue, minValue, secValue, frameValue);
+                newValue = new Timecode(hourValue, minValue, secValue, frameValue, WorkerThread.getFramerate());
                 fireEditingStopped();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "You fucking dumbass!", "Number format exception", JOptionPane.ERROR_MESSAGE, null);

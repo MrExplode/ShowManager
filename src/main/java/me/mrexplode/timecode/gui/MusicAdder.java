@@ -24,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
 import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 
 
@@ -99,7 +100,7 @@ public class MusicAdder extends JFrame {
                 int min = Integer.valueOf(values[1]);
                 int sec = Integer.valueOf(values[2]);
                 int frame = Integer.valueOf(values[3]);
-                music.startingTime = new Timecode(hour, min, sec, frame);
+                music.startingTime = new Timecode(hour, min, sec, frame, WorkerThread.getFramerate());
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException ex) {
                 timeField.setBackground(Color.RED);
                 return;

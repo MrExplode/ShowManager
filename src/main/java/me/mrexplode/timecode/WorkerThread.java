@@ -68,6 +68,10 @@ public class WorkerThread implements Runnable {
     //start time of playing
     private long start = 0;
     private long elapsed = 0;
+    /**
+     * the timecode value, in milliseconds
+     */
+    private Timecode timecode;
     
     //remote
     private boolean remote = false;
@@ -76,7 +80,7 @@ public class WorkerThread implements Runnable {
     private int universe = 0;
     private int subnet = 0;
     
-    private int framerate = 30;
+    private static int framerate = 30;
     
     private Thread dataGrabberThread;
     private DataGrabber dataGrabber;
@@ -101,7 +105,7 @@ public class WorkerThread implements Runnable {
         this.dataGrabberThread = grabber;
         this.dataGrabber = dataGrabber;
         this.dataLock = dataLock;
-        packet.setFrameNumber(0);
+        this.timecode = new Timecode(0);
     }
 
     @Override
@@ -219,7 +223,8 @@ public class WorkerThread implements Runnable {
                 }
                 
                 if (playing) {
-                    packet.setFrameNumber(elapsed / (1000 / framerate));
+                    timecode = new Timecode(elapsed, framerate);
+                    packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                 }
                 
                 if (dataGrabberThread.isAlive()) {
@@ -266,19 +271,17 @@ public class WorkerThread implements Runnable {
     }
     
     public Timecode getCurrentTimecode() {
-        int[] var = ArtTimePacket.decode(packet.encoded, packet.getFrameType());
-        Timecode tc = new Timecode(var[0], var[1], var[2], var[3]);
-        return tc;
+        return timecode;
     }
     
     public String getCurrentTime() {
-        int[] var = ArtTimePacket.decode(packet.encoded, packet.getFrameType());
-        return (var[0] < 10 ? "0" + var[0] : "" + var[0]) + " : " + (var[1] < 10 ? "0" + var[1] : "" + var[1]) + " : " + (var[2] < 10 ? "0" + var[2] : "" + var[2]) + " / " + (var[3] < 10 ? "0" + var[3] : "" + var[3]);
+        return getCurrentTimecode().guiFormatted();
     }
     
     public void setTime(Timecode time) {
+        //FIXME: something
         packet.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
-        elapsed = time.millis(framerate);
+        elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
         if (clip != null) {
             clip.setMicrosecondPosition(elapsed * 1000);
@@ -325,7 +328,7 @@ public class WorkerThread implements Runnable {
             clip.setFramePosition(0);
             clip.stop();
         }
-        packet.setFrameNumber(0);
+        timecode = new Timecode(0);
         start = 0;
         
         TimeEvent event = new TimeEvent(EventType.TC_STOP);
@@ -383,10 +386,14 @@ public class WorkerThread implements Runnable {
     
     public void setFramerate(int framerate) {
         if (framerate == 24 || framerate == 25 || framerate == 30) {
-            this.framerate = framerate;
+            WorkerThread.framerate = framerate;
         } else {
             throw new IllegalArgumentException("Not valid framerate! Framerate must be 24, 25 or 30");
         }
+    }
+    
+    public static int getFramerate() {
+        return framerate;
     }
     
     public void setRemoteControl(boolean mode) {

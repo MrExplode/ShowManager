@@ -64,9 +64,9 @@ public class TrackPanel extends JPanel {
                     int newValue = (int) Math.round(((double) x / (double) width) * max);
                     progressBar.setValue(newValue);
                     Tracker tracker = getMusicThread().getTracker();
-                    long length = tracker.getEnd().subtract(tracker.getStart()).millis(getMusicThread().getFramerate());
+                    long length = tracker.getEnd().subtract(tracker.getStart()).millis();
                     long val = (length / 1000) * newValue;
-                    Timecode newTime = Timecode.from(val, getMusicThread().getFramerate());
+                    Timecode newTime = new Timecode(val);
                     getWorkerThread().setTime(newTime);
                 }
             }

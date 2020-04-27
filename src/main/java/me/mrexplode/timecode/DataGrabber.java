@@ -24,7 +24,7 @@ public class DataGrabber implements Runnable {
     private boolean running;
     private RemoteState previousState;
     private ArrayList<Integer> prevDispatched;
-    private Timecode currentTime = new Timecode(0, 0, 0, 0);
+    private Timecode currentTime = new Timecode(0);
     
     private Object dataLock = new Object();
     
