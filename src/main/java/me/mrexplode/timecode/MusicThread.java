@@ -1,9 +1,11 @@
 package me.mrexplode.timecode;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -162,7 +164,7 @@ public class MusicThread implements Runnable, TimeListener {
         log("Loading file: " + trackList.get(index).file);
         float[] samples = null;
         try {
-            samples = sampler(new File(trackList.get(index).file));;
+            samples = sampler(new File(trackList.get(index).file));
             trackPanel.setSamples(samples);
         } catch (UnsupportedAudioFileException | IOException e) {
             displayError("Failed to sample the upcoming track: " + trackList.get(index).file + "\n" + e.getMessage());
@@ -209,7 +211,7 @@ public class MusicThread implements Runnable, TimeListener {
         Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
         tracker = new Tracker(index, trackList.get(index).startingTime, end);
         
-        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples);
+        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, 16000);
         for (int i = 0; i < segments.size(); i++) {
             ArraySegment segment = segments.get(i);
             try {

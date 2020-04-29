@@ -3,13 +3,9 @@ package me.mrexplode.timecode;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.illposed.osc.transport.udp.OSCPortIn;
-
 public class Sequencer {
     
-    private static final int maxSize = 16000;
-    
-    public static List<ArraySegment> sequence(float[] data) {
+    public static List<ArraySegment> sequence(float[] data, int maxSize) {
         ArrayList<ArraySegment> segments = new ArrayList<ArraySegment>();
         if (data.length <= maxSize) {
             segments.add(new ArraySegment(1, 1, data));
@@ -20,11 +16,16 @@ public class Sequencer {
         int segmentLength = (int) Math.floor(data.length / segmentCount);
         
         int offset = 0;
+        int remaining = data.length;
         for (int i = 0; i < segmentCount; i++) {
             float[] current = new float[segmentLength];
             System.arraycopy(data, offset, current, 0, segmentLength);
             offset += segmentLength;
+            remaining -= segmentLength;
             segments.add(new ArraySegment(i, segmentCount, current));
+        }
+        if (remaining > 0) {
+            handleRemaining(segments, data, segmentCount, remaining, maxSize);
         }
         
         return segments;
@@ -43,6 +44,28 @@ public class Sequencer {
         System.arraycopy(a, 0, value, 0, a.length);
         System.arraycopy(b, 0, value, a.length, b.length);
         return value;
+    }
+    
+    private static void handleRemaining(List<ArraySegment> segments, float[] data, final int segmentCount, int remainingData, int maxSize) {
+        int count = segmentCount;
+        if (remainingData > maxSize) {
+            float[] var1 = new float[maxSize];
+            System.arraycopy(data, data.length - remainingData, var1, 0, var1.length);
+            count++;
+            for (int i = 0; i < segments.size(); i++) {
+                segments.get(i).setMax(count);
+            }
+            segments.add(new ArraySegment(segments.get(segments.size() -1).getId() + 1, count, var1));
+            handleRemaining(segments, data, count, remainingData - maxSize, maxSize);
+        } else {
+            count++;
+            for (int i = 0; i < segments.size(); i++) {
+                segments.get(i).setMax(count);
+            }
+            float[] rem = new float[remainingData];
+            System.arraycopy(data, data.length - remainingData, rem, 0, remainingData);
+            segments.add(new ArraySegment(segments.get(segments.size() -1).getId() + 1, count, rem)); 
+        }
     }
 
 }
