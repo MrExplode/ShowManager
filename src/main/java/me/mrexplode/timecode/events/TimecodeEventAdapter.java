@@ -18,7 +18,9 @@ public class TimecodeEventAdapter implements TimeListener {
     @Override
     public void onMarkerEvent(MarkerEvent e) {
     }
-
     
-
+    @Override
+    public void onMusicEvent(MusicEvent e) {
+    }
+    
 }

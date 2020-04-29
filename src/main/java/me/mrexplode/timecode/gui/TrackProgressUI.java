@@ -13,6 +13,16 @@ import javax.swing.plaf.basic.BasicProgressBarUI;
 
 public class TrackProgressUI extends BasicProgressBarUI {
     
+    private Color progressColor;
+    
+    public TrackProgressUI(Color progressColor) {
+        this.progressColor = progressColor;
+    }
+    
+    public void setColor(Color c) {
+        progressColor = c;
+    }
+    
     @Override
     protected void paintDeterminate(Graphics g, JComponent c) {
         Graphics2D g2d = (Graphics2D) g.create();
@@ -56,7 +66,7 @@ public class TrackProgressUI extends BasicProgressBarUI {
 
         g2d.setPaint(p);
         */
-        g2d.setColor(new Color(0.1f, 0.5f, 0.1f, 0.3f));
+        g2d.setColor(progressColor);
 
         /*
         RoundRectangle2D fill = new RoundRectangle2D.Double(iStrokWidth * 2, iStrokWidth * 2,

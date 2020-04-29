@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -12,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -30,15 +32,18 @@ import com.illposed.osc.transport.udp.OSCPortIn;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 
+import me.mrexplode.timecode.ArraySegment;
+import me.mrexplode.timecode.Networking;
+import me.mrexplode.timecode.Sequencer;
 import me.mrexplode.timecode.Timecode;
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.MarkerEvent;
+import me.mrexplode.timecode.events.MusicEvent;
 import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
-import javax.swing.JScrollPane;
 
 
 public class ClientGUI extends JFrame implements TimeListener {
@@ -48,7 +53,9 @@ public class ClientGUI extends JFrame implements TimeListener {
     private Animator animator;
     private EventHandler eventHandler;
     private TimeMonitor monitor;
+    private Networking net;
     private OSCPortIn oscIn;
+    private ArrayList<ArraySegment> segments;
     private Parser parser;
     private HtmlRenderer renderer;
     private JPanel animPanel;
@@ -61,6 +68,9 @@ public class ClientGUI extends JFrame implements TimeListener {
     private JButton btnSet;
     private JButton btnTimeMonitor;
     private JScrollPane scrollPane;
+    private JPanel musicPanel;
+    private JLabel trackLabel;
+    private TrackPanel trackPanel;
     
 
     /**
@@ -75,7 +85,7 @@ public class ClientGUI extends JFrame implements TimeListener {
         setTitle("Timecode Generator - Client");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setIconImages(ServerGUI.getIcons());
-        setBounds(100, 100, 681, 429);
+        setBounds(100, 100, 681, 655);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -83,6 +93,8 @@ public class ClientGUI extends JFrame implements TimeListener {
         monitor = new TimeMonitor();
         monitor.setIconImages(ServerGUI.getIcons());
         eventHandler = new EventHandler();
+        segments = new ArrayList<ArraySegment>();
+        net = new Networking(7007);
         parser = Parser.builder().build();
         renderer = HtmlRenderer.builder().build();
         
@@ -128,18 +140,23 @@ public class ClientGUI extends JFrame implements TimeListener {
         controlPanel = new JPanel();
         
         scrollPane = new JScrollPane();
+        
+        musicPanel = new JPanel();
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
             gl_contentPane.createParallelGroup(Alignment.TRAILING)
                 .addGroup(gl_contentPane.createSequentialGroup()
-                    .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+                    .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+                        .addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE))
+                        .addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(musicPanel, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE))
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addComponent(animPanel, GroupLayout.PREFERRED_SIZE, 472, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addGap(10)
-                            .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)))
+                            .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)))
                     .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
@@ -150,10 +167,31 @@ public class ClientGUI extends JFrame implements TimeListener {
                         .addGroup(gl_contentPane.createSequentialGroup()
                             .addGap(11)
                             .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)))
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
-                    .addGap(10))
+                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addComponent(musicPanel, GroupLayout.PREFERRED_SIZE, 81, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 362, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+        
+        trackLabel = new JLabel("Current track:");
+        
+        trackPanel = new TrackPanel();
+        GroupLayout gl_musicPanel = new GroupLayout(musicPanel);
+        gl_musicPanel.setHorizontalGroup(
+            gl_musicPanel.createParallelGroup(Alignment.LEADING)
+                .addComponent(trackLabel, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)
+                .addComponent(trackPanel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)
+        );
+        gl_musicPanel.setVerticalGroup(
+            gl_musicPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_musicPanel.createSequentialGroup()
+                    .addComponent(trackLabel)
+                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
+        );
+        trackPanel.setLayout(null);
+        musicPanel.setLayout(gl_musicPanel);
         
         textPane = new JTextPane();
         textPane.setEditable(false);
@@ -242,6 +280,10 @@ public class ClientGUI extends JFrame implements TimeListener {
                             html = renderer.render(parser.parse((String) msg.getArguments().get(0)));
                             textPane.setText("<html>" + html + "</html>");
                         }
+                        
+                        if (msg.getAddress().equals("/timecode/musicplayer/progress")) {
+                            trackPanel.setValue(Integer.valueOf((String) msg.getArguments().get(0)));
+                        }
                     }
                 }
 
@@ -257,6 +299,14 @@ public class ClientGUI extends JFrame implements TimeListener {
             displayError("Failed to start network event handling!\nPlease set settings again!");
             e.printStackTrace();
         }
+        
+        net.startListening((data) -> {
+            float[] wave = new float[data.length - 2];
+            System.arraycopy(data, 2, wave, 0, data.length -2);
+            segments.add(new ArraySegment((int) data[0], (int) data[1], wave));
+            if (data[0] == data[1])
+                System.out.println("Last packet");
+        });
     }
     
     private void stop() {
@@ -292,6 +342,24 @@ public class ClientGUI extends JFrame implements TimeListener {
             animator.startFlash(Color.RED);
             if (monitor.isVisible())
                 monitor.getAnimator().startFlash(Color.RED);
+        }
+    }
+    
+    @Override
+    public void onMusicEvent(MusicEvent e) {
+        if (e.getType() == EventType.MUSIC_LOAD) {
+            trackLabel.setText("Current track: "+ e.getMusic());
+            float[] data = Sequencer.merge(segments);
+            segments.clear();
+            trackPanel.setSamples(data);
+        }
+        if (e.getType() == EventType.MUSIC_START) {
+            trackLabel.setText("Current track: "+ e.getMusic());
+            trackPanel.setColor(TrackPanel.playColor);
+        }
+        if (e.getType() == EventType.MUSIC_PAUSE || e.getType() == EventType.MUSIC_STOP) {
+            trackLabel.setText("Current track: "+ e.getMusic());
+            trackPanel.setColor(TrackPanel.pauseColor);
         }
     }
 

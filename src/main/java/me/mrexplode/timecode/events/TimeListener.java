@@ -10,5 +10,7 @@ public interface TimeListener {
     public void onOscEvent(OscEvent e);
     
     public void onMarkerEvent(MarkerEvent e);
+    
+    public void onMusicEvent(MusicEvent e);
 
 }

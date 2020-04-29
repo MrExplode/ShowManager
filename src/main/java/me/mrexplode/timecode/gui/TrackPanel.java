@@ -23,6 +23,9 @@ public class TrackPanel extends JPanel {
 
     private static final long serialVersionUID = -3730226112917338692L;
     
+    public static final Color playColor = new Color(0.1f, 0.5f, 0.1f, 0.3f);
+    public static final Color pauseColor = new Color(0.795f, 0.682f, 0f, 0.3f);
+    
     private BufferedImage waveImage;
     private int boxWidth = 1;
     private JProgressBar progressBar;
@@ -40,7 +43,7 @@ public class TrackPanel extends JPanel {
         this.progressBar.setBounds(0, 0, 100, 20);
         this.progressBar.setValue(0);
         this.progressBar.setMaximum(1000);
-        this.progressBar.setUI(new TrackProgressUI());
+        this.progressBar.setUI(new TrackProgressUI(playColor));
         this.add(progressBar);
         this.progressBar.setOpaque(false);
         this.setOpaque(false);
@@ -93,6 +96,11 @@ public class TrackPanel extends JPanel {
     
     public void setValue(int n) {
         this.progressBar.setValue(n);
+    }
+    
+    public void setColor(Color color) {
+        ((TrackProgressUI) this.progressBar.getUI()).setColor(color);
+        this.progressBar.repaint();
     }
     
     private void drawWaveform(float[] samples) {

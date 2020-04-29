@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -23,9 +26,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import com.illposed.osc.OSCMessage;
+import com.illposed.osc.OSCSerializeException;
+import com.illposed.osc.transport.udp.OSCPortOut;
+
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.MarkerEvent;
+import me.mrexplode.timecode.events.MusicEvent;
 import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
@@ -37,6 +45,7 @@ public class MusicThread implements Runnable, TimeListener {
     
     private EventHandler eventHandler;
     private TrackPanel trackPanel;
+    private Networking net;
     @SuppressWarnings("unused")
     private JLabel infoLabel;
     private Mixer mixer;
@@ -50,6 +59,7 @@ public class MusicThread implements Runnable, TimeListener {
     private boolean playing = false;
     private boolean enabled = false;
     private Object lock;
+    private OSCPortOut oscOut;
     
     public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, int framerate, EventHandler eventHandler, Object lock) {
         this.mixer = mixer;
@@ -58,6 +68,13 @@ public class MusicThread implements Runnable, TimeListener {
         this.trackList = musicList;
         this.eventHandler = eventHandler;
         this.lock = lock;
+        this.net = new Networking(7007);
+        try {
+            this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), 7100);
+        } catch (IOException e) {
+            err("Failed to start osc sender");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -69,25 +86,37 @@ public class MusicThread implements Runnable, TimeListener {
         //preload first
         loadTrack(played);
         
+        long time = 0;
         while (running) {
-            if (currentClip != null && currentClip.isRunning()) {
-                playing =  true;
-                /*SwingUtilities.invokeLater(() -> {
-                    infoLabel.setText("Current track: " + new File(trackList.get(played).file).getName());
-                });*/
-            } else {
-                playing = false;
-                /*SwingUtilities.invokeLater(() -> {
-                    infoLabel.setText("Current track");
-                });*/
-                
-            }
-            if (playing) {
-                int pos = currentClip.getFramePosition();
-                int frameLength = currentClip.getFrameLength();
-                double progress = (double) pos / frameLength * 1000;
-                //trackPanel.setValue((int) Math.round(progress));
-                progressBarUpdate(trackPanel, (int) Math.round(progress));
+            //slow it down. the lock gets notified on every frame change, and thats a bit too fast just to update the progressbar
+            if (System.currentTimeMillis() >= time + 100) {
+                time = System.currentTimeMillis();
+                if (currentClip != null && currentClip.isRunning()) {
+                    playing =  true;
+                    /*SwingUtilities.invokeLater(() -> {
+                        infoLabel.setText("Current track: " + new File(trackList.get(played).file).getName());
+                    });*/
+                } else {
+                    playing = false;
+                    /*SwingUtilities.invokeLater(() -> {
+                        infoLabel.setText("Current track");
+                    });*/
+                    
+                }
+                if (playing) {
+                    int pos = currentClip.getFramePosition();
+                    int frameLength = currentClip.getFrameLength();
+                    double progress = (double) pos / frameLength * 1000;
+                    //trackPanel.setValue((int) Math.round(progress));
+                    int rounded = (int) Math.round(progress);
+                    try {
+                        oscOut.send(new OSCMessage("/timecode/musicplayer/progress", Collections.singletonList("" + (int) Math.round(progress))));
+                    } catch (IOException | OSCSerializeException e) {
+                        err("Failed to send progress update over network");
+                        e.printStackTrace();
+                    }
+                    progressBarUpdate(trackPanel, rounded);
+                }
             }
             
             synchronized (lock) {
@@ -122,6 +151,7 @@ public class MusicThread implements Runnable, TimeListener {
     private static void progressBarUpdate(TrackPanel panel, int val) {
         SwingUtilities.invokeLater(() -> {
             panel.setValue(val);
+            panel.repaint();
         });
     }
     
@@ -130,8 +160,10 @@ public class MusicThread implements Runnable, TimeListener {
         if (trackList.size() == 0)
             return;
         log("Loading file: " + trackList.get(index).file);
+        float[] samples = null;
         try {
-            trackPanel.setSamples(sampler(new File(trackList.get(index).file)));
+            samples = sampler(new File(trackList.get(index).file));;
+            trackPanel.setSamples(samples);
         } catch (UnsupportedAudioFileException | IOException e) {
             displayError("Failed to sample the upcoming track: " + trackList.get(index).file + "\n" + e.getMessage());
             err("Failed sampling track");
@@ -176,6 +208,23 @@ public class MusicThread implements Runnable, TimeListener {
         
         Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
         tracker = new Tracker(index, trackList.get(index).startingTime, end);
+        
+        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples);
+        for (int i = 0; i < segments.size(); i++) {
+            ArraySegment segment = segments.get(i);
+            try {
+                float[] transportData = new float[2 + segment.getData().length];
+                transportData[0] = segment.getId();
+                transportData[1] = segment.getMax();
+                System.arraycopy(segment.getData(), 0, transportData, 2, segment.getData().length);
+                net.broadcastData(transportData);
+            } catch (IOException e1) {
+                err("Failed to send waveform sequence " + segment.getId() + " of " + segment.getMax());
+                e1.printStackTrace();
+            }
+        }
+        MusicEvent event = new MusicEvent(EventType.MUSIC_LOAD, samples, trackList.get(index));
+        DataGrabber.getEventHandler().callEvent(event);
         
         log("Loaded file");
     }
@@ -278,6 +327,7 @@ public class MusicThread implements Runnable, TimeListener {
                         playing = true;
                         tracker.setnaturalEnd(true);
                         currentClip.start();
+                        DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                         log("Start playing " + trackList.get(i).file);
                     }
                 }
@@ -292,6 +342,7 @@ public class MusicThread implements Runnable, TimeListener {
                 playing = true;
                 tracker.setnaturalEnd(true);
                 log("Continue playing " + trackList.get(played).file);
+                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                 currentClip.start();
             }
         }
@@ -302,6 +353,7 @@ public class MusicThread implements Runnable, TimeListener {
             if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
+                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_STOP, null, trackList.get(played)));
             }
             played = 0;
             loadTrack(played);
@@ -312,6 +364,7 @@ public class MusicThread implements Runnable, TimeListener {
             if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
+                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_PAUSE, null, trackList.get(played)));
             }
         }
         
@@ -344,6 +397,16 @@ public class MusicThread implements Runnable, TimeListener {
 
     @Override
     public void onMarkerEvent(MarkerEvent e) {
+    }
+    
+    @Override
+    public void onMusicEvent(MusicEvent e) {
+        if (e.getType() == EventType.MUSIC_START) {
+            trackPanel.setColor(TrackPanel.playColor);
+        }
+        if (e.getType() == EventType.MUSIC_PAUSE || e.getType() == EventType.MUSIC_STOP) {
+            trackPanel.setColor(TrackPanel.pauseColor);
+        }
     }
     
     private static void log(String msg) {
