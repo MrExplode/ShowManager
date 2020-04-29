@@ -10,6 +10,10 @@ public enum EventType {
     TC_SET,
     OSC_DISPATCH,
     OSC_RECIEVE,
-    MARKER
+    MARKER,
+    MUSIC_LOAD,
+    MUSIC_START,
+    MUSIC_PAUSE,
+    MUSIC_STOP
 
 }

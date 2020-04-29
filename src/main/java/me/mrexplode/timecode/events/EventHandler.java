@@ -38,6 +38,14 @@ public class EventHandler {
         this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), eventPort);
     }
     
+    public OSCPortOut getSystemOSC() {
+        if (oscOut != null) {
+            return oscOut;
+        } else {
+            throw new IllegalArgumentException("Networking not initialized");
+        }
+    }
+    
     /**
      * Handle the event coming over OSC, and call on local listeners.
      * @param msg the packet
@@ -98,6 +106,11 @@ public class EventHandler {
             case "OscEvent":
                 for (TimeListener listener : listeners) {
                     listener.onOscEvent((OscEvent) e);
+                }
+            break;
+            case "MusicEvent":
+                for (TimeListener listener : listeners) {
+                    listener.onMusicEvent((MusicEvent) e);
                 }
             break;
         }
