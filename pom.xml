@@ -125,6 +125,23 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.22.2</version>
       </plugin>
+	  
+	  <!-- PropertyExporter for custom build stash -->
+	  <plugin>
+	    <groupId>io.github.mrexplode</groupId>
+		<artifactId>propertyexporter-maven-plugin</artifactId>
+		<version>1.0.1</version>
+		<configuration>
+  		  <propList>
+  		    <param>${project.name}</param>
+  		    <param>${project.description}</param>
+  		    <param>${project.build.finalName}.jar</param>
+  		</propList>
+  		<file>${project.build.directory}/info.txt</file>
+        <separator>;</separator>
+  		</configuration>
+  		<executions><execution><goals><goal>export</goal></goals></execution></executions>
+	  </plugin>
     </plugins>
   </build>
 </project>
