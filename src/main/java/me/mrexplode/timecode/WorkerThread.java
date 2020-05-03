@@ -209,6 +209,7 @@ public class WorkerThread implements Runnable {
                 if (playing) {
                     timecode = new Timecode(elapsed, framerate);
                     packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
+                    ltcGenerator.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                 }
                 
                 if (dataGrabberThread.isAlive()) {
