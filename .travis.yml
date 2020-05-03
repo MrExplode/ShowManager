@@ -8,5 +8,6 @@ before_script:
    - chmod +x scripts/artifact.sh
    - chmod +x scripts/javadoc.sh
 script:
+   - scripts/dependency.sh
    - scripts/artifact.sh
    - scripts/javadoc.sh
