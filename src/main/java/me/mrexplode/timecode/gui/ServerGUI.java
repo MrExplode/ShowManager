@@ -1057,16 +1057,6 @@ public class ServerGUI extends JFrame {
         dThreadInstance = new Thread(dataGrabber);
         
         //workerthread setup
-        AudioInputStream stream = null;
-        try {
-            //InputStream bufferedStream = new BufferedInputStream(this.getClass().getResourceAsStream("/" + ltcSources.get(Integer.valueOf((String) framerateBox.getSelectedItem()))));
-            InputStream bufferedStream = new BufferedInputStream(new FileInputStream(new File("D:\\pjano\\Documents\\twenty one pilots -  Car Radio  captured in The Live Room.wav")));
-            stream = AudioSystem.getAudioInputStream(bufferedStream);
-        } catch (UnsupportedAudioFileException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
         Mixer ltcMixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
         InetAddress address = ((NetEntry) addressBox.getSelectedItem()).getNetworkAddress();
         InetAddress oscAddress = null;
@@ -1082,7 +1072,7 @@ public class ServerGUI extends JFrame {
         } catch (NumberFormatException e) {
             oscPortField.setText("0");
         }
-        this.workThread = new WorkerThread(stream, ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
+        this.workThread = new WorkerThread(ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
         this.workThread.setFramerate(Integer.valueOf((String) framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
         

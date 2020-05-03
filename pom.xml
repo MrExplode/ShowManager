@@ -25,6 +25,13 @@
 	  <version>0.7-SNAPSHOT</version>
     </dependency>
     
+    <!-- ltc4j -->
+    <dependency>
+      <groupId>me.mrexplode</groupId>
+      <artifactId>ltc4j</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    
     <!-- Gson -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
