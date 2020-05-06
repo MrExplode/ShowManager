@@ -153,7 +153,8 @@ public class WorkerThread implements Runnable {
             frameInstance = Framerate.FRAMERATE_25;
         if (framerate == 30)
             frameInstance = Framerate.FRAMERATE_30;
-        ltcGenerator = new LTCGenerator(mixer, frameInstance);
+        ltcGenerator = new LTCGenerator(mixer, frameInstance, 44100);
+        ltcGenerator.setVolume(90);
         try {
             ltcGenerator.init();
         } catch (LineUnavailableException e1) {

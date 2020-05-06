@@ -168,7 +168,7 @@ public class ServerGUI extends JFrame {
         
         this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\masterSettings.json"), this);
         
-        setTitle("Timecode Generator - Server");
+        setTitle("Timecode Generator - Server  (experimental LTC implementation)");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
