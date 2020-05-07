@@ -29,12 +29,13 @@ public class PortDescriptor {
     {
     }
 
-    public PortDescriptor(int id) {
-        canOutput = (id & 0x80) > 0;
-        canInput = (id & 0x40) > 0;
-        id &= 0x3f;
+    public PortDescriptor(final int id) {
+        int value = id;
+        canOutput = (value & 0x80) > 0;
+        canInput = (value & 0x40) > 0;
+        value &= 0x3f;
         for (PortType t : PortType.values()) {
-            if (id == t.getPortID()) {
+            if (value == t.getPortID()) {
                 type = t;
             }
         }

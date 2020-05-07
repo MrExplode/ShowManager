@@ -45,26 +45,26 @@ public class ArtNetServerEventAdapter implements ArtNetServerListener {
 
     @Override
     public void artNetPacketBroadcasted(ArtNetPacket packet) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void artNetPacketReceived(ArtNetPacket packet) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void artNetPacketUnicasted(ArtNetPacket packet) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void artNetServerStarted(ArtNetServer server) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void artNetServerStopped(ArtNetServer server) {
-
+        // overridden by implementing class
     }
 }

@@ -42,6 +42,9 @@ public enum NodeReportCode {
     RcFirmwareFail("#000e", "Last attempt to upload new firmware failed."),
     RcUserFail("#000f",
             "User changed switch settings when address locked by remote.");
+    
+    private final String id;
+    private final String description;
 
     public static NodeReportCode getForID(String id) {
         NodeReportCode code = null;
@@ -53,9 +56,6 @@ public enum NodeReportCode {
         }
         return code;
     }
-
-    private final String id;
-    private final String description;
 
     private NodeReportCode(String id, String desc) {
         this.id = id;

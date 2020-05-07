@@ -20,6 +20,9 @@
 package ch.bildspur.artnet.packets;
 
 public class ByteUtils {
+    
+    protected final byte[] data;
+    public final int length;
 
     /**
      * Converts the byte into an unsigned int.
@@ -43,28 +46,26 @@ public class ByteUtils {
         return stuff;
     }
 
-    protected final byte[] data;
-
-    public final int length;
-
     public ByteUtils(byte[] data) {
         this.data = data;
         this.length = data.length;
     }
 
-    public boolean compareBytes(byte[] other, int offset, int length) {
-        boolean isEqual = (offset + length) < data.length;
+    public boolean compareBytes(byte[] other, final int offset, int length) {
+        int offset2 = offset;
+        boolean isEqual = (offset2 + length) < data.length;
         for (int i = 0; i < length && isEqual; i++) {
-            isEqual = data[offset++] == other[i];
+            isEqual = data[offset2++] == other[i];
         }
         return isEqual;
     }
 
-    public final byte[] getByteChunk(byte[] buffer, int offset, int len) {
-        if (buffer == null) {
-            buffer = new byte[len];
+    public final byte[] getByteChunk(final byte[] buffer, int offset, int len) {
+        byte[] byteData = buffer;
+        if (byteData == null) {
+            byteData = new byte[len];
         }
-        System.arraycopy(data, offset, buffer, 0, len);
+        System.arraycopy(data, offset, byteData, 0, len);
         return buffer;
     }
 

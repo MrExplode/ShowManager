@@ -27,21 +27,21 @@ public class ArtNetDiscoveryEventAdapter implements ArtNetDiscoveryListener {
 
     @Override
     public void discoveredNewNode(ArtNetNode node) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void discoveredNodeDisconnected(ArtNetNode node) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void discoveryCompleted(List<ArtNetNode> nodes) {
-
+        // overridden by implementing class
     }
 
     @Override
     public void discoveryFailed(Throwable t) {
-
+        // overridden by implementing class
     }
 }

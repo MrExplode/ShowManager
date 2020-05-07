@@ -161,7 +161,8 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
         start(null);
     }
 
-    public void start(InetAddress networkAddress) throws SocketException, ArtNetException {
+    public void start(final InetAddress networkAddress) throws SocketException, ArtNetException {
+        InetAddress address = networkAddress;
         if (broadCastAddress == null) {
             setBroadcastAddress(DEFAULT_BROADCAST_IP);
         }
@@ -170,12 +171,12 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
             socket.setReuseAddress(true);
             socket.setBroadcast(true);
 
-            if (networkAddress == null)
-                networkAddress = socket.getLocalAddress();
+            if (address == null)
+                address = socket.getLocalAddress();
 
-            socket.bind(new InetSocketAddress(networkAddress, port));
+            socket.bind(new InetSocketAddress(address, port));
 
-            logger.info("Art-Net server started at: " + networkAddress.getHostAddress() + ":" + port);
+            logger.info("Art-Net server started at: " + address.getHostAddress() + ":" + port);
             for (ArtNetServerListener l : listeners) {
                 l.artNetServerStarted(this);
             }

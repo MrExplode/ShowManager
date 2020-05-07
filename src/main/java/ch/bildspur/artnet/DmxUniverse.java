@@ -107,11 +107,12 @@ public class DmxUniverse {
         this.node = node;
     }
 
-    public void setRGBPixel(int offset, int col) {
-        offset *= 3;
-        frameData[offset] = (byte) (col >> 16 & 0xff);
-        frameData[offset + 1] = (byte) (col >> 8 & 0xff);
-        frameData[offset + 2] = (byte) (col & 0xff);
+    public void setRGBPixel(final int offset, int col) {
+        int off = offset;
+        off *= 3;
+        frameData[off] = (byte) (col >> 16 & 0xff);
+        frameData[off + 1] = (byte) (col >> 8 & 0xff);
+        frameData[off + 2] = (byte) (col & 0xff);
     }
 
     @Override

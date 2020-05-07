@@ -82,13 +82,14 @@ public abstract class ArtNetPacket {
         this.data = new ByteUtils(data);
     }
 
-    public void setData(byte[] raw, int maxLength) {
-        if (raw.length > maxLength) {
+    public void setData(final byte[] raw, int maxLength) {
+        byte[] data = raw;
+        if (data.length > maxLength) {
             byte[] raw2 = new byte[maxLength];
-            System.arraycopy(raw, 0, raw2, 0, maxLength);
-            raw = raw2;
+            System.arraycopy(data, 0, raw2, 0, maxLength);
+            data = raw2;
         }
-        setData(raw);
+        setData(data);
     }
 
     /**
