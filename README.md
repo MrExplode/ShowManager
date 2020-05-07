@@ -4,9 +4,9 @@ ArtNet and LTC timecode generator.
 ![GUI showcase](https://mrexplode.github.io/resources/Timecode.png)
 
 ## Downloads
-Latest successful build: [here](https://mrexplode.github.io/projects/projects.html#Timecode)
-Javadoc can be found [here](https://mrexplode.github.io/projects/Timecode/apidocs/index.html), but this project is mainly not an api
-Latest release (recommended, because it works): [here](https://github.com/MrExplode/Timecode/releases)
+ - Latest successful build: [here](https://mrexplode.github.io/projects/projects.html#Timecode)
+ - Javadoc can be found [here](https://mrexplode.github.io/projects/Timecode/apidocs/index.html), but this project is mainly not an api
+ - Latest release (recommended, because it works): [here](https://github.com/MrExplode/Timecode/releases)
 
 ## Features
  - ArtNet Timecode
