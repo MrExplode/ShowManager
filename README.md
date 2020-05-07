@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c2d0c2b663174c37a0fc88d20ebb2611)](https://app.codacy.com/manual/pjanos/Timecode?utm_source=github.com&utm_medium=referral&utm_content=MrExplode/Timecode&utm_campaign=Badge_Grade_Dashboard)
 # ![icon](https://mrexplode.github.io/resources/icon32.png)  Timecode [![Build Status](https://travis-ci.org/MrExplode/Timecode.svg?branch=master)](https://travis-ci.org/MrExplode/Timecode)
 ArtNet and LTC timecode generator.
 
