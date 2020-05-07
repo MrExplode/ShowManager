@@ -6,14 +6,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
 import javax.swing.JOptionPane;
 
 import com.illposed.osc.OSCMessage;
@@ -30,6 +24,8 @@ import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
+import me.mrexplode.ltc4j.Framerate;
+import me.mrexplode.ltc4j.LTCGenerator;
 import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
@@ -48,10 +44,8 @@ public class WorkerThread implements Runnable {
     private InetAddress artnetAddress;
     
     //ltc
-    private AudioInputStream stream = null;
-    private AudioFormat format = null; 
     private Mixer mixer = null;
-    private Clip clip = null;
+    private LTCGenerator ltcGenerator = null;
     
     //OSC
     private OSCPortOut oscOut = null;
@@ -86,14 +80,12 @@ public class WorkerThread implements Runnable {
     private DataGrabber dataGrabber;
     private Object dataLock;
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock) {
-        this(stream, mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataGrabber, dataLock, null);
+    public WorkerThread(Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock) {
+        this(mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataGrabber, dataLock, null);
     }
     
-    public WorkerThread(AudioInputStream stream, Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock, ArtNetServer server) {
-        this.stream = stream;
+    public WorkerThread(Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock, ArtNetServer server) {
         this.mixer = mixer;
-        this.format = stream.getFormat();
         this.model = model;
         this.oscAddress = oscAddress;
         this.oscPort = oscPort;
@@ -154,28 +146,21 @@ public class WorkerThread implements Runnable {
         }
         
         //setup the ltc
-        if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
-            format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big endian
-            stream = AudioSystem.getAudioInputStream(format, stream);
-        }
-        SourceDataLine.Info sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
+        Framerate frameInstance = null;
+        if (framerate == 24)
+            frameInstance = Framerate.FRAMERATE_24;
+        if (framerate == 25)
+            frameInstance = Framerate.FRAMERATE_25;
+        if (framerate == 30)
+            frameInstance = Framerate.FRAMERATE_30;
+        ltcGenerator = new LTCGenerator(mixer, frameInstance, 44100);
+        ltcGenerator.setVolume(90);
         try {
-            clip = (Clip) mixer.getLine(sourceInfo);
-            clip.flush();
-            clip.open(stream);
-        } catch (LineUnavailableException e) {
-            err("Failed to access specified audio output");
-            displayError("Failed to access specified audio output: " + e.getMessage() + "\n Please restart the internals!");
-            throw new RuntimeException("Failed to start WorkerThread", e);
-        } catch (IllegalArgumentException e) {
-            err("Unsupported line. Try an other sound output?");
-            displayError("The selected mixer doesn't support this type of line. Try an other sound output?");
-            throw new RuntimeException("Failed to start WorkerThread", e);
-            
-        } catch (IOException e) {
-            err("Failed to read LTC source");
-            displayError("Failed to read LTC source file: " + e.getMessage() + "\n Please restart the internals!");
-            throw new RuntimeException("Failed to start WorkerThread", e);
+            ltcGenerator.init();
+        } catch (LineUnavailableException e1) {
+            err("Failed to start ltc generator");
+            displayError("Failed to start LTC generator: " + e1.getMessage() + "\n Please restart the internals!");
+            throw new RuntimeException("Failed to start WorkerThread.", e1);
         }
         
         try {
@@ -225,6 +210,7 @@ public class WorkerThread implements Runnable {
                 if (playing) {
                     timecode = new Timecode(elapsed, framerate);
                     packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
+                    ltcGenerator.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                 }
                 
                 if (dataGrabberThread.isAlive()) {
@@ -281,11 +267,9 @@ public class WorkerThread implements Runnable {
     public void setTime(Timecode time) {
         //FIXME: something
         packet.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
+        ltcGenerator.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
-        if (clip != null) {
-            clip.setMicrosecondPosition(elapsed * 1000);
-        }
         TimeEvent event = new TimeEvent(EventType.TC_SET);
         event.setAdditionalValue(getCurrentTimecode());
         DataGrabber.getEventHandler().callEvent(event);
@@ -300,7 +284,7 @@ public class WorkerThread implements Runnable {
             start = System.currentTimeMillis() - elapsed;
         }
         if (playLTC) {
-            clip.start();
+            ltcGenerator.start();
         }
         this.playing = true;
         TimeEvent event = new TimeEvent(EventType.TC_START);
@@ -315,7 +299,7 @@ public class WorkerThread implements Runnable {
     public void pause() {
         this.playing = false;
         if (playLTC) {
-            this.clip.stop();
+            ltcGenerator.stop();
         }
         TimeEvent event = new TimeEvent(EventType.TC_PAUSE);
         event.setAdditionalValue(getCurrentTimecode());
@@ -325,8 +309,8 @@ public class WorkerThread implements Runnable {
     public void stop() {
         this.playing = false;
         if (playLTC) {
-            clip.setFramePosition(0);
-            clip.stop();
+            ltcGenerator.setTime(0, 0, 0, 0);
+            ltcGenerator.stop();
         }
         timecode = new Timecode(0);
         start = 0;
@@ -339,21 +323,7 @@ public class WorkerThread implements Runnable {
     public void shutdown() {
         log("Shutting down...");
         running = false;
-        
-        if (clip != null) {
-            clip.stop();
-            //clip.flush();
-            clip.close();
-            clip = null;
-        }
-        
-        try {
-            stream.close();
-        } catch (IOException e) {
-            err("IOException during the closing of the ltc stream. you can ignore this error");
-            e.printStackTrace();
-        }
-        stream = null;
+        ltcGenerator.shutdown();
         mixer.close();
         mixer = null;
         server.stop();
@@ -363,21 +333,8 @@ public class WorkerThread implements Runnable {
         this.broadcast = value;
     }
     
-    public boolean setLTC(boolean value) {
-        if (clip != null) {
-            this.playLTC = value;
-            if (value) {
-                //start with the actual position
-                clip.setMicrosecondPosition(elapsed / 1000);
-                clip.start();
-            } else {
-                //stop the running clip
-                clip.stop();
-            }
-            return true;
-        } else {
-            return false;
-        }
+    public void setLTC(boolean value) {
+        this.playLTC = value;
     }
     
     public void setOSC(boolean value) {

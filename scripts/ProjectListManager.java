@@ -20,10 +20,10 @@ public class ProjectListManager {
             if (line.startsWith(projectInfo.split(";")[0])) {
                 System.out.println("[PLM] Updating project properties");
                 projects.add(projectInfo);
-                continue;
-            }
-            if (isProject(line))
-                projects.add(line);
+            } else {
+				if (isProject(line))
+					projects.add(line);
+			}
         }
         if (!projects.contains(projectInfo))
             System.out.println("[PLM] Adding project to the list");

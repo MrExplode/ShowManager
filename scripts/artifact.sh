@@ -38,7 +38,7 @@ mkdir -p projects/$PROJECT_NAME
 rm projects/$PROJECT_NAME/*.jar
 cp $PROJECT_HOME/target/*.jar projects/$PROJECT_NAME
 javac $PROJECT_HOME/scripts/ProjectListManager.java
-java -cp $PROJECT_HOME/scripts ProjectListManager
+java -cp $PROJECT_HOME/scripts ProjectListManager $PROJECT_HOME/target/info.txt projects/project-list.yml
 git add -f .
 git commit -m "Latest Artifact for $PROJECT_NAME #$TRAVIS_BUILD_NUMBER
 
