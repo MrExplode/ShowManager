@@ -47,6 +47,7 @@ public class StringCellEditor extends AbstractCellEditor implements TableCellEdi
 
     @Override
     public void focusGained(FocusEvent e) {
+        //unused event
     }
 
     @Override

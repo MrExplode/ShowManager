@@ -289,6 +289,7 @@ public class ClientGUI extends JFrame implements TimeListener {
 
                 @Override
                 public void handleBadData(OSCBadDataEvent e) {
+                    //unused event
                 }
                 
             });
@@ -365,9 +366,11 @@ public class ClientGUI extends JFrame implements TimeListener {
 
     @Override
     public void onOscEvent(OscEvent e) {
+        //unused event
     }
 
     @Override
     public void onMarkerEvent(MarkerEvent e) {
+        //unused event
     }
 }

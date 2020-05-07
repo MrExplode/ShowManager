@@ -98,7 +98,7 @@ public class TableIO {
                     
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        if (line.equals("#,Name,Start"))
+                        if ("#,Name,Start".equals(line))
                             continue;
                         String[] var = line.split(",");
                         Timecode timecode = null;

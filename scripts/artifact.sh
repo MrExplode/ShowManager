@@ -25,20 +25,20 @@ mvn install propertyexporter:export
 fold_end install
 
 # Setting up git
-cd $HOME
+cd "$HOME"
 git config --global user.name "ExplodeBot"
 git config --global user.email "sunstorm@outlook.hu"
 
 # Cloning webpage
-git clone --branch=master https://${GITHUB_TOKEN}@github.com/MrExplode/MrExplode.github.io website
+git clone --branch=master https://"${GITHUB_TOKEN}"@github.com/MrExplode/MrExplode.github.io website
 
 # removing old build, copying new one then commit and push
 cd website
 mkdir -p projects/$PROJECT_NAME
 rm projects/$PROJECT_NAME/*.jar
-cp $PROJECT_HOME/target/*.jar projects/$PROJECT_NAME
-javac $PROJECT_HOME/scripts/ProjectListManager.java
-java -cp $PROJECT_HOME/scripts ProjectListManager $PROJECT_HOME/target/info.txt projects/project-list.yml
+cp "$PROJECT_HOME"/target/*.jar projects/$PROJECT_NAME
+javac "$PROJECT_HOME"/scripts/ProjectListManager.java
+java -cp "$PROJECT_HOME"/scripts ProjectListManager "$PROJECT_HOME"/target/info.txt projects/project-list.yml
 git add -f .
 git commit -m "Latest Artifact for $PROJECT_NAME #$TRAVIS_BUILD_NUMBER
 
@@ -47,6 +47,6 @@ echo -e "\e[93mPushing Artifact to webpage..."
 git push -fq origin master
 
 #cleaning up
-rm -rf $HOME/website
+rm -rf "$HOME"/website
 
 exit 0

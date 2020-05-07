@@ -7,11 +7,8 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -24,10 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -766,6 +761,7 @@ public class ServerGUI extends JFrame {
         controlPanel.setBorder(new TitledBorder(null, "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "spaceTogglePlay");
         controlPanel.getActionMap().put("spaceTogglePlay", new AbstractAction() {
+            private static final long serialVersionUID = -103271722918723118L;
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (workThread.isPlaying()) {
@@ -1084,7 +1080,7 @@ public class ServerGUI extends JFrame {
         for (int i = 0; i < musicListBox.getModel().getSize(); i++) {
             musicList.add(musicListBox.getItemAt(i));
         }
-        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, Integer.valueOf((String) framerateBox.getSelectedItem()), DataGrabber.getEventHandler(), dataGrabber.getLock());
+        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock());
         mThreadInstance = new Thread(musicThread);
         trackPanel.dependencies(musicThread, workThread);
         

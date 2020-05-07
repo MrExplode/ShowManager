@@ -39,7 +39,7 @@ public class ProjectListManager {
     }
     
     private static boolean isProject(String line) {
-        return !line.equals("") || !line.isEmpty() || !line.equals("\n") || !line.equals(" "); 
+        return !"".equals(line) || !line.isEmpty() || !"\n".equals(line) || !" ".equals(line); 
     }
 
 }

@@ -227,6 +227,7 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
 
     @Override
     public void tableChanged(TableModelEvent e) {
+        // no function
     }
 
 }

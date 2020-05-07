@@ -7,9 +7,10 @@ public class MusicEvent extends TimecodeEvent {
     private transient float[] samples;
     private Music music;
 
-    public MusicEvent(EventType type, float[] samples, Music tracker) {
+    public MusicEvent(EventType type, float[] samples, Music music) {
         super(type, "MusicEvent");
         this.samples = samples;
+        this.music = music;
     }
     
     public float[] getSamples() {

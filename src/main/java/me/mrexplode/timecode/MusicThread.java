@@ -1,11 +1,9 @@
 package me.mrexplode.timecode;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -63,7 +61,7 @@ public class MusicThread implements Runnable, TimeListener {
     private Object lock;
     private OSCPortOut oscOut;
     
-    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, int framerate, EventHandler eventHandler, Object lock) {
+    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock) {
         this.mixer = mixer;
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
@@ -395,10 +393,12 @@ public class MusicThread implements Runnable, TimeListener {
 
     @Override
     public void onOscEvent(OscEvent e) {
+        //unused event
     }
 
     @Override
     public void onMarkerEvent(MarkerEvent e) {
+        //unused event
     }
     
     @Override

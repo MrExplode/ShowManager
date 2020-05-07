@@ -25,12 +25,12 @@ mvn javadoc:javadoc
 fold_end doc
 
 # Setting up git
-cd $HOME
+cd "$HOME"
 git config --global user.name "ExplodeBot"
 git config --global user.email "sunstorm@outlook.hu"
 
 # Cloning webpage
-git clone --branch=master https://${GITHUB_TOKEN}@github.com/MrExplode/MrExplode.github.io website
+git clone --branch=master https://"${GITHUB_TOKEN}"@github.com/MrExplode/MrExplode.github.io website
 
 # removing old JD, copying new one, adding to index, committing and then pushing
 cd website
@@ -38,7 +38,7 @@ cd website
 # just removes everything FROM INDEX, but we only want to replace the changed in the INDEX
 rm -rf projects/$PROJECT_NAME/apidocs
 mkdir -p projects/$PROJECT_NAME/apidocs
-cp -Rf $PROJECT_HOME/target/site/apidocs projects/$PROJECT_NAME
+cp -Rf "$PROJECT_HOME"/target/site/apidocs projects/"$PROJECT_NAME"
 git add -f .
 git commit -m "Latest JavaDoc for $PROJECT_NAME #$TRAVIS_BUILD_NUMBER
 

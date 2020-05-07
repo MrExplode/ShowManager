@@ -208,7 +208,7 @@ public class Timecode implements Comparable<Timecode> {
     
     /**
      * Same as {@link #toString()}, but it's spaced
-     * @return
+     * @return gui formatted string
      */
     public String guiFormatted() {
         return (hour < 10 ? "0" + hour : hour) + " : " + (min < 10 ? "0" + min : min) + " : " + (sec < 10 ? "0" + sec : sec) + " / " + (frame < 10 ? "0" + frame : frame); 

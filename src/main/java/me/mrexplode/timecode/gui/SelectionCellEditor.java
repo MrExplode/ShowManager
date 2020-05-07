@@ -49,6 +49,7 @@ public class SelectionCellEditor extends AbstractCellEditor implements TableCell
 
     @Override
     public void focusGained(FocusEvent e) {
+        //unused event
     }
 
     @Override
