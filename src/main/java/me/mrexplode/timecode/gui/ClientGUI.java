@@ -1,10 +1,15 @@
 package me.mrexplode.timecode.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -44,6 +49,7 @@ import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
+import javax.swing.JComboBox;
 
 
 public class ClientGUI extends JFrame implements TimeListener {
@@ -64,19 +70,23 @@ public class ClientGUI extends JFrame implements TimeListener {
     private JTextPane textPane;
     private JPanel controlPanel;
     private JLabel lblPort;
-    private JTextField portField;
+    private JTextField portField1;
     private JButton btnSet;
     private JButton btnTimeMonitor;
     private JScrollPane scrollPane;
     private JPanel musicPanel;
     private JLabel trackLabel;
     private TrackPanel trackPanel;
+    private JLabel lblCom2Port;
+    private JTextField portField2;
+    private JComboBox<NetEntry> interfaceBox;
     
 
     /**
      * Create the frame.
+     * @throws SocketException 
      */
-    public ClientGUI() {
+    public ClientGUI() throws SocketException {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
@@ -86,6 +96,7 @@ public class ClientGUI extends JFrame implements TimeListener {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setIconImages(ServerGUI.getIcons());
         setBounds(100, 100, 681, 655);
+        setMinimumSize(new Dimension(681, 655));
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -94,7 +105,6 @@ public class ClientGUI extends JFrame implements TimeListener {
         monitor.setIconImages(ServerGUI.getIcons());
         eventHandler = new EventHandler();
         segments = new ArrayList<ArraySegment>();
-        net = new Networking(7007);
         parser = Parser.builder().build();
         renderer = HtmlRenderer.builder().build();
         
@@ -198,11 +208,11 @@ public class ClientGUI extends JFrame implements TimeListener {
         scrollPane.setViewportView(textPane);
         textPane.setContentType("text/html");
         
-        lblPort = new JLabel("Communication port");
+        lblPort = new JLabel("Communication port 1:");
         
-        portField = new JTextField();
-        portField.setText("7100");
-        portField.setColumns(10);
+        portField1 = new JTextField();
+        portField1.setText("7100");
+        portField1.setColumns(10);
         
         btnSet = new JButton("Set");
         btnSet.addActionListener(e -> {
@@ -215,17 +225,33 @@ public class ClientGUI extends JFrame implements TimeListener {
             monitor.setVisible(!monitor.isVisible());
         });
         btnTimeMonitor.setToolTipText("Toggles the Time Monitor visibility");
+        
+        lblCom2Port = new JLabel("Communication port 2:");
+        
+        portField2 = new JTextField();
+        portField2.setText("7007");
+        portField2.setColumns(10);
+        
+        interfaceBox = new JComboBox<NetEntry>();
         GroupLayout gl_controlPanel = new GroupLayout(controlPanel);
         gl_controlPanel.setHorizontalGroup(
             gl_controlPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_controlPanel.createSequentialGroup()
-                    .addGroup(gl_controlPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(Alignment.TRAILING, gl_controlPanel.createSequentialGroup()
+                    .addGroup(gl_controlPanel.createParallelGroup(Alignment.TRAILING)
+                        .addComponent(interfaceBox, 0, 163, Short.MAX_VALUE)
                         .addGroup(gl_controlPanel.createSequentialGroup()
-                            .addComponent(lblPort, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(portField, GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE))
-                        .addComponent(btnSet)
-                        .addComponent(btnTimeMonitor))
+                            .addGroup(gl_controlPanel.createParallelGroup(Alignment.LEADING)
+                                .addComponent(lblPort)
+                                .addGroup(gl_controlPanel.createParallelGroup(Alignment.TRAILING, false)
+                                    .addComponent(lblCom2Port, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnTimeMonitor, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGap(2)
+                            .addGroup(gl_controlPanel.createParallelGroup(Alignment.LEADING)
+                                .addGroup(gl_controlPanel.createSequentialGroup()
+                                    .addGap(4)
+                                    .addComponent(btnSet))
+                                .addComponent(portField1, GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                                .addComponent(portField2, GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE))))
                     .addContainerGap())
         );
         gl_controlPanel.setVerticalGroup(
@@ -234,15 +260,31 @@ public class ClientGUI extends JFrame implements TimeListener {
                     .addContainerGap()
                     .addGroup(gl_controlPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(lblPort)
-                        .addComponent(portField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(portField1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(btnSet)
+                    .addGroup(gl_controlPanel.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(lblCom2Port)
+                        .addComponent(portField2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(btnTimeMonitor)
-                    .addContainerGap(26, Short.MAX_VALUE))
+                    .addComponent(interfaceBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                    .addGroup(gl_controlPanel.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(btnTimeMonitor)
+                        .addComponent(btnSet)))
         );
         controlPanel.setLayout(gl_controlPanel);
         contentPane.setLayout(gl_contentPane);
+        
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface netInterface = interfaces.nextElement();
+            if (netInterface.isUp()) {
+                InetAddress addr = netInterface.getInetAddresses().nextElement();
+                NetEntry netEntry = new NetEntry(addr, netInterface.getName() + " " + addr.getHostAddress());
+                interfaceBox.addItem(netEntry);
+            }
+        }
+        interfaceBox.setSelectedIndex(0);
         
         start();
         
@@ -260,9 +302,10 @@ public class ClientGUI extends JFrame implements TimeListener {
     
     private void start() {
         try {
-            eventHandler.startNetworking(Integer.valueOf(portField.getText()));
+            net = new Networking(((NetEntry) interfaceBox.getSelectedItem()).getNetworkAddress(), Integer.valueOf(portField2.getText()));
+            eventHandler.startNetworking(Integer.valueOf(portField1.getText()));
             eventHandler.addListener(this);
-            oscIn = new OSCPortIn(Integer.valueOf(portField.getText()));
+            oscIn = new OSCPortIn(Integer.valueOf(portField1.getText()));
             oscIn.startListening();
             oscIn.addPacketListener(new OSCPacketListener() {
 
@@ -294,7 +337,7 @@ public class ClientGUI extends JFrame implements TimeListener {
                 
             });
         } catch (NumberFormatException e) {
-            displayError("Try to write a valid port next time!");
+            displayError("Try to write a valid port next time, dumbass!");
             e.printStackTrace();
         } catch (IOException e) {
             displayError("Failed to start network event handling!\nPlease set settings again!");
@@ -312,6 +355,7 @@ public class ClientGUI extends JFrame implements TimeListener {
     
     private void stop() {
         oscIn.stopListening();
+        net.shutdown();
     }
     
     private static void displayError(String errorMessage) {

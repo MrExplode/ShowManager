@@ -43,21 +43,22 @@ public class ServerSettingsProvider {
             settings = gson.fromJson(reader, ServerSettings.class);
             reader.close();
             
+            //dmx
             gui.dmxField.setText(String.valueOf(settings.dmxAddress));
             gui.universeField.setText(String.valueOf(settings.dmxUniverse));
             gui.subnetField.setText(String.valueOf(settings.dmxSubnet));
             
-            int addrSize = gui.addressBox.getItemCount();
-            for (int i = 0; i < addrSize; i++) {
+            //artnet interface
+            for (int i = 0; i < gui.addressBox.getItemCount(); i++) {
                 NetEntry entry = gui.addressBox.getItemAt(i);
-                if (entry.getNetworkAddress().getHostAddress().equals(settings.netInterface)) {
+                if (entry.getNetworkAddress().getHostAddress().equals(settings.artnetInterface)) {
                     gui.addressBox.setSelectedIndex(i);
                     break;
                 }
             }
             
-            int mixSize = gui.ltcOutputBox.getItemCount();
-            for (int i = 0; i < mixSize; i++) {
+            //ltc output mixer
+            for (int i = 0; i < gui.ltcOutputBox.getItemCount(); i++) {
                 MixerEntry entry = gui.ltcOutputBox.getItemAt(i);
                 if (entry.getMixerInfo().getName().equals(settings.ltcAudioOutput)) {
                     gui.ltcOutputBox.setSelectedIndex(i);
@@ -65,8 +66,8 @@ public class ServerSettingsProvider {
                 }
             }
             
-            int audioSize = gui.audioOutputBox.getItemCount();
-            for (int i = 0; i < audioSize; i++) {
+            //audio output mixer
+            for (int i = 0; i < gui.audioOutputBox.getItemCount(); i++) {
                 MixerEntry entry = gui.audioOutputBox.getItemAt(i);
                 if (entry.getMixerInfo().getName().equals(settings.musicAudioOutput)) {
                     gui.audioOutputBox.setSelectedIndex(i);
@@ -74,10 +75,10 @@ public class ServerSettingsProvider {
                 }
             }
             
-            int frameSize = gui.framerateBox.getItemCount();
-            for (int i = 0; i < frameSize; i++) {
-                String entry = gui.framerateBox.getItemAt(i);
-                if (entry.equals(String.valueOf(settings.framerate))) {
+            //framerate
+            for (int i = 0; i < gui.framerateBox.getItemCount(); i++) {
+                Integer entry = gui.framerateBox.getItemAt(i);
+                if (entry == settings.framerate) {
                     gui.framerateBox.setSelectedIndex(i);
                     break;
                 }
@@ -98,6 +99,17 @@ public class ServerSettingsProvider {
             tableModel.setData(events);
             tableModel.sort();
             
+            //networking settings
+            gui.com1Port = settings.com1Port;
+            gui.com2Port = settings.com2Port;
+            for (int i = 0; i < gui.com2InterfaceBox.getItemCount(); i++) {
+                NetEntry entry = gui.com2InterfaceBox.getItemAt(i);
+                if (entry.getNetworkAddress().getHostAddress().equals(settings.com2Interface)) {
+                    gui.com2InterfaceBox.setSelectedIndex(i);
+                    break;
+                }
+            }
+            
             //actualize the changes to the threads
             gui.restartInternals();
         }
@@ -108,9 +120,10 @@ public class ServerSettingsProvider {
             tableModel = (SchedulerTableModel) gui.table.getModel();
         }
         settings.ltcAudioOutput = ((MixerEntry) gui.ltcOutputBox.getSelectedItem()).getMixerInfo().getName();
-        settings.netInterface = ((NetEntry) gui.addressBox.getSelectedItem()).getNetworkAddress().getHostAddress();
+        settings.artnetInterface = ((NetEntry) gui.addressBox.getSelectedItem()).getNetworkAddress().getHostAddress();
         settings.musicAudioOutput = ((MixerEntry) gui.audioOutputBox.getSelectedItem()).getMixerInfo().getName();
         
+        //music list
         ArrayList<Music> mList = new ArrayList<Music>();
         for (int i = 0; i < gui.musicListBox.getItemCount(); i++) {
             mList.add(gui.musicListBox.getItemAt(i));
@@ -136,7 +149,8 @@ public class ServerSettingsProvider {
             settings.dmxSubnet = 0;
         }
         
-        settings.framerate = Integer.valueOf((String) gui.framerateBox.getSelectedItem());
+        //framerate
+        settings.framerate = (int) (gui.framerateBox.getSelectedItem());
         
         //OSC
         if (!gui.oscIPField.getText().equals("")) {
@@ -160,6 +174,12 @@ public class ServerSettingsProvider {
         settings.genericEvents = genericList.toArray(new ScheduledEvent[genericList.size()]);
         settings.oscEvents = oscList.toArray(new ScheduledOSC[oscList.size()]);
         
+        //networking
+        settings.com1Port = gui.com1Port;
+        settings.com2Port = gui.com2Port;
+        settings.com2Interface = ((NetEntry) gui.com2InterfaceBox.getSelectedItem()).getNetworkAddress().getHostAddress();
+        
+        //saving file
         if (!saveFile.getParentFile().exists()) {
             saveFile.getParentFile().mkdirs();
         }

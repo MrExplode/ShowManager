@@ -34,8 +34,13 @@ public class Bootstrap {
         ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(args));
         if (arguments.contains("--client")) {
             EventQueue.invokeLater(() -> {
-                ClientGUI gui = new ClientGUI();
-                gui.setVisible(true);
+                try {
+                    ClientGUI gui = new ClientGUI();
+                    gui.setVisible(true);
+                } catch (SocketException e) {
+                    showError(e);
+                    e.printStackTrace();
+                }
             });
         } else {
             if (arguments.contains("--withRAM") || arguments.contains("--debugStart")) {
@@ -44,6 +49,7 @@ public class Bootstrap {
                         ServerGUI gui = new ServerGUI();
                         gui.setVisible(true);
                     } catch (SocketException e) {
+                        showError(e);
                         e.printStackTrace();
                     }
                 });
@@ -57,7 +63,6 @@ public class Bootstrap {
                     return;
                 } else {
                     try {
-                        //JOptionPane.showConfirmDialog(null, "Starting main app...", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
                         Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), "UTF-8"), "--withRAM"});
                     } catch (IOException e) {
                         JOptionPane.showConfirmDialog(null, "Failed to start the process!\n " + e.getMessage(), "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
@@ -67,6 +72,10 @@ public class Bootstrap {
                 }
             }
         }
+    }
+    
+    private static void showError(Exception e) {
+        JOptionPane.showMessageDialog(null, "Failed to initialize:\n" + e.getMessage(), "Fatal Error", JOptionPane.ERROR_MESSAGE, null);
     }
     
     private static void showVersionError(String currentVer) {

@@ -76,6 +76,9 @@ public class ServerGUI extends JFrame {
     private ArrayList<JComponent> components = new ArrayList<JComponent>();
     private ArrayList<JPanel> threadIndicators = new ArrayList<JPanel>();
     public TimeMonitor timeMonitor;
+    public int com1Port = 7100;
+    public int com2Port = 7007;
+    public JComboBox<NetEntry> com2InterfaceBox = new JComboBox<NetEntry>();
 
     private JPanel contentPane;
     private JPanel timePanel;
@@ -96,7 +99,7 @@ public class ServerGUI extends JFrame {
     private JLabel lblUniverse;
     public JTextField subnetField;
     private JLabel lblSubnet;
-    public JComboBox<String> framerateBox;
+    public JComboBox<Integer> framerateBox;
     private JLabel lblFramerate;
     private JButton btnSetDmx;
     public JComboBox<MixerEntry> ltcOutputBox;
@@ -117,7 +120,7 @@ public class ServerGUI extends JFrame {
     public JButton btnRemove;
     public JButton btnAdd;
     private JSlider volumeSlider;
-    private JButton btnMusicVis;
+    private JButton btnNetworkSettings;
     private JPanel modulePane;
     private JButton btnOscVis;
     private JPanel oscPanel;
@@ -152,7 +155,6 @@ public class ServerGUI extends JFrame {
      * Create the frame.
      * @throws SocketException 
      */
-    @SuppressWarnings({"rawtypes", "unchecked" })
     public ServerGUI() throws SocketException {
         guiInstance = this;
         timeMonitor = new TimeMonitor();
@@ -386,17 +388,19 @@ public class ServerGUI extends JFrame {
         });
         ltcCheckBox.setToolTipText("Toggles the LTC output");
         
-        framerateBox = new JComboBox();
+        framerateBox = new JComboBox<Integer>();
         framerateBox.setToolTipText("Timecode framerate");
-        framerateBox.setModel(new DefaultComboBoxModel(new String[] {"24", "25", "30"}));
+        framerateBox.addItem(24);
+        framerateBox.addItem(25);
+        framerateBox.addItem(30);
         framerateBox.setSelectedIndex(1);
         
         lblFramerate = new JLabel("Framerate");
         
-        ltcOutputBox = new JComboBox();
+        ltcOutputBox = new JComboBox<MixerEntry>();
         ltcOutputBox.setToolTipText("Select the output for LTC. Carefully! LTC should never go out on speakers!");
         
-        addressBox = new JComboBox();
+        addressBox = new JComboBox<NetEntry>();
         addressBox.setToolTipText("Network to broadcast ArtNet Timecode.");
         
         btnRestart = new JButton("Restart internals");
@@ -416,7 +420,7 @@ public class ServerGUI extends JFrame {
         components.add(musicCheckBox);
         musicCheckBox.setToolTipText("Toggles the audio output");
         
-        audioOutputBox = new JComboBox();
+        audioOutputBox = new JComboBox<MixerEntry>();
         audioOutputBox.setToolTipText("Select the output for the audio player");
         
         GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
@@ -517,6 +521,7 @@ public class ServerGUI extends JFrame {
         lblSubnet.setEnabled(false);
         
         btnSetDmx = new JButton("Set dmx");
+        btnSetDmx.setToolTipText("(doesn't need restart)");
         components.add(btnSetDmx);
         btnSetDmx.addActionListener(new ActionListener() {
             @Override
@@ -587,9 +592,8 @@ public class ServerGUI extends JFrame {
                     .addComponent(modulePane, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
         );
         
-        btnMusicVis = new JButton("Under development");
-        btnMusicVis.setToolTipText("Under development");
-        btnMusicVis.setEnabled(false);
+        btnNetworkSettings = new JButton("Networking settings");
+        btnNetworkSettings.setToolTipText("Settings affecting client-server networking");
         
         btnOscVis = new JButton("Cue Pilot");
         btnOscVis.setToolTipText("Under development");
@@ -610,7 +614,7 @@ public class ServerGUI extends JFrame {
                 .addGroup(gl_modulePane.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_modulePane.createParallelGroup(Alignment.LEADING)
-                        .addComponent(btnMusicVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                        .addComponent(btnNetworkSettings, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                         .addComponent(btnOscVis, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                         .addComponent(btnTimeMonitor, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                     .addContainerGap())
@@ -619,7 +623,7 @@ public class ServerGUI extends JFrame {
             gl_modulePane.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_modulePane.createSequentialGroup()
                     .addGap(4)
-                    .addComponent(btnMusicVis)
+                    .addComponent(btnNetworkSettings)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(btnOscVis)
                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -627,21 +631,9 @@ public class ServerGUI extends JFrame {
                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         modulePane.setLayout(gl_modulePane);
-        btnMusicVis.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (playerPanel.isVisible()) {
-                    playerPanel.setVisible(false);
-                    remove(playerPanel);
-                    setMinimumSize(new Dimension(getWidth(), 320));
-                } else {
-                    playerPanel.setVisible(true);
-                    getContentPane().add(playerPanel);
-                    setMinimumSize(new Dimension(getWidth(), 503));
-                }
-                repaint();
-                pack();
-            }
+        btnNetworkSettings.addActionListener(e -> {
+            NetworkingGUI netGui = new NetworkingGUI(com1Port, com2Port, com2InterfaceBox, this);
+            netGui.setVisible(true);
         });
         dmxSettingsPanel.setLayout(gl_dmxSettingsPanel);
         
@@ -732,7 +724,7 @@ public class ServerGUI extends JFrame {
                     wrong = true;
                 } else {
                     frame = Integer.valueOf(frameField.getText());
-                    if (frame < 0 || frame > Integer.valueOf((String) framerateBox.getSelectedItem())) {
+                    if (frame < 0 || frame > (int) (framerateBox.getSelectedItem())) {
                         frameField.setBackground(Color.RED);
                         wrong = true;
                     }
@@ -986,34 +978,32 @@ public class ServerGUI extends JFrame {
         threadIndicators.add(threadIndicator3);
         threadIndicators.add(threadIndicator4);
         threadIndicators.add(threadIndicator5);
-        //INIT list available outputs
+        //INIT ltc and audio player outputs
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
             //port prefixed mixers don't seem to work
             if (!info.getName().startsWith("Port")) {
                 MixerEntry entry = new MixerEntry(info.getName(), info);
                 ltcOutputBox.addItem(entry);
+                audioOutputBox.addItem(entry);
             }
         }
         ltcOutputBox.setSelectedIndex(0);
-        //INIT list available network interfaces
+        audioOutputBox.setSelectedIndex(0);
+        
+        //INIT artnet and internal communication outputs
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface netInterface = interfaces.nextElement();
             if (netInterface.isUp()) {
                 InetAddress addr = netInterface.getInetAddresses().nextElement();
-                addressBox.addItem(new NetEntry(addr, netInterface.getName() + " " + addr.getHostAddress()));
+                NetEntry netEntry = new NetEntry(addr, netInterface.getName() + " " + addr.getHostAddress());
+                addressBox.addItem(netEntry);
+                com2InterfaceBox.addItem(netEntry);
             }
         }
         addressBox.setSelectedIndex(0);
-        //INIT music output list
-        for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-            //port prefixed mixers don't seem to work
-            if (!info.getName().startsWith("Port")) {
-                MixerEntry entry = new MixerEntry(info.getName(), info);
-                audioOutputBox.addItem(entry);
-            }
-        }
-        audioOutputBox.setSelectedIndex(0);
+        com2InterfaceBox.setSelectedIndex(0);
+        
         contentPane.setLayout(gl_contentPane);
         
         //overriding default space actions
@@ -1049,7 +1039,7 @@ public class ServerGUI extends JFrame {
     @SuppressWarnings("resource")
     private void start() {
         //datagrabber setup
-        this.dataGrabber = new DataGrabber(this, 7100);
+        this.dataGrabber = new DataGrabber(this, com1Port);
         dThreadInstance = new Thread(dataGrabber);
         
         //workerthread setup
@@ -1069,7 +1059,7 @@ public class ServerGUI extends JFrame {
             oscPortField.setText("0");
         }
         this.workThread = new WorkerThread(ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
-        this.workThread.setFramerate(Integer.valueOf((String) framerateBox.getSelectedItem()));
+        this.workThread.setFramerate((int) (framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
         
         this.dataGrabber.setWorkerInstance(workThread);
@@ -1080,7 +1070,8 @@ public class ServerGUI extends JFrame {
         for (int i = 0; i < musicListBox.getModel().getSize(); i++) {
             musicList.add(musicListBox.getItemAt(i));
         }
-        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock());
+        InetAddress com2addr = ((NetEntry) com2InterfaceBox.getSelectedItem()).getNetworkAddress();
+        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock(), com1Port, com2Port, com2addr);
         mThreadInstance = new Thread(musicThread);
         trackPanel.dependencies(musicThread, workThread);
         

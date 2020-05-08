@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -18,10 +19,13 @@ public class Networking implements Runnable {
     private boolean running = true;
     private Consumer<float[]> consumer;
     
-    public Networking(int port) {
+    public Networking(InetAddress address, int port) {
         this.port = port;
         try {
-            this.socket = new DatagramSocket();
+            this.socket = new DatagramSocket(null);
+            this.socket.setBroadcast(true);
+            this.socket.setReuseAddress(true);
+            this.socket.bind(new InetSocketAddress(address, port));
             this.address = InetAddress.getByName("255.255.255.255");
         } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
@@ -36,11 +40,6 @@ public class Networking implements Runnable {
     
     public void startListening(Consumer<float[]> consumer) {
         this.consumer = consumer;
-        try {
-            socket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
-        } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-        }
         running = true;
         Thread t = new Thread(this);
         t.start();

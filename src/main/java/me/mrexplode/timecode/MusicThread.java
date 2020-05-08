@@ -61,16 +61,16 @@ public class MusicThread implements Runnable, TimeListener {
     private Object lock;
     private OSCPortOut oscOut;
     
-    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock) {
+    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock, int com1Port, int com2Port, InetAddress com2Addr) {
         this.mixer = mixer;
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
         this.trackList = musicList;
         this.eventHandler = eventHandler;
         this.lock = lock;
-        this.net = new Networking(7007);
+        this.net = new Networking(com2Addr, com2Port);
         try {
-            this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), 7100);
+            this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), com1Port);
         } catch (IOException e) {
             err("Failed to start osc sender");
             e.printStackTrace();
@@ -319,6 +319,7 @@ public class MusicThread implements Runnable, TimeListener {
             }
         }
         mixer.close();
+        net.shutdown();
         synchronized (lock) {
             lock.notify();
         }

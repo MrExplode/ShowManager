@@ -5,14 +5,18 @@ import me.mrexplode.timecode.schedule.ScheduledOSC;
 
 public class ServerSettings {
     
-    public String netInterface;
+    //general timecode stuff
+    public String artnetInterface;
     public String ltcAudioOutput;
-    public String musicAudioOutput;
     public int framerate;
+    
+    //dmx remote
     public int dmxAddress;
     public int dmxUniverse;
     public int dmxSubnet;
     
+    //music
+    public String musicAudioOutput;
     public Music[] musicTracks;
     
     //osc
@@ -20,5 +24,10 @@ public class ServerSettings {
     public int oscPort;
     public ScheduledEvent[] genericEvents;
     public ScheduledOSC[] oscEvents;
+    
+    //networking
+    public int com1Port;
+    public int com2Port;
+    public String com2Interface;
 
 }
