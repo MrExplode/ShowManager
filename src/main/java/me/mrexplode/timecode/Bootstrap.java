@@ -26,7 +26,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         String ver = ManagementFactory.getRuntimeMXBean().getVmVersion();
-        if (!ver.startsWith("14")) {
+        if (!ver.startsWith("11")) {
             showVersionError(ver);
             return;
         }
@@ -76,7 +76,7 @@ public class Bootstrap {
         style.append("font-weight:" + (font.isBold() ? "bold" : "normal") + ";");
         style.append("font-size:" + font.getSize() + "pt;");
         
-        JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">Required Java version: JDK 14<br>Current: " + currentVer + "<br><a href=\"https://adoptopenjdk.net/index.html?variant=openjdk14&jvmVariant=hotspot\">Recommended download</a>");
+        JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">Required Java version: JDK 11<br>Current: " + currentVer + "<br><a href=\"https://adoptopenjdk.net/index.html?variant=openjdk14&jvmVariant=hotspot\">Recommended download</a>");
         ep.setEditable(false);
         ep.setBackground(label.getBackground());
         ep.addHyperlinkListener(e -> {
