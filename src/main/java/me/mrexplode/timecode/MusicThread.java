@@ -160,10 +160,13 @@ public class MusicThread implements Runnable, TimeListener {
         if (trackList.size() == 0)
             return;
         log("Loading file: " + trackList.get(index).file);
+        long time = System.currentTimeMillis();
+        long sampleTime = time;
         float[] samples = null;
         try {
             samples = sampler(new File(trackList.get(index).file));
             trackPanel.setSamples(samples);
+            sampleTime = System.currentTimeMillis() - sampleTime;
         } catch (UnsupportedAudioFileException | IOException e) {
             displayError("Failed to sample the upcoming track: " + trackList.get(index).file + "\n" + e.getMessage());
             err("Failed sampling track");
@@ -209,6 +212,7 @@ public class MusicThread implements Runnable, TimeListener {
         Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
         tracker = new Tracker(index, trackList.get(index).startingTime, end);
         
+        long netTime = System.currentTimeMillis();
         ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, 16000);
         for (int i = 0; i < segments.size(); i++) {
             ArraySegment segment = segments.get(i);
@@ -223,10 +227,12 @@ public class MusicThread implements Runnable, TimeListener {
                 e1.printStackTrace();
             }
         }
+        netTime = System.currentTimeMillis() - netTime;
+        
         MusicEvent event = new MusicEvent(EventType.MUSIC_LOAD, samples, trackList.get(index));
         DataGrabber.getEventHandler().callEvent(event);
         
-        log("Loaded file");
+        log("Loaded file in " + (System.currentTimeMillis() - time) + " ms, sampling took " + sampleTime + " ms, networking took " + netTime + " ms");
     }
     
     @SuppressWarnings("resource")
