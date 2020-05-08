@@ -26,7 +26,8 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         String ver = ManagementFactory.getRuntimeMXBean().getVmVersion();
-        if (!ver.startsWith("11")) {
+        int versionNumber = Integer.valueOf(ver.substring(0, 2));
+        if (versionNumber < 11) {
             showVersionError(ver);
             return;
         }
