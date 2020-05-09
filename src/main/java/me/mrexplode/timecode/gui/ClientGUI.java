@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.SystemColor;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,6 +15,7 @@ import java.util.Enumeration;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -49,7 +51,7 @@ import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
-import javax.swing.JComboBox;
+import me.mrexplode.timecode.fileio.ClientSettingsProvider;
 
 
 public class ClientGUI extends JFrame implements TimeListener {
@@ -64,13 +66,14 @@ public class ClientGUI extends JFrame implements TimeListener {
     private ArrayList<ArraySegment> segments;
     private Parser parser;
     private HtmlRenderer renderer;
+    private ClientSettingsProvider settingsProvider;
     private JPanel animPanel;
     private JPanel timePanel;
     private JLabel timeLabel;
     private JTextPane textPane;
     private JPanel controlPanel;
     private JLabel lblPort;
-    private JTextField portField1;
+    public JTextField portField1;
     private JButton btnSet;
     private JButton btnTimeMonitor;
     private JScrollPane scrollPane;
@@ -78,8 +81,8 @@ public class ClientGUI extends JFrame implements TimeListener {
     private JLabel trackLabel;
     private TrackPanel trackPanel;
     private JLabel lblCom2Port;
-    private JTextField portField2;
-    private JComboBox<NetEntry> interfaceBox;
+    public JTextField portField2;
+    public JComboBox<NetEntry> interfaceBox;
     
 
     /**
@@ -286,11 +289,33 @@ public class ClientGUI extends JFrame implements TimeListener {
         }
         interfaceBox.setSelectedIndex(0);
         
+        settingsProvider = new ClientSettingsProvider(new File(ServerGUI.PROG_HOME + "\\clientSettings.json"), this);
+        
         start();
+        
+        try {
+            Thread.sleep(15);
+            settingsProvider.load();
+        } catch (IOException e1) {
+            System.err.println("An error occured while loading settings: ");
+            e1.printStackTrace();
+        } catch (InterruptedException e1) {
+            System.err.println("FUCK");
+            e1.printStackTrace();
+        }
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                settingsProvider.save();
+            } catch (IOException e1) {
+                System.out.println("An error occured while saving settings: ");
+                e1.printStackTrace();
+            }
+        }));
         
     }
     
-    private void restart() {
+    public void restart() {
         stop();
         try {
             Thread.sleep(1000);

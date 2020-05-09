@@ -63,7 +63,7 @@ public class ServerGUI extends JFrame {
     /**
      * THe path of the base directory for the program
      */
-    public final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\TimecodeGenerator";
+    public static final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\TimecodeGenerator";
     
     private static final long serialVersionUID = -7342971032020137377L;
     private WorkerThread workThread;
@@ -162,7 +162,7 @@ public class ServerGUI extends JFrame {
         ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
         ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
         
-        this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\masterSettings.json"), this);
+        this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\serverSettings.json"), this);
         
         setTitle("Timecode Generator - Server  (experimental LTC implementation)");
         try {
