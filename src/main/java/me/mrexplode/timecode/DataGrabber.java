@@ -224,6 +224,8 @@ public class DataGrabber implements Runnable {
     public void shutdown() {
         log("Shutting down...");
         this.running = false;
+        eventHandler.removeAllListeners();
+        eventHandler.shutdown();
         synchronized (dataLock) {
             this.dataLock.notify();
         }

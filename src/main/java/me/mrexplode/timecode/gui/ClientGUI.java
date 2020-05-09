@@ -327,6 +327,8 @@ public class ClientGUI extends JFrame implements TimeListener {
     
     private void start() {
         try {
+            if (eventHandler == null)
+                eventHandler = new EventHandler();
             net = new Networking(((NetEntry) interfaceBox.getSelectedItem()).getNetworkAddress(), Integer.valueOf(portField2.getText()));
             eventHandler.startNetworking(Integer.valueOf(portField1.getText()));
             eventHandler.addListener(this);
@@ -373,7 +375,8 @@ public class ClientGUI extends JFrame implements TimeListener {
             float[] wave = new float[data.length - 2];
             System.arraycopy(data, 2, wave, 0, data.length -2);
             segments.add(new ArraySegment((int) data[0], (int) data[1], wave));
-            if (data[0] == data[1])
+            System.out.println("recieved " + data[0] + " of " + data[1] + ", length: " + wave.length);
+            if (data[0] == data[1] - 1)
                 System.out.println("Last packet");
         });
     }
@@ -381,6 +384,9 @@ public class ClientGUI extends JFrame implements TimeListener {
     private void stop() {
         oscIn.stopListening();
         net.shutdown();
+        eventHandler.removeAllListeners();
+        eventHandler.shutdown();
+        eventHandler = null;
     }
     
     private static void displayError(String errorMessage) {
@@ -418,17 +424,19 @@ public class ClientGUI extends JFrame implements TimeListener {
     @Override
     public void onMusicEvent(MusicEvent e) {
         if (e.getType() == EventType.MUSIC_LOAD) {
-            trackLabel.setText("Current track: "+ e.getMusic());
+            System.out.println("load event occured");
+            trackLabel.setText("Next track: "+ e.getMusic());
             float[] data = Sequencer.merge(segments);
             segments.clear();
             trackPanel.setSamples(data);
+            System.out.println("merged data length: " + data.length);
         }
         if (e.getType() == EventType.MUSIC_START) {
             trackLabel.setText("Current track: "+ e.getMusic());
             trackPanel.setColor(TrackPanel.playColor);
         }
         if (e.getType() == EventType.MUSIC_PAUSE || e.getType() == EventType.MUSIC_STOP) {
-            trackLabel.setText("Current track: "+ e.getMusic());
+            //trackLabel.setText("Current track: "+ e.getMusic());
             trackPanel.setColor(TrackPanel.pauseColor);
         }
     }

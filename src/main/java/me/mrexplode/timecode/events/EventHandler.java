@@ -38,6 +38,14 @@ public class EventHandler {
         this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), eventPort);
     }
     
+    public void shutdown() {
+        try {
+            this.oscOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public OSCPortOut getSystemOSC() {
         if (oscOut != null) {
             return oscOut;

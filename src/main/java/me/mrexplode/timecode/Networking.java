@@ -65,7 +65,9 @@ public class Networking implements Runnable {
     
     public void shutdown() {
         running = false;
-        socket.close();
+        //socket.disconnect();
+        //socket.close();
+        socket = null;
     }
     
     private static byte[] float2byteArray(float... args) {
