@@ -29,5 +29,6 @@ public class ServerSettings {
     public int com1Port;
     public int com2Port;
     public String com2Interface;
+    public int packetSize;
 
 }

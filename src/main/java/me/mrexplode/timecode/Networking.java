@@ -39,6 +39,14 @@ public class Networking implements Runnable {
     }
     
     public void startListening(Consumer<float[]> consumer) {
+        try {
+            this.socket = new DatagramSocket(null);
+            this.socket.setBroadcast(true);
+            this.socket.setReuseAddress(true);
+            this.socket.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), port));
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+        }
         this.consumer = consumer;
         running = true;
         Thread t = new Thread(this);

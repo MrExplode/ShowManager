@@ -55,13 +55,14 @@ public class MusicThread implements Runnable, TimeListener {
     private List<Music> trackList;
     private Tracker tracker;
     private int played = 0;
+    private int maxSegmentSize;
     private boolean running = true;
     private boolean playing = false;
     private boolean enabled = false;
     private Object lock;
     private OSCPortOut oscOut;
     
-    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock, int com1Port, int com2Port, InetAddress com2Addr) {
+    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock, int com1Port, int com2Port, InetAddress com2Addr, int maxSegmentSize) {
         this.mixer = mixer;
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
@@ -75,6 +76,7 @@ public class MusicThread implements Runnable, TimeListener {
             err("Failed to start osc sender");
             e.printStackTrace();
         }
+        this.maxSegmentSize = maxSegmentSize;
     }
 
     @Override
@@ -213,7 +215,7 @@ public class MusicThread implements Runnable, TimeListener {
         tracker = new Tracker(index, trackList.get(index).startingTime, end);
         
         long netTime = System.currentTimeMillis();
-        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, 16000);
+        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, maxSegmentSize);
         for (int i = 0; i < segments.size(); i++) {
             ArraySegment segment = segments.get(i);
             try {

@@ -109,6 +109,7 @@ public class ServerSettingsProvider {
                     break;
                 }
             }
+            gui.packetSize = settings.packetSize;
             
             //actualize the changes to the threads
             gui.restartInternals();
@@ -178,6 +179,7 @@ public class ServerSettingsProvider {
         settings.com1Port = gui.com1Port;
         settings.com2Port = gui.com2Port;
         settings.com2Interface = ((NetEntry) gui.com2InterfaceBox.getSelectedItem()).getNetworkAddress().getHostAddress();
+        settings.packetSize = gui.packetSize;
         
         //saving file
         if (!saveFile.getParentFile().exists()) {

@@ -30,6 +30,12 @@ public class NetworkingGUI extends JFrame {
     private JComboBox<NetEntry> comboBox;
     private JButton btnSet;
     private JButton btnHelp;
+    private JLabel lblSegment;
+    private JTextField packetSizeField;
+    
+    public NetworkingGUI() {
+        this(0, 0, new JComboBox<NetEntry>(), null);
+    }
 
     /**
      * Create the frame.
@@ -38,7 +44,7 @@ public class NetworkingGUI extends JFrame {
         setTitle("Networking settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setIconImages(ServerGUI.getIcons());
-        setBounds(100, 100, 278, 162);
+        setBounds(100, 100, 307, 186);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -76,6 +82,12 @@ public class NetworkingGUI extends JFrame {
                 com2PortField.setBackground(Color.RED);
                 return;
             }
+            try {
+                gui.packetSize = Integer.valueOf(packetSizeField.getText());
+            } catch (NumberFormatException exc) {
+                packetSizeField.setBackground(Color.RED);
+                return;
+            }
             gui.com2InterfaceBox.setSelectedIndex(comboBox.getSelectedIndex());
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         });
@@ -84,6 +96,12 @@ public class NetworkingGUI extends JFrame {
         btnHelp.addActionListener(e -> {
             JOptionPane.showConfirmDialog(null, "Just make sure that every client in the session has the same settings as the server.", "Help", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
         });
+        
+        lblSegment = new JLabel("Com2 packet size:");
+        lblSegment.setToolTipText("udp packet size in bytes");
+        
+        packetSizeField = new JTextField();
+        packetSizeField.setColumns(10);
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
             gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -91,22 +109,28 @@ public class NetworkingGUI extends JFrame {
                     .addContainerGap()
                     .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
                         .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(com1Label)
+                            .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+                                .addGroup(gl_contentPane.createSequentialGroup()
+                                    .addComponent(com1Label)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(com1PortField, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
+                                .addGroup(gl_contentPane.createSequentialGroup()
+                                    .addComponent(com2Label)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(com2PortField, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)))
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(com1PortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(btnHelp, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE))
+                            .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+                                .addComponent(btnHelp, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnSet, GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)))
                         .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(com2Label)
+                            .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+                                .addComponent(lblSegment, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(com2InterfaceLabel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(com2PortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(btnSet, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(gl_contentPane.createSequentialGroup()
-                            .addComponent(com2InterfaceLabel)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(comboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addContainerGap(191, GroupLayout.PREFERRED_SIZE))
+                            .addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+                                .addComponent(packetSizeField, GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
+                                .addComponent(comboBox, 0, 180, Short.MAX_VALUE))))
+                    .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
             gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -125,7 +149,11 @@ public class NetworkingGUI extends JFrame {
                     .addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
                         .addComponent(com2InterfaceLabel)
                         .addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(164, Short.MAX_VALUE))
+                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(lblSegment)
+                        .addComponent(packetSizeField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         contentPane.setLayout(gl_contentPane);
     }

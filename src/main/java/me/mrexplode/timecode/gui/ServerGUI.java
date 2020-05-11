@@ -78,6 +78,7 @@ public class ServerGUI extends JFrame {
     public int com1Port = 7100;
     public int com2Port = 7007;
     public JComboBox<NetEntry> com2InterfaceBox = new JComboBox<NetEntry>();
+    public int packetSize = 16000;
 
     private JPanel contentPane;
     private JPanel timePanel;
@@ -1070,7 +1071,7 @@ public class ServerGUI extends JFrame {
             musicList.add(musicListBox.getItemAt(i));
         }
         InetAddress com2addr = ((NetEntry) com2InterfaceBox.getSelectedItem()).getNetworkAddress();
-        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock(), com1Port, com2Port, com2addr);
+        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock(), com1Port, com2Port, com2addr, packetSize);
         mThreadInstance = new Thread(musicThread);
         trackPanel.dependencies(musicThread, workThread);
         
