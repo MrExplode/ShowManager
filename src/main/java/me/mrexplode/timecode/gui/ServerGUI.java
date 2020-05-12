@@ -632,7 +632,7 @@ public class ServerGUI extends JFrame {
         );
         modulePane.setLayout(gl_modulePane);
         btnNetworkSettings.addActionListener(e -> {
-            NetworkingGUI netGui = new NetworkingGUI(com1Port, com2Port, com2InterfaceBox, this);
+            NetworkingGUI netGui = new NetworkingGUI(com1Port, com2Port, com2InterfaceBox, packetSize, this);
             netGui.setVisible(true);
         });
         dmxSettingsPanel.setLayout(gl_dmxSettingsPanel);

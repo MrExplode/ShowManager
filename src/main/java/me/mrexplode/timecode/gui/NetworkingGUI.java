@@ -34,13 +34,13 @@ public class NetworkingGUI extends JFrame {
     private JTextField packetSizeField;
     
     public NetworkingGUI() {
-        this(0, 0, new JComboBox<NetEntry>(), null);
+        this(0, 0, new JComboBox<NetEntry>(), 16000, null);
     }
 
     /**
      * Create the frame.
      */
-    public NetworkingGUI(int com1Port, int com2Port, JComboBox<NetEntry> com2Interface, ServerGUI gui) {
+    public NetworkingGUI(int com1Port, int com2Port, JComboBox<NetEntry> com2Interface, int packetSize, ServerGUI gui) {
         setTitle("Networking settings");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setIconImages(ServerGUI.getIcons());
@@ -102,6 +102,8 @@ public class NetworkingGUI extends JFrame {
         
         packetSizeField = new JTextField();
         packetSizeField.setColumns(10);
+        packetSizeField.setText(Integer.toString(packetSize));
+        
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
         gl_contentPane.setHorizontalGroup(
             gl_contentPane.createParallelGroup(Alignment.LEADING)
