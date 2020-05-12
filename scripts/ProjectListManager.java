@@ -16,18 +16,21 @@ public class ProjectListManager {
         reader = new BufferedReader(new FileReader(new File(args[1])));
         ArrayList<String> projects = new ArrayList<String>();
         String line;
+        boolean added = false;
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith(projectInfo.split(";")[0])) {
+            if (line.startsWith(projectInfo.split(";")[0]) && !added) {
                 System.out.println("[PLM] Updating project properties");
                 projects.add(projectInfo);
+                added = true;
             } else {
-				if (isProject(line))
-					projects.add(line);
-			}
+                if (isProject(line))
+                    projects.add(line);
+            }
         }
-        if (!projects.contains(projectInfo))
+        if (!projects.contains(projectInfo)) {
             System.out.println("[PLM] Adding project to the list");
             projects.add(projectInfo);
+        }
         reader.close();
         
         PrintWriter writer = new PrintWriter(new FileOutputStream(new File(args[1])));
