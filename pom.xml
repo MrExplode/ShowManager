@@ -43,7 +43,7 @@
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
-      <version>0.61.26</version>
+      <version>0.61.30</version>
     </dependency>
     
     <!-- Java XML -->
