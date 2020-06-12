@@ -157,6 +157,9 @@ public class DataGrabber implements Runnable {
                         break;
                     case IDLE:
                         gui.remoteControl.setText("Remote control: Waiting");
+                        gui.btnPlay.setBackground(defColor);
+                        gui.btnPause.setBackground(defColor);
+                        gui.btnStop.setBackground(defColor);
                         gui.btnPlay.setEnabled(true);
                         gui.btnPause.setEnabled(true);
                         gui.btnStop.setEnabled(true);

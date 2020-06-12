@@ -70,6 +70,7 @@ public class WorkerThread implements Runnable {
     //remote
     private boolean remote = false;
     private RemoteState remoteState;
+    private RemoteState previousRState;
     private int dmxAddress = 1;
     private int universe = 0;
     private int subnet = 0;
@@ -123,6 +124,7 @@ public class WorkerThread implements Runnable {
         
         //artnet node discovery reply packet
         ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
+        System.out.println("artnetAddress: " + artnetAddress);
         replyPacket.setIp(artnetAddress);
         replyPacket.setShortName("TimecodeGen Node");
         replyPacket.setLongName("Timecode Generator Node by MrExplode");
@@ -186,21 +188,34 @@ public class WorkerThread implements Runnable {
                     switch (data[dmxAddress - 1]) {
                         default:
                             remoteState = RemoteState.IDLE;
+                            if (remoteState != previousRState)
+                                previousRState = remoteState;
                             break;
                         case 25:
                             remoteState = RemoteState.FORCE_IDLE;
+                            if (remoteState != previousRState)
+                                previousRState = remoteState;
                             break;
                         case 51:
                             remoteState = RemoteState.PLAYING;
-                            play();
+                            if (remoteState != previousRState) {
+                                previousRState = remoteState;
+                                play();
+                            }
                             break;
                         case 76:
                             remoteState = RemoteState.PAUSE;
-                            pause();
+                            if (remoteState != previousRState) {
+                                previousRState = remoteState;
+                                pause();
+                            }
                             break;
                         case 102:
                             remoteState = RemoteState.STOPPED;  
-                            stop();
+                            if (remoteState != previousRState) {
+                                previousRState = remoteState;
+                                stop();
+                            }
                             break;
                     }
                 } else {

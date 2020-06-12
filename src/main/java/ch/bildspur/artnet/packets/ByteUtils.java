@@ -66,7 +66,7 @@ public class ByteUtils {
             byteData = new byte[len];
         }
         System.arraycopy(data, offset, byteData, 0, len);
-        return buffer;
+        return byteData;
     }
 
     public byte[] getBytes() {
