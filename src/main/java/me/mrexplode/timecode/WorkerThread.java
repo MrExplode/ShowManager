@@ -124,7 +124,6 @@ public class WorkerThread implements Runnable {
         
         //artnet node discovery reply packet
         ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
-        System.out.println("artnetAddress: " + artnetAddress);
         replyPacket.setIp(artnetAddress);
         replyPacket.setShortName("TimecodeGen Node");
         replyPacket.setLongName("Timecode Generator Node by MrExplode");

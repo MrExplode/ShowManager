@@ -20,7 +20,9 @@ import me.mrexplode.timecode.gui.ClientGUI;
 import me.mrexplode.timecode.gui.ServerGUI;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OSFileStore;
 
 public class Bootstrap {
 
