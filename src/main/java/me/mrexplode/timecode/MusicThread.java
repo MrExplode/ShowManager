@@ -212,7 +212,7 @@ public class MusicThread implements Runnable, TimeListener {
         });
         
         Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
-        tracker = new Tracker(index, trackList.get(index).startingTime, end);
+        tracker = new Tracker(index, trackList.get(index).startingTime, end, false);
         
         long netTime = System.currentTimeMillis();
         ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, maxSegmentSize);

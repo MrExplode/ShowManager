@@ -982,7 +982,7 @@ public class ServerGUI extends JFrame {
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
             //port prefixed mixers don't seem to work
             if (!info.getName().startsWith("Port")) {
-                MixerEntry entry = new MixerEntry(info.getName(), info);
+                MixerEntry entry = new MixerEntry(info, info.getName());
                 ltcOutputBox.addItem(entry);
                 audioOutputBox.addItem(entry);
             }
