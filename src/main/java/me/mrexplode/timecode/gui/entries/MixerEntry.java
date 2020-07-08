@@ -1,20 +1,19 @@
-package me.mrexplode.timecode.gui;
+package me.mrexplode.timecode.gui.entries;
 
-import java.net.InetAddress;
+import javax.sound.sampled.Mixer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class NetEntry {
+public class MixerEntry {
     
-    private InetAddress networkAddress;
+    private Mixer.Info mixerInfo;
     private String name;
-    
+
     @Override
     public String toString() {
         return name;
     }
-
 }

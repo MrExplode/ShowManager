@@ -6,7 +6,7 @@ import java.util.List;
 public class Sequencer {
     
     public static List<ArraySegment> sequence(float[] data, int maxSize) {
-        ArrayList<ArraySegment> segments = new ArrayList<ArraySegment>();
+        ArrayList<ArraySegment> segments = new ArrayList<>();
         if (data.length <= maxSize) {
             segments.add(new ArraySegment(1, 1, data));
             return segments;

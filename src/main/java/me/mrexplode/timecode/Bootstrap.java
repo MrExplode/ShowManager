@@ -31,7 +31,7 @@ public class Bootstrap {
             showVersionError(ver);
             return;
         }
-        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(args));
+        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(args));
         if (arguments.contains("--client")) {
             EventQueue.invokeLater(() -> {
                 try {

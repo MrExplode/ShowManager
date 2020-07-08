@@ -12,9 +12,9 @@ import java.util.Arrays;
 import com.google.gson.Gson;
 
 import me.mrexplode.timecode.gui.ServerGUI;
-import me.mrexplode.timecode.gui.MixerEntry;
-import me.mrexplode.timecode.gui.NetEntry;
-import me.mrexplode.timecode.gui.SchedulerTableModel;
+import me.mrexplode.timecode.gui.entries.MixerEntry;
+import me.mrexplode.timecode.gui.entries.NetEntry;
+import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;
 

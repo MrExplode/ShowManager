@@ -13,7 +13,7 @@ import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.gui.ServerGUI;
-import me.mrexplode.timecode.gui.SchedulerTableModel;
+import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 
 public class DataGrabber implements Runnable {
     
@@ -32,7 +32,7 @@ public class DataGrabber implements Runnable {
         this.gui = guiInstance;
         this.running = true;
         this.previousState = RemoteState.DISABLED;
-        this.prevDispatched = new ArrayList<Integer>();
+        this.prevDispatched = new ArrayList<>();
         eventHandler = new EventHandler();
         try {
             eventHandler.startNetworking(networkPort);
@@ -67,7 +67,7 @@ public class DataGrabber implements Runnable {
             @Override
             public void onTimeEvent(TimeEvent e) {
                 if (e.getType() == EventType.TC_START) {
-                    prevDispatched = new ArrayList<Integer>();
+                    prevDispatched = new ArrayList<>();
                     if (gui.timeMonitor.isVisible())
                         gui.timeMonitor.getAnimator().startFlash(Color.RED);
                 }
@@ -119,7 +119,7 @@ public class DataGrabber implements Runnable {
             //OSC
             ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
             if (!((SchedulerTableModel) gui.table.getModel()).getLatestDispatched().equals(this.prevDispatched)) {
-                this.prevDispatched =  new ArrayList<Integer>(((SchedulerTableModel) gui.table.getModel()).getLatestDispatched());
+                this.prevDispatched =  new ArrayList<>(((SchedulerTableModel) gui.table.getModel()).getLatestDispatched());
                 gui.table.clearSelection();
                 gui.table.setRowSelectionInterval(prevDispatched.get(0), prevDispatched.get(prevDispatched.size() - 1));
             }

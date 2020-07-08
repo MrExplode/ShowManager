@@ -12,6 +12,8 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import me.mrexplode.timecode.gui.general.Animator;
+
 
 public class TimeMonitor extends JFrame {
 

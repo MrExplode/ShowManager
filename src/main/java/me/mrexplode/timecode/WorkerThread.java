@@ -30,7 +30,7 @@ import me.mrexplode.timecode.events.EventType;
 import me.mrexplode.timecode.events.OscEvent;
 import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
-import me.mrexplode.timecode.gui.SchedulerTableModel;
+import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;

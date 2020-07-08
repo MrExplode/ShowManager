@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 import com.google.gson.Gson;
 
 import me.mrexplode.timecode.gui.ClientGUI;
-import me.mrexplode.timecode.gui.NetEntry;
+import me.mrexplode.timecode.gui.entries.NetEntry;
 
 public class ClientSettingsProvider {
     

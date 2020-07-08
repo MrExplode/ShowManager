@@ -19,6 +19,7 @@ import javax.swing.filechooser.FileFilter;
 
 import me.mrexplode.timecode.fileio.DataStructure;
 import me.mrexplode.timecode.fileio.TableIO;
+import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 
 
 public class FileIOPrompt extends JFrame {

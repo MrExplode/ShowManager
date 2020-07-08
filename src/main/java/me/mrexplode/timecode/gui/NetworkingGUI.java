@@ -17,6 +17,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.vladsch.flexmark.util.html.ui.Color;
 
+import me.mrexplode.timecode.gui.entries.NetEntry;
+
 
 public class NetworkingGUI extends JFrame {
 

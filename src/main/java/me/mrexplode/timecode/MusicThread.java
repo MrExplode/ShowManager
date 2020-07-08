@@ -39,7 +39,7 @@ import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.fileio.Music;
-import me.mrexplode.timecode.gui.TrackPanel;
+import me.mrexplode.timecode.gui.general.TrackPanel;
 
 public class MusicThread implements Runnable, TimeListener {
     

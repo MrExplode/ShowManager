@@ -52,6 +52,9 @@ import me.mrexplode.timecode.events.TimeChangeEvent;
 import me.mrexplode.timecode.events.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.fileio.ClientSettingsProvider;
+import me.mrexplode.timecode.gui.entries.NetEntry;
+import me.mrexplode.timecode.gui.general.Animator;
+import me.mrexplode.timecode.gui.general.TrackPanel;
 
 
 public class ClientGUI extends JFrame implements TimeListener {

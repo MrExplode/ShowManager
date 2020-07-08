@@ -18,7 +18,7 @@ public class EventHandler {
     private OSCPortOut oscOut;
     
     public EventHandler() {
-        this.listeners = new ArrayList<TimeListener>();
+        this.listeners = new ArrayList<>();
         this.gson = new Gson();
     }
     
