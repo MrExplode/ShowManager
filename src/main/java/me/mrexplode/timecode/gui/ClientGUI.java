@@ -39,17 +39,17 @@ import com.illposed.osc.transport.udp.OSCPortIn;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 
-import me.mrexplode.timecode.ArraySegment;
+import me.mrexplode.timecode.util.ArraySegment;
 import me.mrexplode.timecode.Networking;
-import me.mrexplode.timecode.Sequencer;
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Sequencer;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.MarkerEvent;
-import me.mrexplode.timecode.events.MusicEvent;
-import me.mrexplode.timecode.events.OscEvent;
-import me.mrexplode.timecode.events.TimeChangeEvent;
-import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.impl.MarkerEvent;
+import me.mrexplode.timecode.events.impl.music.MusicEvent;
+import me.mrexplode.timecode.events.impl.osc.OscEvent;
+import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.fileio.ClientSettingsProvider;
 import me.mrexplode.timecode.gui.entries.NetEntry;
@@ -355,7 +355,7 @@ public class ClientGUI extends JFrame implements TimeListener {
                         }
                         
                         if (msg.getAddress().equals("/timecode/musicplayer/progress")) {
-                            trackPanel.setValue(Integer.valueOf((String) msg.getArguments().get(0)));
+                            trackPanel.setValue(Integer.parseInt((String) msg.getArguments().get(0)));
                         }
                     }
                 }

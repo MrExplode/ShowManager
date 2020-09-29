@@ -17,25 +17,29 @@ import com.illposed.osc.transport.udp.OSCPortOut;
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
 import ch.bildspur.artnet.ArtNetServer;
-import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.ArtDmxPacket;
 import ch.bildspur.artnet.packets.ArtNetPacket;
-import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
+import lombok.Getter;
 import me.mrexplode.ltc4j.Framerate;
 import me.mrexplode.ltc4j.LTCGenerator;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.OscEvent;
-import me.mrexplode.timecode.events.TimeChangeEvent;
-import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.impl.osc.OscEvent;
+import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
+import me.mrexplode.timecode.remote.DmxRemoteControl;
+import me.mrexplode.timecode.remote.OscRemoteControl;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduledEvent;
 import me.mrexplode.timecode.schedule.ScheduledOSC;
+import me.mrexplode.timecode.util.Timecode;
+import me.mrexplode.timecode.util.Utils;
 
 public class WorkerThread implements Runnable {
+    @Getter private static WorkerThread instance;
     
     //artnet
     private ArtNetServer server;
@@ -66,14 +70,9 @@ public class WorkerThread implements Runnable {
      * the timecode value, in milliseconds
      */
     private Timecode timecode;
-    
-    //remote
-    private boolean remote = false;
-    private RemoteState remoteState;
-    private RemoteState previousRState;
-    private int dmxAddress = 1;
-    private int universe = 0;
-    private int subnet = 0;
+
+    private DmxRemoteControl dmxRemote;
+    private OscRemoteControl oscRemote;
     
     private static int framerate = 30;
     
@@ -86,6 +85,7 @@ public class WorkerThread implements Runnable {
     }
     
     public WorkerThread(Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock, ArtNetServer server) {
+        instance = this;
         this.mixer = mixer;
         this.model = model;
         this.oscAddress = oscAddress;
@@ -94,7 +94,6 @@ public class WorkerThread implements Runnable {
         this.server = (server == null ? new ArtNetServer() : server);
         this.packet = new ArtTimePacket();
         this.artBuffer = new ArtNetBuffer();
-        this.remoteState = RemoteState.IDLE;
         this.dataGrabberThread = grabber;
         this.dataGrabber = dataGrabber;
         this.dataLock = dataLock;
@@ -123,20 +122,7 @@ public class WorkerThread implements Runnable {
         });
         
         //artnet node discovery reply packet
-        ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
-        replyPacket.setIp(artnetAddress);
-        replyPacket.setShortName("TimecodeGen Node");
-        replyPacket.setLongName("Timecode Generator Node by MrExplode");
-        replyPacket.setVersionInfo(1);
-        replyPacket.setSubSwitch(1);
-        replyPacket.setOemCode(5);
-        PortDescriptor port = new PortDescriptor();
-        port.setCanInput(true);
-        port.setCanOutput(true);
-        replyPacket.setPorts(new PortDescriptor[] {port});
-        
-        replyPacket.translateData();
-        server.setDefaultReplyPacket(replyPacket);
+        Utils.setReplyPacket(server, artnetAddress);
         
         try {
             server.start(artnetAddress);
@@ -182,44 +168,8 @@ public class WorkerThread implements Runnable {
                 if (playing) {
                     elapsed = time - start;
                 }
-                if (remote) {
-                    byte[] data = artBuffer.getDmxData((short) subnet, (short) universe);
-                    switch (data[dmxAddress - 1]) {
-                        default:
-                            remoteState = RemoteState.IDLE;
-                            if (remoteState != previousRState)
-                                previousRState = remoteState;
-                            break;
-                        case 25:
-                            remoteState = RemoteState.FORCE_IDLE;
-                            if (remoteState != previousRState)
-                                previousRState = remoteState;
-                            break;
-                        case 51:
-                            remoteState = RemoteState.PLAYING;
-                            if (remoteState != previousRState) {
-                                previousRState = remoteState;
-                                play();
-                            }
-                            break;
-                        case 76:
-                            remoteState = RemoteState.PAUSE;
-                            if (remoteState != previousRState) {
-                                previousRState = remoteState;
-                                pause();
-                            }
-                            break;
-                        case 102:
-                            remoteState = RemoteState.STOPPED;  
-                            if (remoteState != previousRState) {
-                                previousRState = remoteState;
-                                stop();
-                            }
-                            break;
-                    }
-                } else {
-                    remoteState = RemoteState.DISABLED;
-                }
+                //remote
+                dmxRemote.handleData(artBuffer.getDmxData((short) dmxRemote.getAddress().getSubnet(), (short) dmxRemote.getAddress().getUniverse()));
                 
                 if (playing) {
                     timecode = new Timecode(elapsed, framerate);
@@ -365,47 +315,6 @@ public class WorkerThread implements Runnable {
     
     public static int getFramerate() {
         return framerate;
-    }
-    
-    public void setRemoteControl(boolean mode) {
-        this.remote = mode;
-    }
-    
-    public RemoteState getRemoteState() {
-        return remoteState;
-    }
-    
-    public int getDmxAddress() {
-        return dmxAddress;
-    }
-
-    
-    public void setDmxAddress(int dmxAddress) {
-        if (dmxAddress < 1 || dmxAddress > 512) {
-            throw new IllegalArgumentException("Dmx address must be between 1 and 512");
-        } else {
-            this.dmxAddress = dmxAddress;
-        }
-    }
-
-    
-    public int getUniverse() {
-        return universe;
-    }
-
-    
-    public void setUniverse(int universe) {
-        this.universe = universe;
-    }
-
-    
-    public int getSubnet() {
-        return subnet;
-    }
-
-    
-    public void setSubnet(int subnet) {
-        this.subnet = subnet;
     }
     
     private static void displayError(String errorMessage) {

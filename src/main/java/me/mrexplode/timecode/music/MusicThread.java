@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.music;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,16 +30,20 @@ import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCSerializeException;
 import com.illposed.osc.transport.udp.OSCPortOut;
 
+import me.mrexplode.timecode.*;
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.MarkerEvent;
-import me.mrexplode.timecode.events.MusicEvent;
-import me.mrexplode.timecode.events.OscEvent;
-import me.mrexplode.timecode.events.TimeChangeEvent;
-import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.impl.MarkerEvent;
+import me.mrexplode.timecode.events.impl.music.MusicEvent;
+import me.mrexplode.timecode.events.impl.osc.OscEvent;
+import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.gui.general.TrackPanel;
+import me.mrexplode.timecode.util.ArraySegment;
+import me.mrexplode.timecode.util.Sequencer;
+import me.mrexplode.timecode.util.Timecode;
 
 public class MusicThread implements Runnable, TimeListener {
     

@@ -1,6 +1,6 @@
 package me.mrexplode.timecode.fileio;
 
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Timecode;
 
 public class Music {
     

@@ -17,6 +17,15 @@
       <artifactId>oshi-core</artifactId>
       <version>5.1.0</version>
     </dependency>
+
+    <!-- Jedis Client -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>3.3.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
     
     <!-- JavaOSC -->
     <dependency>
@@ -122,6 +131,7 @@
             <manifestEntries>
               <Main-Class>me.mrexplode.timecode.Bootstrap</Main-Class>
               <SplashScreen-Image>icons/icon256.png</SplashScreen-Image>
+              <built-by>MrExplode</built-by>
             </manifestEntries>
           </archive>
         </configuration>

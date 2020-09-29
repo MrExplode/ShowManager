@@ -26,7 +26,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         String ver = ManagementFactory.getRuntimeMXBean().getVmVersion();
-        int versionNumber = Integer.valueOf(ver.substring(0, 2));
+        int versionNumber = Integer.parseInt(ver.substring(0, 2));
         if (versionNumber < 11) {
             showVersionError(ver);
             return;
@@ -83,8 +83,8 @@ public class Bootstrap {
         Font font = label.getFont();
         
         StringBuffer style = new StringBuffer("font-family:" + font.getFamily() + ";");
-        style.append("font-weight:" + (font.isBold() ? "bold" : "normal") + ";");
-        style.append("font-size:" + font.getSize() + "pt;");
+        style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+        style.append("font-size:").append(font.getSize()).append("pt;");
         
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">Required Java version: JDK 11<br>Current: " + currentVer + "<br><a href=\"https://adoptopenjdk.net/index.html?variant=openjdk14&jvmVariant=hotspot\">Recommended download</a>");
         ep.setEditable(false);

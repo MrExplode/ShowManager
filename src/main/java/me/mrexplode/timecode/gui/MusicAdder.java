@@ -23,7 +23,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 

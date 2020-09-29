@@ -9,11 +9,13 @@ import javax.swing.UIManager;
 
 import me.mrexplode.timecode.events.EventHandler;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.TimeChangeEvent;
-import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.gui.ServerGUI;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
+import me.mrexplode.timecode.remote.RemoteState;
+import me.mrexplode.timecode.util.Timecode;
 
 public class DataGrabber implements Runnable {
     
@@ -26,7 +28,7 @@ public class DataGrabber implements Runnable {
     private ArrayList<Integer> prevDispatched;
     private Timecode currentTime = new Timecode(0);
     
-    private Object dataLock = new Object();
+    private final Object dataLock = new Object();
     
     public DataGrabber(ServerGUI guiInstance, int networkPort) {
         this.gui = guiInstance;

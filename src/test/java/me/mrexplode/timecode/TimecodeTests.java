@@ -1,5 +1,6 @@
 package me.mrexplode.timecode;
 
+import me.mrexplode.timecode.util.Timecode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
@@ -24,7 +25,7 @@ public class TimecodeTests {
     @RepeatedTest(3)
     @DisplayName("Equality test")
     public void equal() {
-        assertTrue(new Timecode(0, 0, 0, 0, framerate).equals(new Timecode(0, 0, 0, 0, framerate)));
+        assertEquals(new Timecode(0, 0, 0, 0, framerate), new Timecode(0, 0, 0, 0, framerate));
     }
     
     @RepeatedTest(3)

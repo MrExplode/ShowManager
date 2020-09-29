@@ -13,9 +13,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import me.mrexplode.timecode.MusicThread;
-import me.mrexplode.timecode.Timecode;
-import me.mrexplode.timecode.Tracker;
+import me.mrexplode.timecode.music.MusicThread;
+import me.mrexplode.timecode.util.Timecode;
+import me.mrexplode.timecode.music.Tracker;
 import me.mrexplode.timecode.WorkerThread;
 
 

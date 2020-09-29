@@ -50,8 +50,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
-import me.mrexplode.timecode.MusicThread;
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.music.MusicThread;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;

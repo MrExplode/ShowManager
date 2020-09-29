@@ -27,11 +27,10 @@ public class Animator implements Runnable {
                 time = System.currentTimeMillis();
                 if (value) {
                     component.setBackground(color);
-                    value = !value;
                 } else {
                     component.setBackground(base);
-                    value = !value;
                 }
+                value = !value;
             }
         }
     }

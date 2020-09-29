@@ -10,6 +10,10 @@ import com.google.gson.Gson;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCSerializeException;
 import com.illposed.osc.transport.udp.OSCPortOut;
+import me.mrexplode.timecode.events.impl.music.MusicEvent;
+import me.mrexplode.timecode.events.impl.osc.OscEvent;
+import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 
 public class EventHandler {
     
@@ -103,7 +107,7 @@ public class EventHandler {
             break;
             case "TimeChangeEvent":
                 for (TimeListener listener : listeners) {
-                    listener.onTimeChangeEvent((TimeChangeEvent) e); 
+                    listener.onTimeChangeEvent((TimeChangeEvent) e);
                 }
             break;
             case"TimeEvent":

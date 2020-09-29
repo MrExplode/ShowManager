@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import me.mrexplode.timecode.util.ArraySegment;
+import me.mrexplode.timecode.util.Sequencer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.TestInstance;
@@ -28,8 +30,8 @@ public class SequencerTests {
         int size = new Random(System.currentTimeMillis()).nextInt(40) + 20;
         ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(testArray, size);
         assertNotEquals(null, segments);
-        for (int i = 0; i < segments.size(); i++) {
-            int len = segments.get(i).getData().length;
+        for (ArraySegment segment : segments) {
+            int len = segment.getData().length;
             assertTrue(len <= size, "length (" + len + ") greather than max size (" + size + ")");
         }
     }
@@ -39,8 +41,8 @@ public class SequencerTests {
         int size = new Random(System.currentTimeMillis()).nextInt(40) + 20;
         ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(testArray, size);
         int length = 0;
-        for (int i = 0; i < segments.size(); i++) {
-            length += segments.get(i).getData().length;
+        for (ArraySegment segment : segments) {
+            length += segment.getData().length;
         }
         assertEquals(testArray.length, length);
     }

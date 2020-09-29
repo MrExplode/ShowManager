@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 import me.mrexplode.timecode.schedule.OSCDataType;

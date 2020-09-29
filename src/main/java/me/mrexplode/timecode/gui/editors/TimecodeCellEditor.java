@@ -13,7 +13,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 
 

@@ -10,9 +10,9 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 import me.mrexplode.timecode.DataGrabber;
-import me.mrexplode.timecode.Timecode;
+import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.TimeEvent;
+import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.schedule.OSCDataType;
 import me.mrexplode.timecode.schedule.ScheduleType;

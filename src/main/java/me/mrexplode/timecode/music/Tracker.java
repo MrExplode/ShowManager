@@ -1,8 +1,9 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.music;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import me.mrexplode.timecode.util.Timecode;
 
 @Setter
 @AllArgsConstructor

@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.function.Consumer;
 
+@Deprecated
 public class Networking implements Runnable {
     
     private int port;

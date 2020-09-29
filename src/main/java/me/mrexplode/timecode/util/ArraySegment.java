@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

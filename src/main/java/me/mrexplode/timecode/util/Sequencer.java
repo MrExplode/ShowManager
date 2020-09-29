@@ -1,4 +1,4 @@
-package me.mrexplode.timecode;
+package me.mrexplode.timecode.util;
 
 import java.util.ArrayList;
 import java.util.List;
