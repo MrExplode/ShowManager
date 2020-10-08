@@ -1,6 +1,6 @@
 package me.mrexplode.timecode.eventsystem.events.music;
 
-import me.mrexplode.timecode.eventsystem.events.Event;
+import me.mrexplode.timecode.eventsystem.events.CancellableEvent;
 
-public class MusicPauseEvent extends Event {
+public class MusicPauseEvent extends CancellableEvent {
 }

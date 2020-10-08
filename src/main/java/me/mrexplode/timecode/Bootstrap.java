@@ -32,10 +32,10 @@ public class Bootstrap {
             return;
         }
         ArrayList<String> arguments = new ArrayList<>(Arrays.asList(args));
-        if (arguments.contains("--client")) {
-            EventQueue.invokeLater(() -> {
+        if (arguments.contains("--withRAM") || arguments.contains("--debugStart")) {
+            EventQueue.invokeLater(() ->{
                 try {
-                    ClientGUI gui = new ClientGUI();
+                    ServerGUI gui = new ServerGUI();
                     gui.setVisible(true);
                 } catch (SocketException e) {
                     showError(e);
@@ -43,32 +43,18 @@ public class Bootstrap {
                 }
             });
         } else {
-            if (arguments.contains("--withRAM") || arguments.contains("--debugStart")) {
-                EventQueue.invokeLater(() ->{
-                    try {
-                        ServerGUI gui = new ServerGUI();
-                        gui.setVisible(true);
-                    } catch (SocketException e) {
-                        showError(e);
-                        e.printStackTrace();
-                    }
-                });
+            SystemInfo si = new SystemInfo();
+            HardwareAbstractionLayer h = si.getHardware();
+            GlobalMemory globalMem = h.getMemory();
+            long freeSysMem = globalMem.getAvailable();
+            if (freeSysMem < 3000000000L) {
+                JOptionPane.showConfirmDialog(null, "Less than 3 GB free memory! Please free the memory if you wish to use this program", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
             } else {
-                SystemInfo si = new SystemInfo();
-                HardwareAbstractionLayer h = si.getHardware();
-                GlobalMemory globalMem = h.getMemory();
-                long freeSysMem = globalMem.getAvailable();
-                if (freeSysMem < 3000000000L) {
-                    JOptionPane.showConfirmDialog(null, "Less than 3 GB free memory! Please free the memory if you wish to use this program", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
-                    return;
-                } else {
-                    try {
-                        Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), "UTF-8"), "--withRAM"});
-                    } catch (IOException e) {
-                        JOptionPane.showConfirmDialog(null, "Failed to start the process!\n " + e.getMessage(), "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
-                        e.printStackTrace();
-                        return;
-                    }
+                try {
+                    Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), "UTF-8"), "--withRAM"});
+                } catch (IOException e) {
+                    JOptionPane.showConfirmDialog(null, "Failed to start the process!\n " + e.getMessage(), "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
+                    e.printStackTrace();
                 }
             }
         }
@@ -81,11 +67,9 @@ public class Bootstrap {
     private static void showVersionError(String currentVer) {
         JLabel label = new JLabel();
         Font font = label.getFont();
-        
-        StringBuffer style = new StringBuffer("font-family:" + font.getFamily() + ";");
-        style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-        style.append("font-size:").append(font.getSize()).append("pt;");
-        
+
+        String style = "font-family:" + font.getFamily() + ";" + "font-weight:" + (font.isBold() ? "bold" : "normal") + ";" +
+                "font-size:" + font.getSize() + "pt;";
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">Required Java version: JDK 11<br>Current: " + currentVer + "<br><a href=\"https://adoptopenjdk.net/index.html?variant=openjdk14&jvmVariant=hotspot\">Recommended download</a>");
         ep.setEditable(false);
         ep.setBackground(label.getBackground());

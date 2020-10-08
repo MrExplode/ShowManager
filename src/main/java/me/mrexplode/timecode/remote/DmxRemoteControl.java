@@ -1,6 +1,5 @@
 package me.mrexplode.timecode.remote;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.mrexplode.timecode.WorkerThread;
@@ -10,40 +9,40 @@ import me.mrexplode.timecode.util.DmxAddress;
 public class DmxRemoteControl {
     private static final int TOLERANCE = 5;
     @Setter private boolean enabled = false;
-    private RemoteState state;
-    private RemoteState previousState;
-    @Setter private DmxAddress address;
+    private DmxRemoteState state = DmxRemoteState.DISABLED;
+    private DmxRemoteState previousState= DmxRemoteState.DISABLED;
+    @Setter private DmxAddress address = new DmxAddress(0, 0, 0);
 
     public void handleData(byte[] dmxData) {
         if (!enabled) {
-            state = RemoteState.DISABLED;
+            state = DmxRemoteState.DISABLED;
             return;
         }
         byte value = dmxData[address.getAddress() - 1];
         if (inToleratedRange(25, value)) {
-            state = RemoteState.FORCE_IDLE;
+            state = DmxRemoteState.FORCE_IDLE;
             if (state != previousState)
                 previousState = state;
         } else if (inToleratedRange(51, value)) {
-            state = RemoteState.PLAYING;
+            state = DmxRemoteState.PLAYING;
             if (state != previousState) {
                 previousState = state;
                 WorkerThread.getInstance().play();
             }
         } else if (inToleratedRange(76, value)) {
-            state = RemoteState.PAUSE;
+            state = DmxRemoteState.PAUSE;
             if (state != previousState) {
                 previousState = state;
                 WorkerThread.getInstance().pause();
             }
         } else if (inToleratedRange(102, value)) {
-            state = RemoteState.STOPPED;
+            state = DmxRemoteState.STOPPED;
             if (state != previousState) {
                 previousState = state;
                 WorkerThread.getInstance().stop();
             }
         } else {
-            state = RemoteState.IDLE;
+            state = DmxRemoteState.IDLE;
             if (state != previousState)
                 previousState = state;
         }

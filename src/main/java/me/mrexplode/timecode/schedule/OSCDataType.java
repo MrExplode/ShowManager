@@ -16,8 +16,6 @@ public enum OSCDataType {
                 return Float.valueOf(value);
             case INTEGER:
                 return Integer.valueOf(value);
-            case STRING:
-                return value;
             default:
                 return value;
         }

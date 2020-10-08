@@ -1,6 +1,6 @@
 package me.mrexplode.timecode.eventsystem.events.time;
 
-import me.mrexplode.timecode.eventsystem.events.Event;
+import me.mrexplode.timecode.eventsystem.events.CancellableEvent;
 
-public class TimecodePauseEvent extends Event {
+public class TimecodePauseEvent extends CancellableEvent {
 }

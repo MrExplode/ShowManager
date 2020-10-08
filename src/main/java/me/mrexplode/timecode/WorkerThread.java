@@ -3,16 +3,14 @@ package me.mrexplode.timecode;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.swing.JOptionPane;
 
 import com.illposed.osc.OSCMessage;
-import com.illposed.osc.OSCSerializeException;
-import com.illposed.osc.transport.udp.OSCPortOut;
 
 import ch.bildspur.artnet.ArtNetBuffer;
 import ch.bildspur.artnet.ArtNetException;
@@ -26,10 +24,13 @@ import lombok.Getter;
 import me.mrexplode.ltc4j.Framerate;
 import me.mrexplode.ltc4j.LTCGenerator;
 import me.mrexplode.timecode.events.EventType;
-import me.mrexplode.timecode.events.impl.osc.OscEvent;
 import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
 import me.mrexplode.timecode.events.impl.time.TimeEvent;
+import me.mrexplode.timecode.eventsystem.EventBus;
+import me.mrexplode.timecode.eventsystem.events.time.*;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
+import me.mrexplode.timecode.ltc.LtcHandler;
+import me.mrexplode.timecode.osc.OscHandler;
 import me.mrexplode.timecode.remote.DmxRemoteControl;
 import me.mrexplode.timecode.remote.OscRemoteControl;
 import me.mrexplode.timecode.schedule.OSCDataType;
@@ -40,26 +41,21 @@ import me.mrexplode.timecode.util.Utils;
 
 public class WorkerThread implements Runnable {
     @Getter private static WorkerThread instance;
+    @Getter private EventBus eventBus;
+    @Getter private OscHandler oscHandler;
+    @Getter private LtcHandler ltcHandler;
     
     //artnet
     private ArtNetServer server;
     private ArtTimePacket packet;
     private ArtNetBuffer artBuffer;
     private InetAddress artnetAddress;
-    
-    //ltc
-    private Mixer mixer = null;
-    private LTCGenerator ltcGenerator = null;
-    
-    //OSC
-    private OSCPortOut oscOut = null;
-    private InetAddress oscAddress = null;
-    private int oscPort = 0;
+
     private SchedulerTableModel model = null;
     
     //main controls
     private boolean running = true;
-    private boolean broadcast = false;
+    private boolean artnet = false;
     private boolean playLTC = false;
     private boolean sendOSC = false;
     private boolean playing = false;
@@ -102,59 +98,19 @@ public class WorkerThread implements Runnable {
 
     @Override
     public void run() {
-        log("Starting thread...");
         Thread.currentThread().setName("WorkerThread");
         running = true;
         artBuffer.clear();
-        //input handling
-        server.addListener(new ArtNetServerEventAdapter() {
-            @Override
-            public void artNetPacketReceived(ArtNetPacket packet) {
-                if (packet.getType() != PacketType.ART_OUTPUT)
-                    return;
-                
-                ArtDmxPacket dmxPacket = (ArtDmxPacket) packet;
-                int subnet = dmxPacket.getSubnetID();
-                int universe = dmxPacket.getUniverseID();
 
-                artBuffer.setDmxData((short) subnet, (short) universe, dmxPacket.getDmxData());
-            }
-        });
-        
-        //artnet node discovery reply packet
-        Utils.setReplyPacket(server, artnetAddress);
-        
+        setupArtNet();
         try {
-            server.start(artnetAddress);
-        } catch (SocketException | ArtNetException e) {
-            err("Failed to start ArtNet server");
-            displayError("Failed to start ArtNetServer: " + e.getMessage() + "\n Please restart the internals!");
-            throw new RuntimeException("Failed to start WorkerThread.", e);
+            ltcHandler.init();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
         }
-        
-        //setup the ltc
-        Framerate frameInstance = null;
-        if (framerate == 24)
-            frameInstance = Framerate.FRAMERATE_24;
-        if (framerate == 25)
-            frameInstance = Framerate.FRAMERATE_25;
-        if (framerate == 30)
-            frameInstance = Framerate.FRAMERATE_30;
-        ltcGenerator = new LTCGenerator(mixer, frameInstance, 48000);
-        ltcGenerator.setVolume(90);
         try {
-            ltcGenerator.init();
-        } catch (LineUnavailableException e1) {
-            err("Failed to start ltc generator");
-            displayError("Failed to start LTC generator: " + e1.getMessage() + "\n Please restart the internals!");
-            throw new RuntimeException("Failed to start WorkerThread.", e1);
-        }
-        
-        try {
-            oscOut = new OSCPortOut(oscAddress, oscPort);
+            oscHandler.setup();
         } catch (IOException e) {
-            err("Failed to start OSC server");
-            displayError("Failed to start OSC server: " + e.getMessage() + "\n Please restart the internals!");
             e.printStackTrace();
         }
         
@@ -174,7 +130,7 @@ public class WorkerThread implements Runnable {
                 if (playing) {
                     timecode = new Timecode(elapsed, framerate);
                     packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
-                    ltcGenerator.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
+                    ltcHandler.getGenerator().setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                 }
                 
                 if (dataGrabberThread.isAlive()) {
@@ -184,39 +140,48 @@ public class WorkerThread implements Runnable {
                 }
                 
                 dataGrabber.update();
-                
-                if (playing) {
-                  //TODO: move to datagrabber
-                    //OSC stuff. idk about performance, but it might need to be moved from here if it slows down the loop
-                    if (sendOSC) {
-                        ArrayList<ScheduledEvent> events = (ArrayList<ScheduledEvent>) model.getCurrentFor(getCurrentTimecode());
-                        if (events != null) {
-                            for (int i = 0; i < events.size(); i++) {
-                                if (events.get(i) instanceof ScheduledOSC) {
-                                    ScheduledOSC oscMessage = (ScheduledOSC) events.get(i);
-                                    if (oscMessage.isReady()) {
-                                        try {
-                                            OSCMessage oscPacket = new OSCMessage(oscMessage.getPath(), Collections.singletonList(OSCDataType.castTo(oscMessage.getValue(), oscMessage.getDataType())));
-                                            oscOut.send(oscPacket);
-                                            DataGrabber.getEventHandler().callEvent(new OscEvent(EventType.OSC_DISPATCH, oscPacket));
-                                            System.err.println("sent osc message " + oscMessage.getPath());
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        } catch (OSCSerializeException e) {
-                                            displayError("Failed to serialize osc message: " + oscMessage.getPath());
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
+                if (playing && sendOSC) {
+                    List<ScheduledEvent> events = model.getCurrentFor(getCurrentTimecode());
+                    if (events != null) {
+                        events.forEach(scheduledEvent -> {
+                            if (scheduledEvent instanceof ScheduledOSC && ((ScheduledOSC) scheduledEvent).isReady()) {
+                                ScheduledOSC scheduledOSC = (ScheduledOSC) scheduledEvent;
+                                OSCMessage packet = new OSCMessage(scheduledOSC.getPath(), Collections.singletonList(OSCDataType.castTo(scheduledOSC.getValue(), scheduledOSC.getDataType())));
+                                oscHandler.sendOscPacket(packet);
                             }
-                        }
+                        });
                     }
                 }
                 
-                if (broadcast) {
+                if (artnet) {
                     server.broadcastPacket(packet);
                 }
             } 
+        }
+    }
+
+    private void setupArtNet() {
+        server.addListener(new ArtNetServerEventAdapter() {
+            @Override
+            public void artNetPacketReceived(ArtNetPacket packet) {
+                if (packet.getType() != PacketType.ART_OUTPUT)
+                    return;
+
+                ArtDmxPacket dmxPacket = (ArtDmxPacket) packet;
+                int subnet = dmxPacket.getSubnetID();
+                int universe = dmxPacket.getUniverseID();
+
+                artBuffer.setDmxData((short) subnet, (short) universe, dmxPacket.getDmxData());
+            }
+        });
+
+        //artnet node discovery reply packet
+        Utils.setReplyPacket(server, artnetAddress);
+
+        try {
+            server.start(artnetAddress);
+        } catch (SocketException | ArtNetException e) {
+            e.printStackTrace();
         }
     }
     
@@ -224,36 +189,36 @@ public class WorkerThread implements Runnable {
         return timecode;
     }
     
-    public String getCurrentTime() {
+    public String getFormatted() {
         return getCurrentTimecode().guiFormatted();
     }
     
     public void setTime(Timecode time) {
-        //FIXME: something
+        TimecodeSetEvent event = new TimecodeSetEvent(time);
+        event.call(eventBus);
+        if (event.isCancelled())
+            return;
+
         packet.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
-        ltcGenerator.setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
+        ltcHandler.getGenerator().setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
-        TimeEvent event = new TimeEvent(EventType.TC_SET);
-        event.setAdditionalValue(getCurrentTimecode());
-        DataGrabber.getEventHandler().callEvent(event);
-        DataGrabber.getEventHandler().callEvent(new TimeChangeEvent(getCurrentTimecode()));
+        this.timecode = time;
     }
     
     public void play() {
-        //starting first
-        if (start == 0) {
+        TimecodeStartEvent event = new TimecodeStartEvent();
+        event.call(eventBus);
+        if (event.isCancelled())
+            return;
+
+        if (start == 0)
             start = System.currentTimeMillis();
-        } else {
+        else
             start = System.currentTimeMillis() - elapsed;
-        }
-        if (playLTC) {
-            ltcGenerator.start();
-        }
+        if (playLTC)
+            ltcHandler.getGenerator().start();
         this.playing = true;
-        TimeEvent event = new TimeEvent(EventType.TC_START);
-        event.setAdditionalValue(getCurrentTimecode());
-        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public boolean isPlaying() {
@@ -261,60 +226,34 @@ public class WorkerThread implements Runnable {
     }
     
     public void pause() {
+        TimecodePauseEvent event = new TimecodePauseEvent();
+        event.call(eventBus);
+        if (event.isCancelled())
+            return;
         this.playing = false;
         if (playLTC) {
-            ltcGenerator.stop();
+            ltcHandler.getGenerator().stop();
         }
-        TimeEvent event = new TimeEvent(EventType.TC_PAUSE);
-        event.setAdditionalValue(getCurrentTimecode());
-        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public void stop() {
+        TimecodeStopEvent event = new TimecodeStopEvent();
+        event.call(eventBus);
+        if (event.isCancelled())
+            return;
         this.playing = false;
         if (playLTC) {
-            ltcGenerator.setTime(0, 0, 0, 0);
-            ltcGenerator.stop();
+            ltcHandler.getGenerator().setTime(0, 0, 0, 0);
+            ltcHandler.getGenerator().stop();
         }
         timecode = new Timecode(0);
         start = 0;
-        
-        TimeEvent event = new TimeEvent(EventType.TC_STOP);
-        event.setAdditionalValue(getCurrentTimecode());
-        DataGrabber.getEventHandler().callEvent(event);
     }
     
     public void shutdown() {
-        log("Shutting down...");
         running = false;
-        ltcGenerator.shutdown();
-        mixer.close();
-        mixer = null;
+        ltcHandler.shutdown();
         server.stop();
-    }
-    
-    public void setBroadcast(boolean value) {
-        this.broadcast = value;
-    }
-    
-    public void setLTC(boolean value) {
-        this.playLTC = value;
-    }
-    
-    public void setOSC(boolean value) {
-        this.sendOSC = value;
-    }
-    
-    public void setFramerate(int framerate) {
-        if (framerate == 24 || framerate == 25 || framerate == 30) {
-            WorkerThread.framerate = framerate;
-        } else {
-            throw new IllegalArgumentException("Not valid framerate! Framerate must be 24, 25 or 30");
-        }
-    }
-    
-    public static int getFramerate() {
-        return framerate;
     }
     
     private static void displayError(String errorMessage) {
@@ -323,14 +262,6 @@ public class WorkerThread implements Runnable {
         });
         t.setName("Error display thread");
         t.start();
-    }
-    
-    private static void log(String message) {
-        System.out.println("[WorkerThread] " + message);
-    }
-    
-    private static void err(String errorMessage) {
-        System.err.println("[WorkerThread] " + errorMessage);
     }
 
 }

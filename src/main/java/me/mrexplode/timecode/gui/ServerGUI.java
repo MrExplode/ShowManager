@@ -381,7 +381,7 @@ public class ServerGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println((artnetCheckBox.isSelected() ? "Enabled" : "Disabled") + " ArtNet timecode");
-                workThread.setBroadcast(artnetCheckBox.isSelected());
+                workThread.setBroadcastArtNet(artnetCheckBox.isSelected());
             }
         });
         artnetCheckBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
@@ -1061,7 +1061,7 @@ public class ServerGUI extends JFrame {
         }
         int oscPort = 0;
         try {
-            oscPort = Integer.valueOf(oscPortField.getText());
+            oscPort = Integer.parseInt(oscPortField.getText());
         } catch (NumberFormatException e) {
             oscPortField.setText("0");
         }

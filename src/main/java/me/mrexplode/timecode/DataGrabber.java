@@ -14,7 +14,7 @@ import me.mrexplode.timecode.events.impl.time.TimeEvent;
 import me.mrexplode.timecode.events.TimecodeEventAdapter;
 import me.mrexplode.timecode.gui.ServerGUI;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
-import me.mrexplode.timecode.remote.RemoteState;
+import me.mrexplode.timecode.remote.DmxRemoteState;
 import me.mrexplode.timecode.util.Timecode;
 
 public class DataGrabber implements Runnable {
@@ -24,7 +24,7 @@ public class DataGrabber implements Runnable {
     private WorkerThread worker;
     private ServerGUI gui;
     private boolean running;
-    private RemoteState previousState;
+    private DmxRemoteState previousState;
     private ArrayList<Integer> prevDispatched;
     private Timecode currentTime = new Timecode(0);
     
@@ -33,7 +33,7 @@ public class DataGrabber implements Runnable {
     public DataGrabber(ServerGUI guiInstance, int networkPort) {
         this.gui = guiInstance;
         this.running = true;
-        this.previousState = RemoteState.DISABLED;
+        this.previousState = DmxRemoteState.DISABLED;
         this.prevDispatched = new ArrayList<>();
         eventHandler = new EventHandler();
         try {
@@ -99,8 +99,8 @@ public class DataGrabber implements Runnable {
     
     public void update() {
         currentTime = worker.getCurrentTimecode();
-        String timeString = worker.getCurrentTime();
-        RemoteState remoteState = worker.getRemoteState();
+        String timeString = worker.getFormatted();
+        DmxRemoteState dmxRemoteState = worker.getRemoteState();
         
         boolean playing = worker.isPlaying();
         
@@ -129,10 +129,10 @@ public class DataGrabber implements Runnable {
             gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
 
             
-            if (remoteState != previousState) {
-                previousState = remoteState;
+            if (dmxRemoteState != previousState) {
+                previousState = dmxRemoteState;
                 
-                switch (remoteState) {
+                switch (dmxRemoteState) {
                     case DISABLED:
                         gui.remoteControl.setText("");
                         gui.btnPlay.setEnabled(true);
