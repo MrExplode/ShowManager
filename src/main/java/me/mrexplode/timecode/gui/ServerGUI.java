@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,14 +42,12 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import me.mrexplode.timecode.DataGrabber;
 import me.mrexplode.timecode.music.MusicThread;
-import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;
@@ -76,15 +72,14 @@ public class ServerGUI extends JFrame {
     private WorkerThread workThread;
     private DataGrabber dataGrabber;
     private MusicThread musicThread;
-    private HashMap<Integer, String> ltcSources = new HashMap<Integer, String>();
     private ServerSettingsProvider settingsProvider;
     public static ServerGUI guiInstance;
-    private ArrayList<JComponent> components = new ArrayList<JComponent>();
-    private ArrayList<JPanel> threadIndicators = new ArrayList<JPanel>();
+    private ArrayList<JComponent> components = new ArrayList<>();
+    private ArrayList<JPanel> threadIndicators = new ArrayList<>();
     public TimeMonitor timeMonitor;
     public int com1Port = 7100;
     public int com2Port = 7007;
-    public JComboBox<NetEntry> com2InterfaceBox = new JComboBox<NetEntry>();
+    public JComboBox<NetEntry> com2InterfaceBox = new JComboBox<>();
     public int packetSize = 16000;
 
     private JPanel contentPane;
@@ -166,18 +161,15 @@ public class ServerGUI extends JFrame {
         guiInstance = this;
         timeMonitor = new TimeMonitor();
         timeMonitor.setIconImages(getIcons());
-        ltcSources.put(24, "ltc/LTC_00_00_00_00__90mins_24.wav");
-        ltcSources.put(25, "ltc/LTC_00_00_00_00__91mins_25.wav");
-        ltcSources.put(30, "ltc/LTC_00_00_00_00__90mins_30.wav");
         
         this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\serverSettings.json"), this);
         
         setTitle("Timecode Generator - Server  (experimental LTC implementation)");
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+//            e.printStackTrace();
+//        }
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setIconImages(getIcons());
         setBounds(100, 100, 1150, 513);
@@ -214,7 +206,7 @@ public class ServerGUI extends JFrame {
         components.add(chckbxOsc);
         chckbxOsc.addActionListener(e -> {
             System.out.println((chckbxOsc.isSelected() ? "Enabled" : "Disabled") + " OSC message dispatch");
-            workThread.setOSC(chckbxOsc.isSelected());
+            //workThread.setOSC(chckbxOsc.isSelected());
         });
         
         scrollPane = new JScrollPane();
@@ -377,12 +369,9 @@ public class ServerGUI extends JFrame {
         
         artnetCheckBox = new JCheckBox("ArtNet timecode");
         components.add(artnetCheckBox);
-        artnetCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println((artnetCheckBox.isSelected() ? "Enabled" : "Disabled") + " ArtNet timecode");
-                workThread.setBroadcastArtNet(artnetCheckBox.isSelected());
-            }
+        artnetCheckBox.addActionListener(e -> {
+            System.out.println((artnetCheckBox.isSelected() ? "Enabled" : "Disabled") + " ArtNet timecode");
+            //workThread.setBroadcastArtNet(artnetCheckBox.isSelected());
         });
         artnetCheckBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
         
@@ -391,11 +380,11 @@ public class ServerGUI extends JFrame {
         ltcCheckBox.addActionListener(e -> {
             boolean selected = ltcCheckBox.isSelected();
             System.out.println((selected ? "Enabled" : "Disabled") + " LTC timecode");
-            workThread.setLTC(selected);
+            //workThread.setLTC(selected);
         });
         ltcCheckBox.setToolTipText("Toggles the LTC output");
         
-        framerateBox = new JComboBox<Integer>();
+        framerateBox = new JComboBox<>();
         framerateBox.setToolTipText("Timecode framerate");
         framerateBox.addItem(24);
         framerateBox.addItem(25);
@@ -404,10 +393,10 @@ public class ServerGUI extends JFrame {
         
         lblFramerate = new JLabel("Framerate");
         
-        ltcOutputBox = new JComboBox<MixerEntry>();
+        ltcOutputBox = new JComboBox<>();
         ltcOutputBox.setToolTipText("Select the output for LTC. Carefully! LTC should never go out on speakers!");
         
-        addressBox = new JComboBox<NetEntry>();
+        addressBox = new JComboBox<>();
         addressBox.setToolTipText("Network to broadcast ArtNet Timecode.");
         
         btnRestart = new JButton("Restart internals");
@@ -427,7 +416,7 @@ public class ServerGUI extends JFrame {
         components.add(musicCheckBox);
         musicCheckBox.setToolTipText("Toggles the audio output");
         
-        audioOutputBox = new JComboBox<MixerEntry>();
+        audioOutputBox = new JComboBox<>();
         audioOutputBox.setToolTipText("Select the output for the audio player");
         
         GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
@@ -489,20 +478,17 @@ public class ServerGUI extends JFrame {
         
         remoteCheckBox = new JCheckBox("DMX remote control");
         components.add(remoteCheckBox);
-        remoteCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean selected = remoteCheckBox.isSelected();
-                System.out.println((selected ? "Enabled" : "Disabled") + " remote control");
-                workThread.setRemoteControl(selected);
-                dmxField.setEnabled(selected);
-                lblDmxAddress.setEnabled(selected);
-                universeField.setEnabled(selected);
-                lblUniverse.setEnabled(selected);
-                subnetField.setEnabled(selected);
-                lblSubnet.setEnabled(selected);
-                btnSetDmx.setEnabled(selected);
-            }
+        remoteCheckBox.addActionListener(e -> {
+            boolean selected = remoteCheckBox.isSelected();
+            System.out.println((selected ? "Enabled" : "Disabled") + " remote control");
+            //workThread.setRemoteControl(selected);
+            dmxField.setEnabled(selected);
+            lblDmxAddress.setEnabled(selected);
+            universeField.setEnabled(selected);
+            lblUniverse.setEnabled(selected);
+            subnetField.setEnabled(selected);
+            lblSubnet.setEnabled(selected);
+            btnSetDmx.setEnabled(selected);
         });
         remoteCheckBox.setToolTipText("Toggles the remote control via DMX");
         
@@ -530,13 +516,10 @@ public class ServerGUI extends JFrame {
         btnSetDmx = new JButton("Set dmx");
         btnSetDmx.setToolTipText("(doesn't need restart)");
         components.add(btnSetDmx);
-        btnSetDmx.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                workThread.setDmxAddress(Integer.valueOf(dmxField.getText()));
-                workThread.setUniverse(Integer.valueOf(universeField.getText()));
-                workThread.setSubnet(Integer.valueOf(subnetField.getText()));
-            }
+        btnSetDmx.addActionListener(e -> {
+            //workThread.setDmxAddress(Integer.valueOf(dmxField.getText()));
+            //workThread.setUniverse(Integer.valueOf(universeField.getText()));
+            //workThread.setSubnet(Integer.valueOf(subnetField.getText()));
         });
         btnSetDmx.setEnabled(false);
         
@@ -685,75 +668,72 @@ public class ServerGUI extends JFrame {
         
         btnSetTime = new JButton("Set time");
         components.add(btnSetTime);
-        btnSetTime.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean wrong = false;
-                Pattern p = Pattern.compile("\\b\\d+\\b");
-                Matcher m = p.matcher("");
-                
-                int hour = 0;
-                int min = 0;
-                int sec = 0;
-                int frame = 0;
-                if (hourField.getText().equals("") || !m.reset(hourField.getText()).matches()) {
-                    //empty or not number
-                    hourField.setBackground(Color.RED);
-                    wrong = true;
-                } else {
-                    hour = Integer.valueOf(hourField.getText());
-                }
-                if (minField.getText().equals("") || !m.reset(minField.getText()).matches()) {
-                    //empty or not number
+        btnSetTime.addActionListener(e -> {
+            boolean wrong = false;
+            Pattern p = Pattern.compile("\\b\\d+\\b");
+            Matcher m = p.matcher("");
+
+            int hour = 0;
+            int min = 0;
+            int sec = 0;
+            int frame = 0;
+            if (hourField.getText().equals("") || !m.reset(hourField.getText()).matches()) {
+                //empty or not number
+                hourField.setBackground(Color.RED);
+                wrong = true;
+            } else {
+                hour = Integer.parseInt(hourField.getText());
+            }
+            if (minField.getText().equals("") || !m.reset(minField.getText()).matches()) {
+                //empty or not number
+                minField.setBackground(Color.RED);
+                wrong = true;
+            } else {
+                min = Integer.parseInt(minField.getText());
+                if (min > 59 || min < 0) {
                     minField.setBackground(Color.RED);
                     wrong = true;
-                } else {
-                    min = Integer.valueOf(minField.getText());
-                    if (min > 59 || min < 0) {
-                        minField.setBackground(Color.RED);
-                        wrong = true;
-                    }
                 }
-                if (secField.getText().equals("") || !m.reset(secField.getText()).matches()) {
-                    //empty or not number
+            }
+            if (secField.getText().equals("") || !m.reset(secField.getText()).matches()) {
+                //empty or not number
+                secField.setBackground(Color.RED);
+                wrong = true;
+            } else {
+                sec = Integer.parseInt(secField.getText());
+                if (sec > 59 || sec < 0) {
                     secField.setBackground(Color.RED);
                     wrong = true;
-                } else {
-                    sec = Integer.valueOf(secField.getText());
-                    if (sec > 59 || sec < 0) {
-                        secField.setBackground(Color.RED);
-                        wrong = true;
-                    }
                 }
-                if (frameField.getText().equals("") || !m.reset(frameField.getText()).matches()) {
-                    //empty or not number
+            }
+            if (frameField.getText().equals("") || !m.reset(frameField.getText()).matches()) {
+                //empty or not number
+                frameField.setBackground(Color.RED);
+                wrong = true;
+            } else {
+                frame = Integer.parseInt(frameField.getText());
+                if (frame < 0 || frame > (int) (framerateBox.getSelectedItem())) {
                     frameField.setBackground(Color.RED);
                     wrong = true;
-                } else {
-                    frame = Integer.valueOf(frameField.getText());
-                    if (frame < 0 || frame > (int) (framerateBox.getSelectedItem())) {
-                        frameField.setBackground(Color.RED);
-                        wrong = true;
-                    }
                 }
-                
-                if (!wrong) {
-                    Timecode time = new Timecode(hour, min, sec, frame, WorkerThread.getFramerate());
-                    workThread.setTime(time);
-                    hourField.setText("");
-                    hourField.setBackground(Color.WHITE);
-                    minField.setText("");
-                    minField.setBackground(Color.WHITE);
-                    secField.setText("");
-                    secField.setBackground(Color.WHITE);
-                    frameField.setText("");
-                    frameField.setBackground(Color.WHITE);
-                    setTimePanel.setToolTipText("");
-                } else {
-                    setTimePanel.setToolTipText("All fields must be filled in with numbers, and match time values! (eg. min must be between 0 and 59)");
-                }
-                
             }
+
+            if (!wrong) {
+                //Timecode time = new Timecode(hour, min, sec, frame, WorkerThread.getFramerate());
+                //workThread.setTime(time);
+                hourField.setText("");
+                hourField.setBackground(Color.WHITE);
+                minField.setText("");
+                minField.setBackground(Color.WHITE);
+                secField.setText("");
+                secField.setBackground(Color.WHITE);
+                frameField.setText("");
+                frameField.setBackground(Color.WHITE);
+                setTimePanel.setToolTipText("");
+            } else {
+                setTimePanel.setToolTipText("All fields must be filled in with numbers, and match time values! (eg. min must be between 0 and 59)");
+            }
+
         });
         
         controlPanel = new JPanel();
@@ -823,7 +803,7 @@ public class ServerGUI extends JFrame {
         
         lblTrackInfo = new JLabel("Current track");
         
-        musicListBox = new JComboBox<Music>();
+        musicListBox = new JComboBox<>();
         
         trackPanel = new TrackPanel();
         
@@ -1014,8 +994,8 @@ public class ServerGUI extends JFrame {
         contentPane.setLayout(gl_contentPane);
         
         //overriding default space actions
-        for (int i = 0; i < components.size(); i++) {
-            InputMap im = components.get(i).getInputMap();
+        for (JComponent component : components) {
+            InputMap im = component.getInputMap();
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
         }
         
@@ -1066,14 +1046,14 @@ public class ServerGUI extends JFrame {
             oscPortField.setText("0");
         }
         this.workThread = new WorkerThread(ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
-        this.workThread.setFramerate((int) (framerateBox.getSelectedItem()));
+        //this.workThread.setFramerate((int) (framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
         
         this.dataGrabber.setWorkerInstance(workThread);
         
         //musicthread setup
         Mixer audioMixer = AudioSystem.getMixer(((MixerEntry) audioOutputBox.getSelectedItem()).getMixerInfo());
-        ArrayList<Music> musicList = new ArrayList<Music>();
+        ArrayList<Music> musicList = new ArrayList<>();
         for (int i = 0; i < musicListBox.getModel().getSize(); i++) {
             musicList.add(musicListBox.getItemAt(i));
         }
@@ -1118,8 +1098,7 @@ public class ServerGUI extends JFrame {
     }
     
     public void restartInternals() {
-        for (int i = 0; i < threadIndicators.size(); i++) {
-            JPanel indicator = threadIndicators.get(i);
+        for (JPanel indicator : threadIndicators) {
             indicator.setBackground(Color.YELLOW);
             indicator.setToolTipText("Restarting...");
         }
@@ -1136,7 +1115,7 @@ public class ServerGUI extends JFrame {
     }
     
     public static List<Image> getIcons() {
-        List<Image> list = new ArrayList<Image>();
+        List<Image> list = new ArrayList<>();
         int[] sizes = new int[] {32, 64, 256};
         for (int i : sizes) {
             try {

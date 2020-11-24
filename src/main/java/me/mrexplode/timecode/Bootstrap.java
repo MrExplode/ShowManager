@@ -8,6 +8,7 @@ import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 
-import me.mrexplode.timecode.gui.ClientGUI;
 import me.mrexplode.timecode.gui.ServerGUI;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -51,7 +51,7 @@ public class Bootstrap {
                 JOptionPane.showConfirmDialog(null, "Less than 3 GB free memory! Please free the memory if you wish to use this program", "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
             } else {
                 try {
-                    Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), "UTF-8"), "--withRAM"});
+                    Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), StandardCharsets.UTF_8), "--withRAM"});
                 } catch (IOException e) {
                     JOptionPane.showConfirmDialog(null, "Failed to start the process!\n " + e.getMessage(), "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
                     e.printStackTrace();

@@ -1,6 +1,5 @@
 package me.mrexplode.timecode.eventsystem.events.osc;
 
-import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPacket;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

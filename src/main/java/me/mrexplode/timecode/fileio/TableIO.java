@@ -42,14 +42,14 @@ public class TableIO {
             case CSV: {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(file));
-                    ArrayList<ScheduledEvent> events = new ArrayList<ScheduledEvent>();
+                    ArrayList<ScheduledEvent> events = new ArrayList<>();
                     
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (!line.equals(CSV_HEADER)) {
                             String[] values = line.split(",");
                             String[] time = values[0].split(":");
-                            Timecode timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]), WorkerThread.getFramerate());
+                            Timecode timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getFramerate());
                             ScheduleType scType = ScheduleType.valueOf(values[1]);
                             
                             ScheduledEvent event = new ScheduledEvent(null, null);
@@ -80,7 +80,7 @@ public class TableIO {
                     BufferedReader reader = new BufferedReader(new FileReader(file));
                     SerializedTableData serialized = gson.fromJson(reader, SerializedTableData.class);
                     reader.close();
-                    ArrayList<ScheduledEvent> events = new ArrayList<ScheduledEvent>();
+                    ArrayList<ScheduledEvent> events = new ArrayList<>();
                     events.addAll(Arrays.asList(serialized.generalEvents));
                     events.addAll(Arrays.asList(serialized.oscEvents));
                     model.setData(events);
@@ -94,7 +94,7 @@ public class TableIO {
             case REAPER_MARKER: {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(file));
-                    ArrayList<ScheduledOSC> oscEvents = new ArrayList<ScheduledOSC>();
+                    ArrayList<ScheduledOSC> oscEvents = new ArrayList<>();
                     
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -104,12 +104,12 @@ public class TableIO {
                         Timecode timecode = null;
                         if (!var[0].equals("")) {
                             String[] time = var[2].split(":");
-                            timecode = new Timecode(Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]), Integer.valueOf(time[3]), WorkerThread.getFramerate());
+                            timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getFramerate());
                         }
                         oscEvents.add(new ScheduledOSC(timecode, var[1], null, null));
                     }
                     reader.close();
-                    model.setData(new ArrayList<ScheduledEvent>(oscEvents));
+                    model.setData(new ArrayList<>(oscEvents));
                     model.sort();
                     
                 } catch (IOException | NumberFormatException e) {
@@ -134,8 +134,7 @@ public class TableIO {
                     PrintWriter writer = new PrintWriter(new FileOutputStream(file));
                     ArrayList<ScheduledEvent> events = model.getData();
                     writer.println(CSV_HEADER);
-                    for (int i = 0; i < events.size(); i++) {
-                        ScheduledEvent event = events.get(i);
+                    for (ScheduledEvent event : events) {
                         Timecode t = event.getExecTime();
                         String timeString = null;
                         if (t != null) {
@@ -153,10 +152,10 @@ public class TableIO {
             case JSON: {
                 SerializedTableData serialized = new SerializedTableData();
                 ArrayList<ScheduledEvent> genericList = model.getData();
-                ArrayList<ScheduledOSC> oscList = new ArrayList<ScheduledOSC>();
-                for (int i = 0; i < genericList.size(); i++) {
-                    if (genericList.get(i) instanceof ScheduledOSC) {
-                        oscList.add((ScheduledOSC) genericList.get(i));
+                ArrayList<ScheduledOSC> oscList = new ArrayList<>();
+                for (ScheduledEvent scheduledEvent : genericList) {
+                    if (scheduledEvent instanceof ScheduledOSC) {
+                        oscList.add((ScheduledOSC) scheduledEvent);
                     }
                 }
                 genericList.removeAll(oscList);

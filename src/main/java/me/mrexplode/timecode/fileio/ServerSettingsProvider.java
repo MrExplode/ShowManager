@@ -93,7 +93,7 @@ public class ServerSettingsProvider {
             gui.oscIPField.setText(settings.oscTargetIP);
             gui.oscPortField.setText(String.valueOf(settings.oscPort));
             
-            ArrayList<ScheduledEvent> events = new ArrayList<ScheduledEvent>();
+            ArrayList<ScheduledEvent> events = new ArrayList<>();
             events.addAll(Arrays.asList(settings.genericEvents));
             events.addAll(Arrays.asList(settings.oscEvents));
             tableModel.setData(events);
@@ -125,7 +125,7 @@ public class ServerSettingsProvider {
         settings.musicAudioOutput = ((MixerEntry) gui.audioOutputBox.getSelectedItem()).getMixerInfo().getName();
         
         //music list
-        ArrayList<Music> mList = new ArrayList<Music>();
+        ArrayList<Music> mList = new ArrayList<>();
         for (int i = 0; i < gui.musicListBox.getItemCount(); i++) {
             mList.add(gui.musicListBox.getItemAt(i));
         }
@@ -133,19 +133,19 @@ public class ServerSettingsProvider {
         
         //dmx
         if (!gui.dmxField.getText().equals("")) {
-            settings.dmxAddress = Integer.valueOf(gui.dmxField.getText());
+            settings.dmxAddress = Integer.parseInt(gui.dmxField.getText());
         } else {
             settings.dmxAddress = 0;
         }
         
         if (!gui.universeField.getText().equals("")) {
-            settings.dmxUniverse = Integer.valueOf(gui.universeField.getText());
+            settings.dmxUniverse = Integer.parseInt(gui.universeField.getText());
         } else {
             settings.dmxUniverse = 0;
         }
         
         if (!gui.subnetField.getText().equals("")) {
-            settings.dmxSubnet = Integer.valueOf(gui.subnetField.getText());
+            settings.dmxSubnet = Integer.parseInt(gui.subnetField.getText());
         } else {
             settings.dmxSubnet = 0;
         }
@@ -159,15 +159,15 @@ public class ServerSettingsProvider {
         }
         
         if (!gui.oscPortField.getText().equals("")) {
-            settings.oscPort = Integer.valueOf(gui.oscPortField.getText());
+            settings.oscPort = Integer.parseInt(gui.oscPortField.getText());
         }
         
         ArrayList<ScheduledEvent> genericList = tableModel.getData();
-        ArrayList<ScheduledOSC> oscList = new ArrayList<ScheduledOSC>();
-        
-        for (int i = 0; i < genericList.size(); i++) {
-            if (genericList.get(i) instanceof ScheduledOSC) {
-                oscList.add((ScheduledOSC) genericList.get(i));
+        ArrayList<ScheduledOSC> oscList = new ArrayList<>();
+
+        for (ScheduledEvent scheduledEvent : genericList) {
+            if (scheduledEvent instanceof ScheduledOSC) {
+                oscList.add((ScheduledOSC) scheduledEvent);
             }
         }
         genericList.removeAll(oscList);

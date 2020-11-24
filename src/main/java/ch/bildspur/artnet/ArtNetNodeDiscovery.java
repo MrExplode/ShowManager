@@ -37,9 +37,9 @@ public class ArtNetNodeDiscovery implements Runnable {
 			.getLogger(ArtNetNodeDiscovery.class.getClass().getName());
 
 	protected final ArtNet artNet;
-	protected ConcurrentHashMap<InetAddress, ArtNetNode> discoveredNodes = new ConcurrentHashMap<InetAddress, ArtNetNode>();
-	protected List<ArtNetNode> lastDiscovered = new ArrayList<ArtNetNode>();
-	protected List<ArtNetDiscoveryListener> listeners = new ArrayList<ArtNetDiscoveryListener>();
+	protected ConcurrentHashMap<InetAddress, ArtNetNode> discoveredNodes = new ConcurrentHashMap<>();
+	protected List<ArtNetNode> lastDiscovered = new ArrayList<>();
+	protected List<ArtNetDiscoveryListener> listeners = new ArrayList<>();
 
 	protected boolean isActive = true;
 
@@ -100,7 +100,7 @@ public class ArtNetNodeDiscovery implements Runnable {
 							}
 						}
 						for (ArtNetDiscoveryListener l : listeners) {
-							l.discoveryCompleted(new ArrayList<ArtNetNode>(
+							l.discoveryCompleted(new ArrayList<>(
 									discoveredNodes.values()));
 						}
 					}

@@ -37,7 +37,7 @@ public class TrackProgressUI extends BasicProgressBarUI {
         int width = progressBar.getWidth();
         int height = progressBar.getHeight();
 
-        RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2), (iStrokWidth / 2), width - iStrokWidth, height - iStrokWidth, height, height);
+        RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2f), (iStrokWidth / 2f), width - iStrokWidth, height - iStrokWidth, height, height);
         g2d.draw(outline);
         
         int iInnerHeight = height - (iStrokWidth * 4);

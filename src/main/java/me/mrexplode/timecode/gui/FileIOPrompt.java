@@ -48,7 +48,7 @@ public class FileIOPrompt extends JFrame {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         
-        comboBox = new JComboBox<DataStructure>();
+        comboBox = new JComboBox<>();
         for (DataStructure s : DataStructure.values()) {
             if (!this.isImport && s == DataStructure.REAPER_MARKER) {
                 continue;

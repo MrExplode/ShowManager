@@ -21,12 +21,12 @@ public class TimecodeCellEditor extends AbstractCellEditor implements TableCellE
 
     private static final long serialVersionUID = -4616510380884099210L;
     
-    private JTextField hour = new JTextField(3);
-    private JTextField min = new JTextField(3);
-    private JTextField sec = new JTextField(3);
-    private JTextField frame = new JTextField(3);
-    private JPanel panel = new JPanel();
-    private JButton button = new JButton();
+    private final JTextField hour = new JTextField(3);
+    private final JTextField min = new JTextField(3);
+    private final JTextField sec = new JTextField(3);
+    private final JTextField frame = new JTextField(3);
+    private final JPanel panel = new JPanel();
+    private final JButton button = new JButton();
     private static final String EDIT = "edit";
     
     private Timecode oldValue;
@@ -70,10 +70,10 @@ public class TimecodeCellEditor extends AbstractCellEditor implements TableCellE
             }
             
             try {
-                int hourValue = Integer.valueOf(hour.getText());
-                int minValue = Integer.valueOf(min.getText());
-                int secValue = Integer.valueOf(sec.getText());
-                int frameValue = Integer.valueOf(frame.getText());
+                int hourValue = Integer.parseInt(hour.getText());
+                int minValue = Integer.parseInt(min.getText());
+                int secValue = Integer.parseInt(sec.getText());
+                int frameValue = Integer.parseInt(frame.getText());
                 
                 newValue = new Timecode(hourValue, minValue, secValue, frameValue, WorkerThread.getFramerate());
                 fireEditingStopped();

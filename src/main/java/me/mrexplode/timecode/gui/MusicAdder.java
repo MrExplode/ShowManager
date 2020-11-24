@@ -96,10 +96,10 @@ public class MusicAdder extends JFrame {
             
             try {
                 String[] values = timeField.getText().split("/");
-                int hour = Integer.valueOf(values[0]);
-                int min = Integer.valueOf(values[1]);
-                int sec = Integer.valueOf(values[2]);
-                int frame = Integer.valueOf(values[3]);
+                int hour = Integer.parseInt(values[0]);
+                int min = Integer.parseInt(values[1]);
+                int sec = Integer.parseInt(values[2]);
+                int frame = Integer.parseInt(values[3]);
                 music.startingTime = new Timecode(hour, min, sec, frame, WorkerThread.getFramerate());
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException ex) {
                 timeField.setBackground(Color.RED);

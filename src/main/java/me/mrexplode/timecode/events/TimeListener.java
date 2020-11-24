@@ -9,14 +9,14 @@ import me.mrexplode.timecode.events.impl.time.TimeEvent;
 
 public interface TimeListener {
     
-    public void onTimeChangeEvent(TimeChangeEvent e);
+    void onTimeChangeEvent(TimeChangeEvent e);
     
-    public void onTimeEvent(TimeEvent e);
+    void onTimeEvent(TimeEvent e);
     
-    public void onOscEvent(OscEvent e);
+    void onOscEvent(OscEvent e);
     
-    public void onMarkerEvent(MarkerEvent e);
+    void onMarkerEvent(MarkerEvent e);
     
-    public void onMusicEvent(MusicEvent e);
+    void onMusicEvent(MusicEvent e);
 
 }

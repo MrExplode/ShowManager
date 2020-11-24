@@ -36,7 +36,7 @@ public class NetworkingGUI extends JFrame {
     private JTextField packetSizeField;
     
     public NetworkingGUI() {
-        this(0, 0, new JComboBox<NetEntry>(), 16000, null);
+        this(0, 0, new JComboBox<>(), 16000, null);
     }
 
     /**
@@ -73,19 +73,19 @@ public class NetworkingGUI extends JFrame {
         btnSet = new JButton("Set");
         btnSet.addActionListener(e -> {
             try {
-                gui.com1Port = Integer.valueOf(com1PortField.getText());
+                gui.com1Port = Integer.parseInt(com1PortField.getText());
             } catch (NumberFormatException exc) {
                 com1PortField.setBackground(Color.RED);
                 return;
             }
             try {
-                gui.com2Port = Integer.valueOf(com2PortField.getText());
+                gui.com2Port = Integer.parseInt(com2PortField.getText());
             } catch (NumberFormatException exc) {
                 com2PortField.setBackground(Color.RED);
                 return;
             }
             try {
-                gui.packetSize = Integer.valueOf(packetSizeField.getText());
+                gui.packetSize = Integer.parseInt(packetSizeField.getText());
             } catch (NumberFormatException exc) {
                 packetSizeField.setBackground(Color.RED);
                 return;

@@ -15,7 +15,7 @@ import javax.swing.table.TableCellEditor;
 public class StringCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener, FocusListener {
 
     private static final long serialVersionUID = 2237451524496529015L;
-    private JTextField textField;
+    private final JTextField textField;
     private int row = 0;
     private int column = 0;
     private JTable table;

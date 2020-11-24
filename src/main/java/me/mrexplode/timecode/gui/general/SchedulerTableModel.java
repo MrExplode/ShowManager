@@ -29,10 +29,10 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     
     private boolean editable = true;
     
-    private ArrayList<Integer> dispatchedIndexes = new ArrayList<Integer>();
+    private ArrayList<Integer> dispatchedIndexes = new ArrayList<>();
     
     public SchedulerTableModel() {
-        data = new ArrayList<ScheduledEvent>();
+        data = new ArrayList<>();
         data.add(new ScheduledEvent(null, null));
         
         EventQueue.invokeLater(() -> {
@@ -40,7 +40,7 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
                 @Override
                 public void onTimeEvent(TimeEvent e) {
                     if (e.getType() == EventType.TC_START) {
-                        dispatchedIndexes = new ArrayList<Integer>();
+                        dispatchedIndexes = new ArrayList<>();
                     }
                 }
             });
@@ -78,12 +78,12 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
     }
     
     public void sort() {
-        Collections.sort((List<ScheduledEvent>) data);
+        Collections.sort(data);
         fireTableDataChanged();
     }
     
     public List<ScheduledEvent> getCurrentFor(Timecode current) {
-        ArrayList<ScheduledEvent> curr = new ArrayList<ScheduledEvent>();
+        ArrayList<ScheduledEvent> curr = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
             if (data.get(i).getExecTime() != null && data.get(i).getExecTime().equals(current)) {
                 curr.add(data.get(i));

@@ -110,7 +110,7 @@ public class ClientGUI extends JFrame implements TimeListener {
         monitor = new TimeMonitor();
         monitor.setIconImages(ServerGUI.getIcons());
         eventHandler = new EventHandler();
-        segments = new ArrayList<ArraySegment>();
+        segments = new ArrayList<>();
         parser = Parser.builder().build();
         renderer = HtmlRenderer.builder().build();
         
@@ -238,7 +238,7 @@ public class ClientGUI extends JFrame implements TimeListener {
         portField2.setText("7007");
         portField2.setColumns(10);
         
-        interfaceBox = new JComboBox<NetEntry>();
+        interfaceBox = new JComboBox<>();
         GroupLayout gl_controlPanel = new GroupLayout(controlPanel);
         gl_controlPanel.setHorizontalGroup(
             gl_controlPanel.createParallelGroup(Alignment.LEADING)
@@ -332,10 +332,10 @@ public class ClientGUI extends JFrame implements TimeListener {
         try {
             if (eventHandler == null)
                 eventHandler = new EventHandler();
-            net = new Networking(((NetEntry) interfaceBox.getSelectedItem()).getNetworkAddress(), Integer.valueOf(portField2.getText()));
-            eventHandler.startNetworking(Integer.valueOf(portField1.getText()));
+            net = new Networking(((NetEntry) interfaceBox.getSelectedItem()).getNetworkAddress(), Integer.parseInt(portField2.getText()));
+            eventHandler.startNetworking(Integer.parseInt(portField1.getText()));
             eventHandler.addListener(this);
-            oscIn = new OSCPortIn(Integer.valueOf(portField1.getText()));
+            oscIn = new OSCPortIn(Integer.parseInt(portField1.getText()));
             oscIn.startListening();
             oscIn.addPacketListener(new OSCPacketListener() {
 

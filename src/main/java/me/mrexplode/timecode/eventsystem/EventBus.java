@@ -3,7 +3,6 @@ package me.mrexplode.timecode.eventsystem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.mrexplode.timecode.eventsystem.events.Event;
-import me.mrexplode.timecode.util.Tuple;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

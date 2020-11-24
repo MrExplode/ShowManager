@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 
 public class ThreadErrorHandler implements UncaughtExceptionHandler {
     
-    private JPanel displayPanel;
-    private JButton restartBtn;
+    private final JPanel displayPanel;
+    private final JButton restartBtn;
     
     public ThreadErrorHandler(JButton restart, JPanel errorPanel, String name) {
         this.displayPanel = errorPanel;

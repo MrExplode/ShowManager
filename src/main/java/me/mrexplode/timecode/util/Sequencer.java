@@ -33,8 +33,8 @@ public class Sequencer {
     
     public static float[] merge(List<ArraySegment> segments) {
         float[] merged = new float[0];
-        for (int i = 0; i < segments.size(); i++) {
-            merged = add(merged, segments.get(i).getData());
+        for (ArraySegment segment : segments) {
+            merged = add(merged, segment.getData());
         }
         return merged;
     }
@@ -52,15 +52,15 @@ public class Sequencer {
             float[] var1 = new float[maxSize];
             System.arraycopy(data, data.length - remainingData, var1, 0, var1.length);
             count++;
-            for (int i = 0; i < segments.size(); i++) {
-                segments.get(i).setMax(count);
+            for (ArraySegment segment : segments) {
+                segment.setMax(count);
             }
             segments.add(new ArraySegment(segments.get(segments.size() -1).getId() + 1, count, var1));
             handleRemaining(segments, data, count, remainingData - maxSize, maxSize);
         } else {
             count++;
-            for (int i = 0; i < segments.size(); i++) {
-                segments.get(i).setMax(count);
+            for (ArraySegment segment : segments) {
+                segment.setMax(count);
             }
             float[] rem = new float[remainingData];
             System.arraycopy(data, data.length - remainingData, rem, 0, remainingData);

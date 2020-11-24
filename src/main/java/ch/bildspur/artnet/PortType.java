@@ -23,7 +23,7 @@ public enum PortType {
 
     private int id;
 
-    private PortType(int id) {
+    PortType(int id) {
         this.id = id;
     }
 

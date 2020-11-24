@@ -85,7 +85,7 @@ public class ArtDmxPacket extends ArtNetPacket {
      *            the number of DMX channels to set
      */
     public void setNumChannels(int numChannels) {
-        this.numChannels = numChannels > 512 ? 512 : numChannels;
+        this.numChannels = Math.min(numChannels, 512);
     }
 
     public void setSequenceID(int id) {

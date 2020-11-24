@@ -31,7 +31,7 @@ public class CustomCellEditor extends AbstractCellEditor implements TableCellEdi
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         if (value instanceof ScheduleType || (value == null && column == 1)) {
-            JComboBox<ScheduleType> scType = new JComboBox<ScheduleType>();
+            JComboBox<ScheduleType> scType = new JComboBox<>();
             for (ScheduleType t : ScheduleType.values()) {
                 scType.addItem(t);
             }
@@ -39,7 +39,7 @@ public class CustomCellEditor extends AbstractCellEditor implements TableCellEdi
             editor = new SelectionCellEditor(scType, table);
         //data type
         } else if (value instanceof OSCDataType || (value == null && column == 3)) {
-            JComboBox<OSCDataType> dataTypes = new JComboBox<OSCDataType>();
+            JComboBox<OSCDataType> dataTypes = new JComboBox<>();
             for (OSCDataType t : OSCDataType.values()) {
                 dataTypes.addItem(t);
             }

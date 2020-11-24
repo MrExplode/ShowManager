@@ -21,8 +21,8 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-ext:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:5.0.4" level="project" />
     <orderEntry type="library" name="Maven: me.mrexplode:ltc4j:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.10" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="library" name="Maven: com.vladsch.flexmark:flexmark-all:0.62.0" level="project" />
     <orderEntry type="library" name="Maven: com.vladsch.flexmark:flexmark:0.62.0" level="project" />
@@ -85,6 +85,17 @@
     <orderEntry type="library" name="Maven: com.vladsch.flexmark:flexmark-util-sequence:0.62.0" level="project" />
     <orderEntry type="library" name="Maven: com.vladsch.flexmark:flexmark-util-visitor:0.62.0" level="project" />
     <orderEntry type="library" name="Maven: com.vladsch.flexmark:flexmark-youtrack-converter:0.62.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.weisj:darklaf-core:2.5.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.weisj:darklaf-theme:2.5.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.weisj:darklaf-property-loader:2.5.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.weisj:darklaf-utils:2.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.github.weisj:darklaf-native-utils:2.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.github.weisj:darklaf-platform-base:2.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.github.weisj:darklaf-windows:2.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.github.weisj:darklaf-macos:2.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.swinglabs:jxlayer:3.0.4" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.formdev:svgSalamander:1.1.2.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.10" level="project" />
     <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.3.1" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:javax.activation-api:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-core:2.3.0.1" level="project" />

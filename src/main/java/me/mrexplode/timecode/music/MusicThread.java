@@ -3,7 +3,6 @@ package me.mrexplode.timecode.music;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -221,8 +220,7 @@ public class MusicThread implements Runnable, TimeListener {
         
         long netTime = System.currentTimeMillis();
         ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, maxSegmentSize);
-        for (int i = 0; i < segments.size(); i++) {
-            ArraySegment segment = segments.get(i);
+        for (ArraySegment segment : segments) {
             try {
                 float[] transportData = new float[2 + segment.getData().length];
                 transportData[0] = segment.getId();

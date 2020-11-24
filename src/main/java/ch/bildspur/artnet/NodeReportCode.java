@@ -57,7 +57,7 @@ public enum NodeReportCode {
         return code;
     }
 
-    private NodeReportCode(String id, String desc) {
+    NodeReportCode(String id, String desc) {
         this.id = id;
         this.description = desc;
     }

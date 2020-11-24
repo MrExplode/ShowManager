@@ -48,12 +48,12 @@ public class ClientSettingsProvider {
     
     public void save() throws IOException {
         try {
-            settings.com1Port = Integer.valueOf(gui.portField1.getText());
+            settings.com1Port = Integer.parseInt(gui.portField1.getText());
         } catch (NumberFormatException e) {
             settings.com1Port = 7100;
         }
         try {
-            settings.com2Port = Integer.valueOf(gui.portField2.getText());
+            settings.com2Port = Integer.parseInt(gui.portField2.getText());
         } catch (NumberFormatException e) {
             settings.com2Port = 7007;
         }

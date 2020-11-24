@@ -27,7 +27,7 @@ public enum NodeStyle {
     private int id;
     private Class<? extends ArtNetNode> nodeClass;
 
-    private NodeStyle(int id, Class<? extends ArtNetNode> nodeClass) {
+    NodeStyle(int id, Class<? extends ArtNetNode> nodeClass) {
         this.id = id;
         this.nodeClass = nodeClass;
     }
@@ -36,9 +36,7 @@ public enum NodeStyle {
         ArtNetNode node = null;
         try {
             node = nodeClass.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return node;
