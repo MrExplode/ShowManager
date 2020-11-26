@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.mrexplode</groupId>
-  <artifactId>timecode</artifactId>
-  <version>1.2.0-PRERELASE</version>
-  <name>Timecode</name>
+  <artifactId>showmanager</artifactId>
+  <version>2.0.0-INDEV</version>
+  <name>ShowManager</name>
   <description>ArtNet and LTC timecode generator.</description>
   <url>https://github.com/MrExplode/Timecode</url>
   <inceptionYear>2020</inceptionYear>
@@ -25,6 +25,12 @@
       <version>3.3.0</version>
       <type>jar</type>
       <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>30.0-jre</version>
     </dependency>
     
     <!-- JavaOSC -->
@@ -180,7 +186,7 @@
           <archive>
             <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
-              <Main-Class>me.mrexplode.timecode.Bootstrap</Main-Class>
+              <Main-Class>me.mrexplode.showmanager.Bootstrap</Main-Class>
               <SplashScreen-Image>icons/icon256.png</SplashScreen-Image>
               <built-by>MrExplode</built-by>
             </manifestEntries>
