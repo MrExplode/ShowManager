@@ -19,22 +19,20 @@
 
 package ch.bildspur.artnet;
 
+import ch.bildspur.artnet.events.ArtNetDiscoveryListener;
+import ch.bildspur.artnet.packets.ArtPollPacket;
+import ch.bildspur.artnet.packets.ArtPollReplyPacket;
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
-import ch.bildspur.artnet.events.ArtNetDiscoveryListener;
-import ch.bildspur.artnet.packets.ArtPollPacket;
-import ch.bildspur.artnet.packets.ArtPollReplyPacket;
-
+@Slf4j
 public class ArtNetNodeDiscovery implements Runnable {
 
 	public static final int POLL_INTERVAL = 10000;
-
-	public static final Logger logger = Logger
-			.getLogger(ArtNetNodeDiscovery.class.getClass().getName());
 
 	protected final ArtNet artNet;
 	protected ConcurrentHashMap<InetAddress, ArtNetNode> discoveredNodes = new ConcurrentHashMap<>();
@@ -62,7 +60,7 @@ public class ArtNetNodeDiscovery implements Runnable {
 		InetAddress nodeIP = reply.getIPAddress();
 		ArtNetNode node = discoveredNodes.get(nodeIP);
 		if (node == null) {
-			logger.info("discovered new node: " + nodeIP);
+			log.info("discovered new node: " + nodeIP);
 			node = reply.getNodeStyle().createNode();
 			node.extractConfig(reply);
 			discoveredNodes.put(nodeIP, node);
@@ -109,7 +107,7 @@ public class ArtNetNodeDiscovery implements Runnable {
 				}
 			}
 		} catch (InterruptedException e) {
-			logger.warning("node discovery interrupted");
+			log.warn("node discovery interrupted");
 		}
 	}
 

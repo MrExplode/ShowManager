@@ -13,7 +13,7 @@ public class Sequencer {
         }
         
         int segmentCount = (int) Math.ceil((double) data.length / (double) maxSize);
-        int segmentLength = (int) Math.floor(data.length / segmentCount);
+        int segmentLength = (int) Math.floor(data.length / (float) segmentCount);
         
         int offset = 0;
         int remaining = data.length;

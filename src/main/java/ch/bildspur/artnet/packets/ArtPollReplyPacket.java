@@ -27,7 +27,9 @@ import ch.bildspur.artnet.ArtNetServer;
 import ch.bildspur.artnet.NodeReportCode;
 import ch.bildspur.artnet.NodeStyle;
 import ch.bildspur.artnet.PortDescriptor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ArtPollReplyPacket extends ArtNetPacket {
 
     private InetAddress ip;
@@ -241,9 +243,9 @@ public class ArtPollReplyPacket extends ArtNetPacket {
     private void setIPAddress(byte[] address) {
         try {
             ip = InetAddress.getByAddress(address);
-            logger.fine("setting ip address: " + ip);
+            log.debug("setting ip address: " + ip);
         } catch (UnknownHostException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
     }
 

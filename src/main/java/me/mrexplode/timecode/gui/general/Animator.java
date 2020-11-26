@@ -6,13 +6,12 @@ import javax.swing.JComponent;
 
 public class Animator implements Runnable {
     
-    private JComponent component;
+    private final JComponent component;
     private Color color;
     private Color base;
     private boolean running = false;
     private boolean value = true;
-    private Thread animThread;
-    
+
     public Animator(JComponent component) {
         this.component = component;
     }
@@ -38,8 +37,8 @@ public class Animator implements Runnable {
     public void startFlash(Color color) {
         this.color = color;
         this.base = component.getBackground();
-        this.animThread = new Thread(this);
-        this.animThread.start();
+        Thread animThread = new Thread(this);
+        animThread.start();
     }
     
     public void stopFlash() {

@@ -20,6 +20,7 @@ import com.vladsch.flexmark.util.html.ui.Color;
 import me.mrexplode.timecode.gui.entries.NetEntry;
 
 
+@Deprecated
 public class NetworkingGUI extends JFrame {
 
     private static final long serialVersionUID = 121637646326772536L;
@@ -34,10 +35,6 @@ public class NetworkingGUI extends JFrame {
     private JButton btnHelp;
     private JLabel lblSegment;
     private JTextField packetSizeField;
-    
-    public NetworkingGUI() {
-        this(0, 0, new JComboBox<>(), 16000, null);
-    }
 
     /**
      * Create the frame.
@@ -73,24 +70,24 @@ public class NetworkingGUI extends JFrame {
         btnSet = new JButton("Set");
         btnSet.addActionListener(e -> {
             try {
-                gui.com1Port = Integer.parseInt(com1PortField.getText());
+                //gui.com1Port = Integer.parseInt(com1PortField.getText());
             } catch (NumberFormatException exc) {
                 com1PortField.setBackground(Color.RED);
                 return;
             }
             try {
-                gui.com2Port = Integer.parseInt(com2PortField.getText());
+                //gui.com2Port = Integer.parseInt(com2PortField.getText());
             } catch (NumberFormatException exc) {
                 com2PortField.setBackground(Color.RED);
                 return;
             }
             try {
-                gui.packetSize = Integer.parseInt(packetSizeField.getText());
+                //gui.packetSize = Integer.parseInt(packetSizeField.getText());
             } catch (NumberFormatException exc) {
                 packetSizeField.setBackground(Color.RED);
                 return;
             }
-            gui.com2InterfaceBox.setSelectedIndex(comboBox.getSelectedIndex());
+            //gui.com2InterfaceBox.setSelectedIndex(comboBox.getSelectedIndex());
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         });
         

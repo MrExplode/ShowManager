@@ -19,16 +19,15 @@
 
 package ch.bildspur.artnet.packets;
 
-import java.net.DatagramPacket;
-import java.util.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 
+import java.net.DatagramPacket;
+
+@Slf4j
 public class ArtNetPacketParser {
 
-    public static final Logger logger =
-            Logger.getLogger(ArtNetPacketParser.class.getClass().getName());
-
     public static ArtNetPacket createPacketForOpCode(int opCode, byte[] data) {
-        logger.finer("creating packet instance for opcode: 0x"
+        log.debug("creating packet instance for opcode: 0x"
                 + ByteUtils.hex(opCode, 4));
         ArtNetPacket packet = null;
         for (PacketType type : PacketType.values()) {
@@ -38,7 +37,7 @@ public class ArtNetPacketParser {
                     packet.parse(data);
                     break;
                 } else {
-                    logger.fine("packet type valid, but not yet supported: "
+                    log.debug("packet type valid, but not yet supported: "
                             + type);
                 }
             }
@@ -55,10 +54,10 @@ public class ArtNetPacketParser {
                 int opCode = data.getInt16LE(8);
                 packet = createPacketForOpCode(opCode, raw);
             } else {
-                logger.warning("invalid header");
+                log.warn("invalid header");
             }
         } else {
-            logger.warning("invalid packet length: " + data.length);
+            log.warn("invalid packet length: " + data.length);
         }
         return packet;
     }

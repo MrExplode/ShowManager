@@ -27,20 +27,20 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.mrexplode.timecode.gui.ServerGUI;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 
-@Log
+@Slf4j
 public class Bootstrap {
 
     public static void main(String... args) {
-        initLogger();
         String ver = ManagementFactory.getRuntimeMXBean().getVmVersion();
         if (Integer.parseInt(ver.substring(0, 2)) < 11) {
-            log.severe("Outdated Java JVM: " + ver);
+            log.error("Outdated Java JVM: " + ver);
             showVersionError(ver);
             return;
         }
@@ -70,52 +70,14 @@ public class Bootstrap {
         } else {
             val memory = new SystemInfo().getHardware().getMemory();
             if (memory.getAvailable() < 3L * 1000 * 1000 * 1000) {
-                log.warning("Less than 3 GB memory!");
+                log.warn("Less than 3 GB memory!");
             }
             try {
                 Runtime.getRuntime().exec(new String [] {"java" ,"-Xmx3G", "-jar", URLDecoder.decode(Bootstrap.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6), StandardCharsets.UTF_8), "--withRAM"});
             } catch (IOException e) {
-                log.log(Level.SEVERE, "Failed to start with increased heap", e);
+                log.error("Failed to start with increased heap", e);
             }
         }
-    }
-
-    @SneakyThrows
-    private static void initLogger() {
-        Logger logger = Logger.getGlobal();
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Formatter formatter = new Formatter() {
-            @Override
-            public String format(LogRecord record) {
-                Date date = new Date(record.getMillis());
-                String threadName = ManagementFactory.getThreadMXBean().getThreadInfo(record.getThreadID()).getThreadName();
-                StringBuilder builder = new StringBuilder("[").append(format.format(date)).append("] [").append(threadName).append("] [").append(record.getLevel().getName()).append("] ").append(record.getMessage()).append("\n");
-                if (record.getThrown() != null)
-                    builder.append("\n").append(record.getThrown().toString());
-                return builder.toString();
-            }
-        };
-        logger.setUseParentHandlers(false);
-
-        ConsoleHandler consoleManager = new ConsoleHandler() {
-            @Override
-            protected synchronized void setOutputStream(OutputStream out) throws SecurityException {
-                super.setOutputStream(System.out);
-            }
-        };
-
-        consoleManager.setFormatter(formatter);
-        logger.addHandler(consoleManager);
-
-        //file logging
-        File logFolder = new File("logs/");
-        if (!logFolder.exists())
-            logFolder.mkdirs();
-
-        FileHandler fileHandler = new FileHandler(logFolder.getAbsolutePath() + "/log-%g-%u.log", 1024 * 1024 * 1024, 100);
-        fileHandler.setFormatter(formatter);
-        fileHandler.setLevel(Level.INFO);
-        logger.addHandler(fileHandler);
     }
 
     private static void showError(Exception e) {

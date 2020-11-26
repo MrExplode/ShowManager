@@ -9,11 +9,18 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
 
 @UtilityClass
 public class Utils {
+
+    public void displayError(String errorMessage) {
+        Thread t = new Thread(() -> JOptionPane.showConfirmDialog(null, errorMessage, "Error", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null));
+        t.setName("Error display thread");
+        t.start();
+    }
 
     public void setReplyPacket(ArtNetServer server, InetAddress ip) {
         ArtPollReplyPacket replyPacket = new ArtPollReplyPacket();
@@ -33,7 +40,7 @@ public class Utils {
     }
 
     public float[] sampler(File audioFile) throws UnsupportedAudioFileException, IOException {
-        float[] samples = null;
+        float[] samples;
 
         AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(audioFile)));
         AudioFormat fmt = in.getFormat();

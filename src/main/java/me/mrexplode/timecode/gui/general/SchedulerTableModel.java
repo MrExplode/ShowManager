@@ -36,14 +36,14 @@ public class SchedulerTableModel extends AbstractTableModel implements TableMode
         data.add(new ScheduledEvent(null, null));
         
         EventQueue.invokeLater(() -> {
-            DataGrabber.getEventHandler().addListener(new TimecodeEventAdapter() {
-                @Override
-                public void onTimeEvent(TimeEvent e) {
-                    if (e.getType() == EventType.TC_START) {
-                        dispatchedIndexes = new ArrayList<>();
-                    }
-                }
-            });
+//            DataGrabber.getEventHandler().addListener(new TimecodeEventAdapter() {
+//                @Override
+//                public void onTimeEvent(TimeEvent e) {
+//                    if (e.getType() == EventType.TC_START) {
+//                        dispatchedIndexes = new ArrayList<>();
+//                    }
+//                }
+//            });
         });
     }
     

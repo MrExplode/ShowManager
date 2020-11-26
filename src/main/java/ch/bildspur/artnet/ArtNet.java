@@ -24,17 +24,15 @@ import ch.bildspur.artnet.events.ArtNetServerListener;
 import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.PacketType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+@Slf4j
 public class ArtNet {
-
-    public static final Logger logger =
-            Logger.getLogger(ArtNet.class.getClass().getName());
 
     protected static final long ARTPOLL_REPLY_TIMEOUT = 3000;
 
@@ -44,7 +42,7 @@ public class ArtNet {
     protected ArtNetNodeDiscovery discovery;
 
     public ArtNet() {
-        logger.info("Art-Net v" + VERSION);
+        log.info("Art-Net v" + VERSION);
     }
 
     public void addServerListener(ArtNetServerListener l) {
@@ -68,7 +66,7 @@ public class ArtNet {
 
             @Override
             public void artNetPacketReceived(ArtNetPacket packet) {
-                logger.fine("packet received: " + packet.getType());
+                log.debug("packet received: " + packet.getType());
                 if (discovery != null
                         && packet.getType() == PacketType.ART_POLL_REPLY) {
                     discovery.discoverNode((ArtPollReplyPacket) packet);
@@ -77,12 +75,12 @@ public class ArtNet {
 
             @Override
             public void artNetServerStarted(ArtNetServer artNetServer) {
-                logger.fine("server started callback");
+                log.debug("server started callback");
             }
 
             @Override
             public void artNetServerStopped(ArtNetServer artNetServer) {
-                logger.info("server stopped");
+                log.info("server stopped");
             }
         });
     }
@@ -164,7 +162,7 @@ public class ArtNet {
             targetAdress = InetAddress.getByName(adr);
             server.unicastPacket(packet, targetAdress);
         } catch (UnknownHostException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
     }
 }

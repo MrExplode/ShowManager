@@ -1,93 +1,51 @@
 package me.mrexplode.timecode.music;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
-import com.illposed.osc.OSCMessage;
-import com.illposed.osc.OSCSerializeException;
-import com.illposed.osc.transport.udp.OSCPortOut;
-
-import me.mrexplode.timecode.*;
-import me.mrexplode.timecode.events.EventHandler;
+import lombok.extern.slf4j.Slf4j;
 import me.mrexplode.timecode.events.EventType;
+import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.events.impl.MarkerEvent;
 import me.mrexplode.timecode.events.impl.music.MusicEvent;
 import me.mrexplode.timecode.events.impl.osc.OscEvent;
 import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
 import me.mrexplode.timecode.events.impl.time.TimeEvent;
-import me.mrexplode.timecode.events.TimeListener;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.gui.general.TrackPanel;
-import me.mrexplode.timecode.util.ArraySegment;
-import me.mrexplode.timecode.util.Sequencer;
 import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.util.Utils;
 
+import javax.sound.sampled.*;
+import javax.swing.*;
+import java.io.*;
+import java.util.List;
+
+@Slf4j
 public class MusicThread implements Runnable, TimeListener {
-    
-    private EventHandler eventHandler;
-    private TrackPanel trackPanel;
-    private Networking net;
-    @SuppressWarnings("unused")
+
+    private final TrackPanel trackPanel;
     private JLabel infoLabel;
-    private Mixer mixer;
+    private final Mixer mixer;
     private AudioInputStream audioStream;
     private AudioFormat format;
     private Clip currentClip;
-    private List<Music> trackList;
+    private final List<Music> trackList;
     private Tracker tracker;
     private int played = 0;
-    private int maxSegmentSize;
     private boolean running = true;
     private boolean playing = false;
     private boolean enabled = false;
-    private Object lock;
-    private OSCPortOut oscOut;
+    private final Object lock = new Object();
     
-    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList, EventHandler eventHandler, Object lock, int com1Port, int com2Port, InetAddress com2Addr, int maxSegmentSize) {
+    public MusicThread(Mixer mixer, TrackPanel trackPanel, JLabel infoLabel, List<Music> musicList) {
         this.mixer = mixer;
         this.trackPanel = trackPanel;
         this.infoLabel = infoLabel;
         this.trackList = musicList;
-        this.eventHandler = eventHandler;
-        this.lock = lock;
-        this.net = new Networking(com2Addr, com2Port);
-        try {
-            this.oscOut = new OSCPortOut(InetAddress.getByName("255.255.255.255"), com1Port);
-        } catch (IOException e) {
-            err("Failed to start osc sender");
-            e.printStackTrace();
-        }
-        this.maxSegmentSize = maxSegmentSize;
     }
 
     @Override
     public void run() {
-        log("Starting thread...");
         Thread.currentThread().setName("MusicThread");
-        eventHandler.addListener(this);
+        log.info("Starting...");
         
         //preload first
         loadTrack(played);
@@ -115,25 +73,25 @@ public class MusicThread implements Runnable, TimeListener {
                     double progress = (double) pos / frameLength * 1000;
                     //trackPanel.setValue((int) Math.round(progress));
                     int rounded = (int) Math.round(progress);
-                    try {
-                        oscOut.send(new OSCMessage("/timecode/musicplayer/progress", Collections.singletonList("" + (int) Math.round(progress))));
-                    } catch (IOException | OSCSerializeException e) {
-                        err("Failed to send progress update over network");
-                        e.printStackTrace();
-                    }
+                    //send music progress on redis
                     progressBarUpdate(trackPanel, rounded);
                 }
             }
-            
+
             synchronized (lock) {
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
-                    err("Interrupted while waiting on lock! Please restart internals!");
                     e.printStackTrace();
                     shutdown();
                 }
             }
+        }
+    }
+
+    public void tick() {
+        synchronized (lock) {
+            lock.notifyAll();
         }
     }
     
@@ -160,22 +118,18 @@ public class MusicThread implements Runnable, TimeListener {
             panel.repaint();
         });
     }
-    
-    @SuppressWarnings("resource")
+
     private void loadTrack(int index) {
         if (trackList.size() == 0)
             return;
-        log("Loading file: " + trackList.get(index).file);
-        long time = System.currentTimeMillis();
-        long sampleTime = time;
-        float[] samples = null;
+        long sampleTime = System.currentTimeMillis();
+        float[] samples;
         try {
             samples = Utils.sampler(new File(trackList.get(index).file));
             trackPanel.setSamples(samples);
             sampleTime = System.currentTimeMillis() - sampleTime;
         } catch (UnsupportedAudioFileException | IOException e) {
-            displayError("Failed to sample the upcoming track: " + trackList.get(index).file + "\n" + e.getMessage());
-            err("Failed sampling track");
+            Utils.displayError("Failed to sample the upcoming track: " + trackList.get(index).file + "\n" + e.getMessage());
             e.printStackTrace();
         }
         try {
@@ -196,8 +150,7 @@ public class MusicThread implements Runnable, TimeListener {
             currentClip.flush();
             currentClip.open(audioStream);
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e1) {
-            displayError("Failed to load the upcoming track: " + trackList.get(index).file + "\n" + e1.getMessage());
-            err("Error loading track");
+            Utils.displayError("Failed to load the upcoming track: " + trackList.get(index).file + "\n" + e1.getMessage());
             e1.printStackTrace();
         }
         
@@ -217,27 +170,28 @@ public class MusicThread implements Runnable, TimeListener {
         
         Timecode end = trackList.get(index).startingTime.add(new Timecode(currentClip.getMicrosecondLength() / 1000));
         tracker = new Tracker(index, trackList.get(index).startingTime, end, false);
-        
-        long netTime = System.currentTimeMillis();
-        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, maxSegmentSize);
-        for (ArraySegment segment : segments) {
-            try {
-                float[] transportData = new float[2 + segment.getData().length];
-                transportData[0] = segment.getId();
-                transportData[1] = segment.getMax();
-                System.arraycopy(segment.getData(), 0, transportData, 2, segment.getData().length);
-                net.broadcastData(transportData);
-            } catch (IOException e1) {
-                err("Failed to send waveform sequence " + segment.getId() + " of " + segment.getMax());
-                e1.printStackTrace();
-            }
-        }
-        netTime = System.currentTimeMillis() - netTime;
-        
-        MusicEvent event = new MusicEvent(EventType.MUSIC_LOAD, samples, trackList.get(index));
-        DataGrabber.getEventHandler().callEvent(event);
-        
-        log("Loaded file in " + (System.currentTimeMillis() - time) + " ms, sampling took " + sampleTime + " ms, networking took " + netTime + " ms");
+
+        //old networking
+//        long netTime = System.currentTimeMillis();
+//        ArrayList<ArraySegment> segments = (ArrayList<ArraySegment>) Sequencer.sequence(samples, maxSegmentSize);
+//        for (ArraySegment segment : segments) {
+//            try {
+//                float[] transportData = new float[2 + segment.getData().length];
+//                transportData[0] = segment.getId();
+//                transportData[1] = segment.getMax();
+//                System.arraycopy(segment.getData(), 0, transportData, 2, segment.getData().length);
+//                net.broadcastData(transportData);
+//            } catch (IOException e1) {
+//                err("Failed to send waveform sequence " + segment.getId() + " of " + segment.getMax());
+//                e1.printStackTrace();
+//            }
+//        }
+//        netTime = System.currentTimeMillis() - netTime;
+//
+//        MusicEvent event = new MusicEvent(EventType.MUSIC_LOAD, samples, trackList.get(index));
+//        DataGrabber.getEventHandler().callEvent(event);
+//
+//        log("Loaded file in " + (System.currentTimeMillis() - time) + " ms, sampling took " + sampleTime + " ms, networking took " + netTime + " ms");
     }
     
     public void shutdown() {
@@ -252,12 +206,10 @@ public class MusicThread implements Runnable, TimeListener {
             try {
                 audioStream.close();
             } catch (IOException e) {
-                err("Error during closing music stream, you can ignore this error.");
                 e.printStackTrace();
             }
         }
         mixer.close();
-        net.shutdown();
         synchronized (lock) {
             lock.notify();
         }
@@ -272,8 +224,7 @@ public class MusicThread implements Runnable, TimeListener {
                         playing = true;
                         tracker.setnaturalEnd(true);
                         currentClip.start();
-                        DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
-                        log("Start playing " + trackList.get(i).file);
+                        //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                     }
                 }
             }
@@ -286,8 +237,7 @@ public class MusicThread implements Runnable, TimeListener {
             if (enabled && currentClip != null && tracker.inTrack(e.getValue())) {
                 playing = true;
                 tracker.setnaturalEnd(true);
-                log("Continue playing " + trackList.get(played).file);
-                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
+                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                 currentClip.start();
             }
         }
@@ -298,7 +248,7 @@ public class MusicThread implements Runnable, TimeListener {
             if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
-                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_STOP, null, trackList.get(played)));
+                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_STOP, null, trackList.get(played)));
             }
             played = 0;
             loadTrack(played);
@@ -309,7 +259,7 @@ public class MusicThread implements Runnable, TimeListener {
             if (currentClip != null) {
                 tracker.setnaturalEnd(false);
                 currentClip.stop();
-                DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_PAUSE, null, trackList.get(played)));
+                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_PAUSE, null, trackList.get(played)));
             }
         }
         
@@ -354,20 +304,6 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.MUSIC_PAUSE || e.getType() == EventType.MUSIC_STOP) {
             trackPanel.setColor(TrackPanel.pauseColor);
         }
-    }
-    
-    private static void log(String msg) {
-        System.out.println("[MusicThread] " + msg);
-    }
-    
-    private static void err(String msg) {
-        System.err.println("[MusicThread] " + msg);
-    }
-    
-    private static void displayError(String errorMessage) {
-        Thread t = new Thread(() -> JOptionPane.showConfirmDialog(null, errorMessage, "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null));
-        t.setName("Error display thread");
-        t.start();
     }
 
 }

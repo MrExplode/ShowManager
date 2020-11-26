@@ -1,7 +1,10 @@
 package ch.bildspur.artnet.packets;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 
+@Slf4j
 public class ArtDmxPacket extends ArtNetPacket {
 
     private int numChannels;
@@ -72,7 +75,7 @@ public class ArtDmxPacket extends ArtNetPacket {
     }
 
     public void setDMX(byte[] dmxData, int numChannels) {
-        logger.finer("setting DMX data for: " + numChannels + " channels");
+        log.debug("setting DMX data for: " + numChannels + " channels");
         this.dmxData = Arrays.copyOf(dmxData, numChannels);
         this.numChannels = numChannels;
         data.setByteChunk(dmxData, 18, numChannels);
@@ -105,7 +108,7 @@ public class ArtDmxPacket extends ArtNetPacket {
         this.subnetID = subnetID & 0x0f;
         this.universeID = universeID & 0x0f;
         data.setInt16LE(subnetID << 4 | universeID, 14);
-        logger.finer("universe ID set to: subnet: "
+        log.debug("universe ID set to: subnet: "
                 + ByteUtils.hex(subnetID, 2) + "/"
                 + ByteUtils.hex(universeID, 2));
     }

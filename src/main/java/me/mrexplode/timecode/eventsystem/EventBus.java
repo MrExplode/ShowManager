@@ -2,29 +2,53 @@ package me.mrexplode.timecode.eventsystem;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import me.mrexplode.timecode.eventsystem.events.CancellableEvent;
 import me.mrexplode.timecode.eventsystem.events.Event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class EventBus {
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
     private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && method.getParameterTypes()[0].isAssignableFrom(Event.class);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void call(Event event) {
+        call(false, event);
+    }
+
+    public void call(boolean async, Event event) {
+        if (async) {
+            if (event instanceof CancellableEvent) {
+                log.error("[EventHandler] Called cancellable event (" + event.getClass().getSimpleName() + ") asynchronously");
+            } else {
+                executor.execute(() -> executeEvent(event));
+            }
+        } else {
+            executeEvent(event);
+        }
+    }
+
+    private void executeEvent(Event event) {
         List<ListenerContainer> eventListeners = listeners.get(event.getClass());
         if (eventListeners == null)
             return;
 
+        log.debug("[EventHandler] Invoking " + event.getClass().getSimpleName());
         eventListeners.forEach(eventContainer -> {
             try {
+                eventContainer.getMethod().setAccessible(true);
                 eventContainer.getMethod().invoke(eventContainer.getInstance(), event);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                log.error("Failed to invoke event: " + event.getClass().getSimpleName(), e);
             }
         });
     }

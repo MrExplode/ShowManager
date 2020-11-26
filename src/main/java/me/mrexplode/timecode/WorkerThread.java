@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.swing.JOptionPane;
 
 import com.illposed.osc.OSCMessage;
@@ -21,6 +20,10 @@ import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtTimePacket;
 import ch.bildspur.artnet.packets.PacketType;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import me.mrexplode.timecode.eventsystem.EventBus;
 import me.mrexplode.timecode.eventsystem.events.time.*;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
@@ -34,66 +37,59 @@ import me.mrexplode.timecode.schedule.ScheduledOSC;
 import me.mrexplode.timecode.util.Timecode;
 import me.mrexplode.timecode.util.Utils;
 
+@Slf4j
+@Getter
 public class WorkerThread implements Runnable {
     @Getter private static WorkerThread instance;
-    @Getter private EventBus eventBus;
-    @Getter private OscHandler oscHandler;
-    @Getter private LtcHandler ltcHandler;
+    private final EventBus eventBus;
+    private final OscHandler oscHandler;
+    private final LtcHandler ltcHandler;
     
     //artnet
-    private ArtNetServer server;
-    private ArtTimePacket packet;
-    private ArtNetBuffer artBuffer;
-    private InetAddress artnetAddress;
+    private final ArtNetServer server;
+    private final ArtTimePacket packet;
+    private final ArtNetBuffer artBuffer;
+    private final InetAddress artnetAddress;
 
-    private SchedulerTableModel model = null;
+    private SchedulerTableModel model;
     
     //main controls
     private boolean running = true;
-    private boolean artnet = false;
-    private boolean playLTC = false;
-    private boolean sendOSC = false;
+    @Setter private boolean artnet = false;
+    @Setter private boolean playLTC = false;
+    @Setter private boolean sendOSC = false;
     private boolean playing = false;
     //start time of playing
     private long start = 0;
     private long elapsed = 0;
-    /**
-     * the timecode value, in milliseconds
-     */
+
     private Timecode timecode;
 
-    private DmxRemoteControl dmxRemote;
-    private OscRemoteControl oscRemote;
+    private final DmxRemoteControl dmxRemote;
+    private final OscRemoteControl oscRemote;
     
-    private static int framerate = 30;
+    @Getter private static int framerate = 30;
     
-    private Thread dataGrabberThread;
-    private DataGrabber dataGrabber;
-    private Object dataLock;
-    
-    public WorkerThread(Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock) {
-        this(mixer, artnetAddress, model, oscAddress, oscPort, grabber, dataGrabber, dataLock, null);
-    }
-    
-    public WorkerThread(Mixer mixer, InetAddress artnetAddress, SchedulerTableModel model, InetAddress oscAddress, int oscPort, Thread grabber, DataGrabber dataGrabber, Object dataLock, ArtNetServer server) {
+    public WorkerThread(OscHandler oscHandler, LtcHandler ltcHandler, SchedulerTableModel model, ArtNetServer server, InetAddress artnetAddress) {
         instance = this;
-        this.mixer = mixer;
+        this.eventBus = new EventBus();
+        this.oscHandler = oscHandler;
+        this.ltcHandler = ltcHandler;
         this.model = model;
-        this.oscAddress = oscAddress;
-        this.oscPort = oscPort;
         this.artnetAddress = artnetAddress;
         this.server = (server == null ? new ArtNetServer() : server);
-        this.packet = new ArtTimePacket();
-        this.artBuffer = new ArtNetBuffer();
-        this.dataGrabberThread = grabber;
-        this.dataGrabber = dataGrabber;
-        this.dataLock = dataLock;
-        this.timecode = new Timecode(0);
+        packet = new ArtTimePacket();
+        artBuffer = new ArtNetBuffer();
+        timecode = new Timecode(0);
+        dmxRemote = new DmxRemoteControl();
+        oscRemote = new OscRemoteControl();
     }
 
     @Override
+    @SneakyThrows(value = {InterruptedException.class})
     public void run() {
         Thread.currentThread().setName("WorkerThread");
+        log.info("Starting...");
         running = true;
         artBuffer.clear();
 
@@ -101,12 +97,12 @@ public class WorkerThread implements Runnable {
         try {
             ltcHandler.init();
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            log.error("Failed to initialize LTC handler", e);
         }
         try {
             oscHandler.setup();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to initialize OSC handler", e);
         }
         
         start = 0;
@@ -127,16 +123,9 @@ public class WorkerThread implements Runnable {
                     packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                     ltcHandler.getGenerator().setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
                 }
-                
-                if (dataGrabberThread.isAlive()) {
-                    synchronized (dataLock) {
-                        this.dataLock.notify();
-                    }
-                }
-                
-                dataGrabber.update();
+
                 if (playing && sendOSC) {
-                    List<ScheduledEvent> events = model.getCurrentFor(getCurrentTimecode());
+                    List<ScheduledEvent> events = model.getCurrentFor(getTimecode());
                     if (events != null) {
                         events.forEach(scheduledEvent -> {
                             if (scheduledEvent instanceof ScheduledOSC && ((ScheduledOSC) scheduledEvent).isReady()) {
@@ -151,7 +140,13 @@ public class WorkerThread implements Runnable {
                 if (artnet) {
                     server.broadcastPacket(packet);
                 }
-            } 
+            }
+
+            //slowing down the loop
+            if (playing)
+                Thread.sleep(1);
+            else
+                Thread.sleep(10);
         }
     }
 
@@ -180,14 +175,6 @@ public class WorkerThread implements Runnable {
         }
     }
     
-    public Timecode getCurrentTimecode() {
-        return timecode;
-    }
-    
-    public String getFormatted() {
-        return getCurrentTimecode().guiFormatted();
-    }
-    
     public void setTime(Timecode time) {
         TimecodeSetEvent event = new TimecodeSetEvent(time);
         event.call(eventBus);
@@ -214,10 +201,6 @@ public class WorkerThread implements Runnable {
         if (playLTC)
             ltcHandler.getGenerator().start();
         this.playing = true;
-    }
-    
-    public boolean isPlaying() {
-        return this.playing;
     }
     
     public void pause() {
@@ -250,13 +233,4 @@ public class WorkerThread implements Runnable {
         ltcHandler.shutdown();
         server.stop();
     }
-    
-    private static void displayError(String errorMessage) {
-        Thread t = new Thread(() -> {
-            JOptionPane.showConfirmDialog(null, errorMessage, "Timecode Generator", JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null);
-        });
-        t.setName("Error display thread");
-        t.start();
-    }
-
 }

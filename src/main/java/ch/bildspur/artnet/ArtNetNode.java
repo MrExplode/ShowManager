@@ -19,17 +19,15 @@
 
 package ch.bildspur.artnet;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.logging.Logger;
-
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.ByteUtils;
+import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+@Slf4j
 public class ArtNetNode {
-
-	protected static final Logger logger = Logger.getLogger(ArtNetNode.class
-			.getClass().getName());
 
 	protected final NodeStyle nodeStyle;
 
@@ -80,7 +78,7 @@ public class ArtNetNode {
 		reportCode = source.getReportCode();
 		dmxIns = source.getDmxIns();
 		dmxOuts = source.getDmxOuts();
-		logger.info("updated node config");
+		log.info("updated node config");
 	}
 
 	/**

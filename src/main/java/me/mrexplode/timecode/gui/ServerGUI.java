@@ -1,53 +1,10 @@
 package me.mrexplode.timecode.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Mixer;
-import javax.swing.AbstractAction;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-
-import me.mrexplode.timecode.DataGrabber;
-import me.mrexplode.timecode.music.MusicThread;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.settings.ThemeSettings;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import me.mrexplode.timecode.WorkerThread;
 import me.mrexplode.timecode.fileio.Music;
 import me.mrexplode.timecode.fileio.ServerSettingsProvider;
@@ -56,128 +13,195 @@ import me.mrexplode.timecode.gui.editors.TimecodeCellEditor;
 import me.mrexplode.timecode.gui.entries.MixerEntry;
 import me.mrexplode.timecode.gui.entries.NetEntry;
 import me.mrexplode.timecode.gui.general.SchedulerTableModel;
-import me.mrexplode.timecode.gui.general.ThreadErrorHandler;
 import me.mrexplode.timecode.gui.general.TrackPanel;
-import me.mrexplode.timecode.schedule.ScheduledEvent;
+import me.mrexplode.timecode.music.MusicThread;
+
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Mixer;
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
+@Slf4j
+@Getter
 public class ServerGUI extends JFrame {
 
     /**
      * THe path of the base directory for the program
      */
-    public static final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\TimecodeGenerator";
+    public static final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\ShowManager";
     
     private static final long serialVersionUID = -7342971032020137377L;
+    @Getter private static ServerGUI instance;
+
     private WorkerThread workThread;
-    private DataGrabber dataGrabber;
     private MusicThread musicThread;
-    private ServerSettingsProvider settingsProvider;
-    public static ServerGUI guiInstance;
-    private ArrayList<JComponent> components = new ArrayList<>();
-    private ArrayList<JPanel> threadIndicators = new ArrayList<>();
-    public TimeMonitor timeMonitor;
-    public int com1Port = 7100;
-    public int com2Port = 7007;
-    public JComboBox<NetEntry> com2InterfaceBox = new JComboBox<>();
-    public int packetSize = 16000;
+    private final ServerSettingsProvider settingsProvider;
+    private final ArrayList<JComponent> inputComponents = new ArrayList<>();
+    private final TimeMonitor timeMonitor;
+    private int com1Port = 7100;
+    private int com2Port = 7007;
+    private JComboBox<NetEntry> com2InterfaceBox = new JComboBox<>();
+    private int packetSize = 16000;
 
-    private JPanel contentPane;
-    private JPanel timePanel;
-    public JLabel timeDisplay;
-    public JLabel remoteControl;
-    private JPanel controlPanel;
-    public JButton btnPlay;
-    public JButton btnPause;
-    public JButton btnStop;
-    private JPanel settingsPanel;
-    private JCheckBox artnetCheckBox;
-    private JCheckBox ltcCheckBox;
-    private JCheckBox remoteCheckBox;
-    public JButton btnSetTime;
-    public JTextField dmxField;
+    private final JPanel contentPane;
+    private final JPanel timePanel;
+    private final JLabel timeDisplay;
+    private final JLabel remoteControl;
+    private final JPanel controlPanel;
+    private final JButton btnPlay;
+    private final JButton btnPause;
+    private final JButton btnStop;
+    private final JPanel settingsPanel;
+    private final JCheckBox artnetCheckBox;
+    private final JCheckBox ltcCheckBox;
+    private final JCheckBox remoteCheckBox;
+    private final JButton btnSetTime;
+    private JTextField dmxField;
     private JLabel lblDmxAddress;
-    public JTextField universeField;
+    private JTextField universeField;
     private JLabel lblUniverse;
-    public JTextField subnetField;
+    private JTextField subnetField;
     private JLabel lblSubnet;
-    public JComboBox<Integer> framerateBox;
-    private JLabel lblFramerate;
+    private final JComboBox<Integer> framerateBox;
+    private final JLabel lblFramerate;
     private JButton btnSetDmx;
-    public JComboBox<MixerEntry> ltcOutputBox;
-    private JPanel setTimePanel;
-    private JTextField hourField;
-    private JTextField minField;
-    private JTextField secField;
-    private JTextField frameField;
-    private JPanel dmxSettingsPanel;
-    public JComboBox<NetEntry> addressBox;
-    public JButton btnRestart;
-    private JPanel playerPanel;
-    public JCheckBox musicCheckBox;
-    public JComboBox<MixerEntry> audioOutputBox;
-    public JLabel lblTrackInfo;
-    public JComboBox<Music> musicListBox;
-    private TrackPanel trackPanel;
-    public JButton btnRemove;
-    public JButton btnAdd;
-    private JSlider volumeSlider;
-    private JButton btnNetworkSettings;
-    private JPanel modulePane;
-    private JButton btnOscVis;
-    private JPanel oscPanel;
-    private JPanel mainPanel;
-    private JPanel threadIndicator1;
-    private JPanel threadIndicator2;
-    private JPanel threadIndicator3;
-    private JPanel threadIndicator4;
-    private JPanel threadIndicator5;
-    private JCheckBox chckbxOsc;
-    private JScrollPane scrollPane;
-    public JTable table;
-    private JLabel lblTargetIp;
-    public JTextField oscIPField;
-    private JLabel lblOSCPort;
-    public JTextField oscPortField;
-    public JButton btnNow;
-    public JButton btnInsert;
-    public JButton btnInsertTime;
-    public JButton btnSort;
+    private final JComboBox<MixerEntry> ltcOutputBox;
+    private final JPanel setTimePanel;
+    private final JTextField hourField;
+    private final JTextField minField;
+    private final JTextField secField;
+    private final JTextField frameField;
+    private final JPanel dmxSettingsPanel;
+    private final JComboBox<NetEntry> addressBox;
+    private final JButton btnRestart;
+    private final JPanel playerPanel;
+    private final JCheckBox musicCheckBox;
+    private final JComboBox<MixerEntry> audioOutputBox;
+    private final JLabel lblTrackInfo;
+    private final JComboBox<Music> musicListBox;
+    private final TrackPanel trackPanel;
+    private final JButton btnRemove;
+    private final JButton btnAdd;
+    private final JSlider volumeSlider;
+    private final JButton btnNetworkSettings;
+    private final JPanel modulePane;
+    private final JButton btnOscVis;
+    private final JPanel oscPanel;
+    private final JPanel mainPanel;
+    private final JPanel threadIndicator1;
+    private final JPanel threadIndicator2;
+    private final JPanel threadIndicator3;
+    private final JPanel threadIndicator4;
+    private final JPanel threadIndicator5;
+    private final JCheckBox chckbxOsc;
+    private final JScrollPane scrollPane;
+    private JTable table;
+    private final JLabel lblTargetIp;
+    private final JTextField oscIPField;
+    private final JLabel lblOSCPort;
+    private final JTextField oscPortField;
+    private final JButton btnNow;
+    private final JButton btnInsert;
+    private final JButton btnInsertTime;
+    private final JButton btnSort;
 
-    private Thread dThreadInstance;
     private Thread wThreadInstance;
     private Thread mThreadInstance;
     
-    private JButton btnTimeMonitor;
-    private JButton btnRemoveOSC;
-    private JButton btnImport;
-    private JButton btnExport;
+    private final JButton btnTimeMonitor;
+    private final JButton btnRemoveOSC;
+    private final JButton btnImport;
+    private final JButton btnExport;
 
-    /**
-     * Create the frame.
-     * @throws SocketException 
-     */
     public ServerGUI() throws SocketException {
-        guiInstance = this;
+        instance = this;
         timeMonitor = new TimeMonitor();
         timeMonitor.setIconImages(getIcons());
-        
+
         this.settingsProvider = new ServerSettingsProvider(new File(PROG_HOME + "\\serverSettings.json"), this);
         
-        setTitle("Timecode Generator - Server  (experimental LTC implementation)");
-//        try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-//            e.printStackTrace();
-//        }
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ShowManager - Server");
+        LafManager.install();
+
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int response = JOptionPane.showConfirmDialog(ServerGUI.this, "Are you sure want to quit?", "ShowManager", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    System.exit(0);
+                }
+            }
+        });
         setIconImages(getIcons());
         setBounds(100, 100, 1150, 513);
         setMinimumSize(new Dimension(1150, 513));
         contentPane = new JPanel();
         contentPane.setBorder(null);
         setContentPane(contentPane);
-        
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu file = new JMenu("File");
+        JMenuItem newProject = new JMenuItem("New");
+        JMenuItem load = new JMenuItem("Load");
+        JMenuItem save = new JMenuItem("Save");
+        JMenuItem saveAs = new JMenuItem("Save as...");
+        file.add(newProject);
+        file.add(load);
+        file.add(save);
+        file.add(saveAs);
+        menuBar.add(file);
+
+        JMenu help = new JMenu("Help");
+        JMenuItem laf = new JMenuItem("Look and feel settings");
+        laf.setIcon(ThemeSettings.getIcon());
+        laf.addActionListener(l -> ThemeSettings.showSettingsDialog(this));
+        help.add(laf);
+        JMenuItem about = new JMenuItem("About");
+        JEditorPane pane = new JEditorPane("text/html", "<html><h2>ShowManager by MrExplode, 2020</h2><br>" +
+                "A miniaturized show controller, capable of outputting ArtNet and LTC timecode<br>" +
+                "playing soundtrack along with it, broadcasting timed osc messages<br>" +
+                "and sending various information through Redis in a client-server context.<br>" +
+                "Remote control is possible with DMX or OSC.<br>" +
+                "Not intended for commercial use by any means.<br>" +
+                "I made it for fun, for my needs.<br><br>" +
+                "Credits to <a href=\"https://github.com/cansik\">Florian Bruggisser</a> for <a href=\"https://github.com/cansik/artnet4j\">artnet4j</a>" +
+                "<br><html>");
+        pane.setEditable(false);
+        pane.addHyperlinkListener(e -> {
+            if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+                try {
+                    Desktop.getDesktop().browse(e.getURL().toURI());
+                } catch (IOException | URISyntaxException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+        about.addActionListener(l -> JOptionPane.showMessageDialog(this,
+                pane, "About", JOptionPane.INFORMATION_MESSAGE));
+        help.add(about);
+        menuBar.add(help);
+        setJMenuBar(menuBar);
+
         oscPanel = new JPanel();
         oscPanel.setBorder(new TitledBorder(null, "OSC controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
@@ -203,10 +227,10 @@ public class ServerGUI extends JFrame {
         );
         
         chckbxOsc = new JCheckBox("OSC control");
-        components.add(chckbxOsc);
+        inputComponents.add(chckbxOsc);
         chckbxOsc.addActionListener(e -> {
-            System.out.println((chckbxOsc.isSelected() ? "Enabled" : "Disabled") + " OSC message dispatch");
-            //workThread.setOSC(chckbxOsc.isSelected());
+            //OSC toggle
+            log.info("Toggled OSC control " + (chckbxOsc.isSelected() ? "on" : "off"));
         });
         
         scrollPane = new JScrollPane();
@@ -222,42 +246,42 @@ public class ServerGUI extends JFrame {
         oscPortField.setColumns(10);
         
         btnNow = new JButton("Now");
-        components.add(btnNow);
+        inputComponents.add(btnNow);
         btnNow.setToolTipText("Set the selected event's time to the current time");
         btnNow.addActionListener(e -> {
-            ((SchedulerTableModel) table.getModel()).getEvent(table.getSelectedRow()).setExecTime(dataGrabber.getCurrentTime());
+            //((SchedulerTableModel) table.getModel()).getEvent(table.getSelectedRow()).setExecTime(dataGrabber.getCurrentTime());
         });
-        
+
         btnInsert = new JButton("Insert");
-        components.add(btnInsert);
+        inputComponents.add(btnInsert);
         btnInsert.addActionListener(e -> {
             ((SchedulerTableModel) table.getModel()).insertEmptyRow(table.getSelectedRow());
         });
         btnInsert.setToolTipText("Insert an empty element befor the currently selected element");
         
         btnInsertTime = new JButton("Insert with time");
-        components.add(btnInsertTime);
+        inputComponents.add(btnInsertTime);
         btnInsertTime.addActionListener(e -> {
-            ((SchedulerTableModel) table.getModel()).insertRow(table.getSelectedRow(), new ScheduledEvent(null, dataGrabber.getCurrentTime()));
+            //((SchedulerTableModel) table.getModel()).insertRow(table.getSelectedRow(), new ScheduledEvent(null, dataGrabber.getCurrentTime()));
         });
         btnInsertTime.setToolTipText("Insert an empty element, with the current timecode");
         
         btnSort = new JButton("Sort");
-        components.add(btnSort);
+        inputComponents.add(btnSort);
         btnSort.setToolTipText("Sort the table with the time values");
         btnSort.addActionListener(e-> {
             ((SchedulerTableModel) table.getModel()).sort();
         });
         
         btnRemoveOSC = new JButton("Remove");
-        components.add(btnRemoveOSC);
+        inputComponents.add(btnRemoveOSC);
         btnRemoveOSC.addActionListener(e -> {
             ((SchedulerTableModel) table.getModel()).removeRow(table.getSelectedRow());
         });
         btnRemoveOSC.setToolTipText("Remove the selected event");
         
         btnImport = new JButton("Import...");
-        components.add(btnImport);
+        inputComponents.add(btnImport);
         btnImport.addActionListener(e -> {
             FileIOPrompt prompt = new FileIOPrompt(true, (SchedulerTableModel) table.getModel());
             prompt.setVisible(true);
@@ -269,7 +293,7 @@ public class ServerGUI extends JFrame {
             FileIOPrompt prompt = new FileIOPrompt(false, (SchedulerTableModel) table.getModel());
             prompt.setVisible(true);
         });
-        components.add(btnExport);
+        inputComponents.add(btnExport);
         btnExport.setToolTipText("Export current data");
         GroupLayout gl_oscPanel = new GroupLayout(oscPanel);
         gl_oscPanel.setHorizontalGroup(
@@ -368,18 +392,17 @@ public class ServerGUI extends JFrame {
         settingsPanel = new JPanel();
         
         artnetCheckBox = new JCheckBox("ArtNet timecode");
-        components.add(artnetCheckBox);
+        inputComponents.add(artnetCheckBox);
         artnetCheckBox.addActionListener(e -> {
-            System.out.println((artnetCheckBox.isSelected() ? "Enabled" : "Disabled") + " ArtNet timecode");
+            log.info("ArtNet broadcast " + (artnetCheckBox.isSelected() ? "on" : "off"));
             //workThread.setBroadcastArtNet(artnetCheckBox.isSelected());
         });
         artnetCheckBox.setToolTipText("Toggles the ArtNet timecode broadcasting");
         
         ltcCheckBox = new JCheckBox("LTC timecode");
-        components.add(ltcCheckBox);
+        inputComponents.add(ltcCheckBox);
         ltcCheckBox.addActionListener(e -> {
-            boolean selected = ltcCheckBox.isSelected();
-            System.out.println((selected ? "Enabled" : "Disabled") + " LTC timecode");
+            log.info("LTC output " + (ltcCheckBox.isSelected() ? "on" : "off"));
             //workThread.setLTC(selected);
         });
         ltcCheckBox.setToolTipText("Toggles the LTC output");
@@ -400,7 +423,7 @@ public class ServerGUI extends JFrame {
         addressBox.setToolTipText("Network to broadcast ArtNet Timecode.");
         
         btnRestart = new JButton("Restart internals");
-        components.add(btnRestart);
+        inputComponents.add(btnRestart);
         btnRestart.setToolTipText("In order to your changes take effect, you have to restart the internal implementation.");
         btnRestart.addActionListener(e -> {
             //just in case
@@ -410,10 +433,10 @@ public class ServerGUI extends JFrame {
         
         musicCheckBox = new JCheckBox("Audio player");
         musicCheckBox.addActionListener(e -> {
-            System.out.println((musicCheckBox.isSelected() ? "Enabled" : "Disabled") + " music player");
+            log.info("AudioPlayer turned " + (musicCheckBox.isSelected() ? "on" : "off"));
             musicThread.setEnabled(musicCheckBox.isSelected());
         });
-        components.add(musicCheckBox);
+        inputComponents.add(musicCheckBox);
         musicCheckBox.setToolTipText("Toggles the audio output");
         
         audioOutputBox = new JComboBox<>();
@@ -477,10 +500,10 @@ public class ServerGUI extends JFrame {
         dmxSettingsPanel = new JPanel();
         
         remoteCheckBox = new JCheckBox("DMX remote control");
-        components.add(remoteCheckBox);
+        inputComponents.add(remoteCheckBox);
         remoteCheckBox.addActionListener(e -> {
             boolean selected = remoteCheckBox.isSelected();
-            System.out.println((selected ? "Enabled" : "Disabled") + " remote control");
+            log.info("DMX remote control" + (selected ? "on" : "off"));
             //workThread.setRemoteControl(selected);
             dmxField.setEnabled(selected);
             lblDmxAddress.setEnabled(selected);
@@ -515,7 +538,7 @@ public class ServerGUI extends JFrame {
         
         btnSetDmx = new JButton("Set dmx");
         btnSetDmx.setToolTipText("(doesn't need restart)");
-        components.add(btnSetDmx);
+        inputComponents.add(btnSetDmx);
         btnSetDmx.addActionListener(e -> {
             //workThread.setDmxAddress(Integer.valueOf(dmxField.getText()));
             //workThread.setUniverse(Integer.valueOf(universeField.getText()));
@@ -588,13 +611,13 @@ public class ServerGUI extends JFrame {
         btnOscVis = new JButton("Cue Pilot");
         btnOscVis.setToolTipText("Under development");
         btnOscVis.setEnabled(false);
-        components.add(btnOscVis);
+        inputComponents.add(btnOscVis);
         btnOscVis.addActionListener(e -> {
             
         });
         
         btnTimeMonitor = new JButton("Time monitor");
-        components.add(btnTimeMonitor);
+        inputComponents.add(btnTimeMonitor);
         btnTimeMonitor.addActionListener(e -> {
             timeMonitor.setVisible(true);
         });
@@ -622,8 +645,8 @@ public class ServerGUI extends JFrame {
         );
         modulePane.setLayout(gl_modulePane);
         btnNetworkSettings.addActionListener(e -> {
-            NetworkingGUI netGui = new NetworkingGUI(com1Port, com2Port, com2InterfaceBox, packetSize, this);
-            netGui.setVisible(true);
+//            NetworkingGUI netGui = new NetworkingGUI(com1Port, com2Port, com2InterfaceBox, packetSize, this);
+//            netGui.setVisible(true);
         });
         dmxSettingsPanel.setLayout(gl_dmxSettingsPanel);
         
@@ -667,7 +690,7 @@ public class ServerGUI extends JFrame {
         setTimePanel.setLayout(gl_setTimePanel);
         
         btnSetTime = new JButton("Set time");
-        components.add(btnSetTime);
+        inputComponents.add(btnSetTime);
         btnSetTime.addActionListener(e -> {
             boolean wrong = false;
             Pattern p = Pattern.compile("\\b\\d+\\b");
@@ -753,20 +776,20 @@ public class ServerGUI extends JFrame {
         });
         
         btnPlay = new JButton("Play");
-        components.add(btnPlay);
+        inputComponents.add(btnPlay);
         btnPlay.addActionListener(e -> {
             workThread.play();
             table.clearSelection();
         });
         
         btnPause = new JButton("Pause");
-        components.add(btnPause);
+        inputComponents.add(btnPause);
         btnPause.addActionListener(e -> {
             workThread.pause();
         });
         
         btnStop = new JButton("Stop");
-        components.add(btnStop);
+        inputComponents.add(btnStop);
         btnStop.addActionListener(e -> {
             workThread.stop();
         });
@@ -812,11 +835,11 @@ public class ServerGUI extends JFrame {
             musicListBox.removeItemAt(musicListBox.getSelectedIndex());
         });
         btnRemove.setToolTipText("Remove the current track");
-        components.add(btnRemove);
+        inputComponents.add(btnRemove);
         
         btnAdd = new JButton("Add");
         btnAdd.setToolTipText("Requres a restart after adding.");
-        components.add(btnAdd);
+        inputComponents.add(btnAdd);
         btnAdd.addActionListener(e -> {
             MusicAdder musicPrompt = new MusicAdder(musicListBox);
             musicPrompt.setVisible(true);
@@ -829,7 +852,7 @@ public class ServerGUI extends JFrame {
         });
         
         volumeSlider.setValue(75);
-        components.add(volumeSlider);
+        inputComponents.add(volumeSlider);
         volumeSlider.setToolTipText("Volume");
         volumeSlider.setPaintLabels(true);
         volumeSlider.setMinorTickSpacing(5);
@@ -881,15 +904,15 @@ public class ServerGUI extends JFrame {
         );
         trackPanel.setLayout(null);
         playerPanel.setLayout(gl_playerPanel);
-        
+
         threadIndicator1 = new JPanel();
-        
+
         threadIndicator2 = new JPanel();
-        
+
         threadIndicator3 = new JPanel();
-        
+
         threadIndicator4 = new JPanel();
-        
+
         threadIndicator5 = new JPanel();
         GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
         gl_mainPanel.setHorizontalGroup(
@@ -959,12 +982,7 @@ public class ServerGUI extends JFrame {
                     .addComponent(playerPanel, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
         );
         mainPanel.setLayout(gl_mainPanel);
-        
-        threadIndicators.add(threadIndicator1);
-        threadIndicators.add(threadIndicator2);
-        threadIndicators.add(threadIndicator3);
-        threadIndicators.add(threadIndicator4);
-        threadIndicators.add(threadIndicator5);
+
         //INIT ltc and audio player outputs
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
             //port prefixed mixers don't seem to work
@@ -994,7 +1012,7 @@ public class ServerGUI extends JFrame {
         contentPane.setLayout(gl_contentPane);
         
         //overriding default space actions
-        for (JComponent component : components) {
+        for (JComponent component : inputComponents) {
             InputMap im = component.getInputMap();
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "none");
         }
@@ -1022,14 +1040,10 @@ public class ServerGUI extends JFrame {
             }
         }));
     }
-    
-    @SuppressWarnings("resource")
+
     private void start() {
-        //datagrabber setup
-        this.dataGrabber = new DataGrabber(this, com1Port);
-        dThreadInstance = new Thread(dataGrabber);
-        
-        //workerthread setup
+        if(true)
+            return;
         Mixer ltcMixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
         InetAddress address = ((NetEntry) addressBox.getSelectedItem()).getNetworkAddress();
         InetAddress oscAddress = null;
@@ -1045,11 +1059,9 @@ public class ServerGUI extends JFrame {
         } catch (NumberFormatException e) {
             oscPortField.setText("0");
         }
-        this.workThread = new WorkerThread(ltcMixer, address, (SchedulerTableModel) table.getModel(), oscAddress, oscPort, dThreadInstance, dataGrabber, dataGrabber.getLock());
+        //this.workThread = new WorkerThread(address, (SchedulerTableModel) table.getModel(), dThreadInstance, dataGrabber, dataGrabber.getLock());
         //this.workThread.setFramerate((int) (framerateBox.getSelectedItem()));
         wThreadInstance = new Thread(workThread);
-        
-        this.dataGrabber.setWorkerInstance(workThread);
         
         //musicthread setup
         Mixer audioMixer = AudioSystem.getMixer(((MixerEntry) audioOutputBox.getSelectedItem()).getMixerInfo());
@@ -1058,38 +1070,23 @@ public class ServerGUI extends JFrame {
             musicList.add(musicListBox.getItemAt(i));
         }
         InetAddress com2addr = ((NetEntry) com2InterfaceBox.getSelectedItem()).getNetworkAddress();
-        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList, DataGrabber.getEventHandler(), dataGrabber.getLock(), com1Port, com2Port, com2addr, packetSize);
+        musicThread = new MusicThread(audioMixer, trackPanel, lblTrackInfo, musicList);
         mThreadInstance = new Thread(musicThread);
         trackPanel.dependencies(musicThread, workThread);
         
-        //thread error handling
-        ThreadErrorHandler wHandler = new ThreadErrorHandler(btnRestart, threadIndicator2, "WorkerThread");
-        ThreadErrorHandler dHandler = new ThreadErrorHandler(btnRestart, threadIndicator3, "DataGrabber");
-        ThreadErrorHandler mHandler = new ThreadErrorHandler(btnRestart, threadIndicator4, "MusicThread");
-        
-        wThreadInstance.setUncaughtExceptionHandler(wHandler);
-        dThreadInstance.setUncaughtExceptionHandler(dHandler);
-        mThreadInstance.setUncaughtExceptionHandler(mHandler);
-        
         //actual start
         wThreadInstance.start();
-        dThreadInstance.start();
         mThreadInstance.start();
     }
     
     private void stop() {
-        this.dataGrabber.shutdown();
         this.workThread.shutdown();
         this.musicThread.shutdown();
-        this.dataGrabber = null;
         this.workThread = null;
         this.musicThread = null;
         try {
             this.wThreadInstance.join();
             this.wThreadInstance = null;
-            this.dThreadInstance.join();
-            this.dThreadInstance = null;
-            //this.mThreadInstance.join();
             this.mThreadInstance = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -1098,11 +1095,6 @@ public class ServerGUI extends JFrame {
     }
     
     public void restartInternals() {
-        for (JPanel indicator : threadIndicators) {
-            indicator.setBackground(Color.YELLOW);
-            indicator.setToolTipText("Restarting...");
-        }
-        repaint();
         //stop
         stop();
         try {
@@ -1113,16 +1105,13 @@ public class ServerGUI extends JFrame {
         //start
         start();
     }
-    
+
+    @SneakyThrows
     public static List<Image> getIcons() {
         List<Image> list = new ArrayList<>();
         int[] sizes = new int[] {32, 64, 256};
         for (int i : sizes) {
-            try {
-                list.add(ImageIO.read(ServerGUI.class.getResource("/icons/icon" + i + ".png")));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            list.add(ImageIO.read(ServerGUI.class.getResource("/icons/icon" + i + ".png")));
         }
         return list;
     }

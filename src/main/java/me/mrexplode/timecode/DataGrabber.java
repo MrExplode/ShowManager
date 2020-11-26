@@ -17,12 +17,11 @@ import me.mrexplode.timecode.gui.general.SchedulerTableModel;
 import me.mrexplode.timecode.remote.DmxRemoteState;
 import me.mrexplode.timecode.util.Timecode;
 
+@Deprecated
 public class DataGrabber implements Runnable {
     
-    private static EventHandler eventHandler;
-    
     private WorkerThread worker;
-    private ServerGUI gui;
+    private final ServerGUI gui;
     private boolean running;
     private DmxRemoteState previousState;
     private ArrayList<Integer> prevDispatched;
@@ -30,30 +29,15 @@ public class DataGrabber implements Runnable {
     
     private final Object dataLock = new Object();
     
-    public DataGrabber(ServerGUI guiInstance, int networkPort) {
-        this.gui = guiInstance;
+    public DataGrabber() {
+        this.gui = ServerGUI.getInstance();
         this.running = true;
         this.previousState = DmxRemoteState.DISABLED;
         this.prevDispatched = new ArrayList<>();
-        eventHandler = new EventHandler();
-        try {
-            eventHandler.startNetworking(networkPort);
-        } catch (IOException e) {
-            err("Failed to start network event handling!");
-            e.printStackTrace();
-        }
     }
     
     public Object getLock() {
         return dataLock;
-    }
-    
-    public static EventHandler getEventHandler() {
-        if (eventHandler != null) {
-            return eventHandler;
-        } else {
-            throw new IllegalStateException("DataGrabber not initialized, but tried to get EventHandler instance");
-        }
     }
     
     public void setWorkerInstance(WorkerThread instance) {
@@ -62,23 +46,23 @@ public class DataGrabber implements Runnable {
 
     @Override
     public void run() {
-        log("Starting thread...");
+        //log("Starting thread...");
         Thread.currentThread().setName("DataGrabber Thread");
         
-        eventHandler.addListener(new TimecodeEventAdapter() {
-            @Override
-            public void onTimeEvent(TimeEvent e) {
-                if (e.getType() == EventType.TC_START) {
-                    prevDispatched = new ArrayList<>();
-                    if (gui.timeMonitor.isVisible())
-                        gui.timeMonitor.getAnimator().startFlash(Color.RED);
-                }
-                if (e.getType() == EventType.TC_PAUSE || e.getType() == EventType.TC_STOP) {
-                    if (gui.timeMonitor.isVisible())
-                        gui.timeMonitor.getAnimator().stopFlash();
-                }
-            }
-        });
+//        eventHandler.addListener(new TimecodeEventAdapter() {
+//            @Override
+//            public void onTimeEvent(TimeEvent e) {
+//                if (e.getType() == EventType.TC_START) {
+//                    prevDispatched = new ArrayList<>();
+//                    if (gui.getTimeMonitor().isVisible())
+//                        gui.getTimeMonitor().getAnimator().startFlash(Color.RED);
+//                }
+//                if (e.getType() == EventType.TC_PAUSE || e.getType() == EventType.TC_STOP) {
+//                    if (gui.getTimeMonitor().isVisible())
+//                        gui.getTimeMonitor().getAnimator().stopFlash();
+//                }
+//            }
+//        });
         
         while (running) {
             if (running) {
@@ -88,7 +72,7 @@ public class DataGrabber implements Runnable {
                         dataLock.wait();
                     }
                 } catch (InterruptedException e) {
-                    err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
+                    //err("DataGrabber got interrupted! Restart is strongly adviced since gui won't work anymore!");
                     e.printStackTrace();
                     shutdown();
                     throw new RuntimeException("Thread got interrupted while trying to wait.", e);
@@ -98,35 +82,35 @@ public class DataGrabber implements Runnable {
     }
     
     public void update() {
-        currentTime = worker.getCurrentTimecode();
-        String timeString = worker.getFormatted();
-        DmxRemoteState dmxRemoteState = worker.getRemoteState();
+        currentTime = worker.getTimecode();
+        String timeString = worker.getTimecode().guiFormatted();
+        DmxRemoteState dmxRemoteState = DmxRemoteState.DISABLED;//worker.getRemoteState();
         
         boolean playing = worker.isPlaying();
         
-        if (playing) {
-            TimeChangeEvent event = new TimeChangeEvent(currentTime);
-            eventHandler.callEvent(event);
-        }
+//        if (playing) {
+//            TimeChangeEvent event = new TimeChangeEvent(currentTime);
+//            eventHandler.callEvent(event);
+//        }
         
         onEDT(() -> {
-            if (gui.timeMonitor.isVisible()) {
-                gui.timeMonitor.timeDisplay.setText(timeString);
+            if (gui.getTimeMonitor().isVisible()) {
+                gui.getTimeMonitor().timeDisplay.setText(timeString);
             }
-            gui.timeDisplay.setText(timeString);
-            gui.btnSetTime.setEnabled(!playing);
-            gui.framerateBox.setEnabled(!playing);
-            gui.btnRestart.setEnabled(!playing);
-            gui.musicCheckBox.setEnabled(!playing);
+            gui.getTimeDisplay().setText(timeString);
+            gui.getBtnSetTime().setEnabled(!playing);
+            gui.getFramerateBox().setEnabled(!playing);
+            gui.getBtnRestart().setEnabled(!playing);
+            gui.getMusicCheckBox().setEnabled(!playing);
             //OSC
-            ((SchedulerTableModel) gui.table.getModel()).setEditable(!playing);
-            if (!((SchedulerTableModel) gui.table.getModel()).getLatestDispatched().equals(this.prevDispatched)) {
-                this.prevDispatched =  new ArrayList<>(((SchedulerTableModel) gui.table.getModel()).getLatestDispatched());
-                gui.table.clearSelection();
-                gui.table.setRowSelectionInterval(prevDispatched.get(0), prevDispatched.get(prevDispatched.size() - 1));
+            ((SchedulerTableModel) gui.getTable().getModel()).setEditable(!playing);
+            if (!((SchedulerTableModel) gui.getTable().getModel()).getLatestDispatched().equals(this.prevDispatched)) {
+                this.prevDispatched =  new ArrayList<>(((SchedulerTableModel) gui.getTable().getModel()).getLatestDispatched());
+                gui.getTable().clearSelection();
+                gui.getTable().setRowSelectionInterval(prevDispatched.get(0), prevDispatched.get(prevDispatched.size() - 1));
             }
             Color defColor = UIManager.getColor("Button.background");
-            gui.btnPlay.setBackground(playing ? Color.GREEN : defColor);
+            gui.getBtnPlay().setBackground(playing ? Color.GREEN : defColor);
 
             
             if (dmxRemoteState != previousState) {
@@ -134,89 +118,88 @@ public class DataGrabber implements Runnable {
                 
                 switch (dmxRemoteState) {
                     case DISABLED:
-                        gui.remoteControl.setText("");
-                        gui.btnPlay.setEnabled(true);
-                        gui.btnPause.setEnabled(true);
-                        gui.btnStop.setEnabled(true);
-                        gui.btnNow.setEnabled(true);
-                        gui.btnSort.setEnabled(true);
-                        gui.btnInsert.setEnabled(true);
-                        gui.btnInsertTime.setEnabled(true);
-                        gui.btnAdd.setEnabled(true);
-                        gui.btnRemove.setEnabled(true);
+                        gui.getRemoteControl().setText("");
+                        gui.getBtnPlay().setEnabled(true);
+                        gui.getBtnPause().setEnabled(true);
+                        gui.getBtnStop().setEnabled(true);
+                        gui.getBtnNow().setEnabled(true);
+                        gui.getBtnSort().setEnabled(true);
+                        gui.getBtnInsert().setEnabled(true);
+                        gui.getBtnInsertTime().setEnabled(true);
+                        gui.getBtnAdd().setEnabled(true);
+                        gui.getBtnRemove().setEnabled(true);
                         break;
                     case FORCE_IDLE:
-                        gui.remoteControl.setText("Remote control: Force takeover");
-                        gui.btnPlay.setEnabled(false);
-                        gui.btnPause.setEnabled(false);
-                        gui.btnStop.setEnabled(false);
-                        gui.btnNow.setEnabled(false);
-                        gui.btnSort.setEnabled(false);
-                        gui.btnInsert.setEnabled(false);
-                        gui.btnInsertTime.setEnabled(false);
-                        gui.btnAdd.setEnabled(false);
-                        gui.btnRemove.setEnabled(false);
+                        gui.getRemoteControl().setText("Remote control: Force takeover");
+                        gui.getBtnPlay().setEnabled(false);
+                        gui.getBtnPause().setEnabled(false);
+                        gui.getBtnStop().setEnabled(false);
+                        gui.getBtnNow().setEnabled(false);
+                        gui.getBtnSort().setEnabled(false);
+                        gui.getBtnInsert().setEnabled(false);
+                        gui.getBtnInsertTime().setEnabled(false);
+                        gui.getBtnAdd().setEnabled(false);
+                        gui.getBtnRemove().setEnabled(false);
                         break;
                     case IDLE:
-                        gui.remoteControl.setText("Remote control: Waiting");
-                        gui.btnPlay.setBackground(defColor);
-                        gui.btnPause.setBackground(defColor);
-                        gui.btnStop.setBackground(defColor);
-                        gui.btnPlay.setEnabled(true);
-                        gui.btnPause.setEnabled(true);
-                        gui.btnStop.setEnabled(true);
-                        gui.btnStop.setEnabled(true);
-                        gui.btnNow.setEnabled(true);
-                        gui.btnSort.setEnabled(true);
-                        gui.btnInsert.setEnabled(true);
-                        gui.btnInsertTime.setEnabled(true);
-                        gui.btnAdd.setEnabled(true);
-                        gui.btnRemove.setEnabled(true);
+                        gui.getRemoteControl().setText("Remote control: Waiting");
+                        gui.getBtnPlay().setBackground(defColor);
+                        gui.getBtnPause().setBackground(defColor);
+                        gui.getBtnStop().setBackground(defColor);
+                        gui.getBtnPlay().setEnabled(true);
+                        gui.getBtnPause().setEnabled(true);
+                        gui.getBtnStop().setEnabled(true);
+                        gui.getBtnNow().setEnabled(true);
+                        gui.getBtnSort().setEnabled(true);
+                        gui.getBtnInsert().setEnabled(true);
+                        gui.getBtnInsertTime().setEnabled(true);
+                        gui.getBtnAdd().setEnabled(true);
+                        gui.getBtnRemove().setEnabled(true);
                         break;
                     case PAUSE:
-                        gui.remoteControl.setText("Remote control: Paused");
-                        gui.btnPlay.setBackground(defColor);
-                        gui.btnPause.setBackground(Color.ORANGE);
-                        gui.btnStop.setBackground(defColor);
-                        gui.btnPlay.setEnabled(false);
-                        gui.btnPause.setEnabled(false);
-                        gui.btnStop.setEnabled(false);
-                        gui.btnNow.setEnabled(false);
-                        gui.btnSort.setEnabled(false);
-                        gui.btnInsert.setEnabled(false);
-                        gui.btnInsertTime.setEnabled(false);
-                        gui.btnAdd.setEnabled(false);
-                        gui.btnRemove.setEnabled(false);
+                        gui.getRemoteControl().setText("Remote control: Paused");
+                        gui.getBtnPlay().setBackground(defColor);
+                        gui.getBtnPause().setBackground(Color.ORANGE);
+                        gui.getBtnStop().setBackground(defColor);
+                        gui.getBtnPlay().setEnabled(false);
+                        gui.getBtnPause().setEnabled(false);
+                        gui.getBtnStop().setEnabled(false);
+                        gui.getBtnNow().setEnabled(false);
+                        gui.getBtnSort().setEnabled(false);
+                        gui.getBtnInsert().setEnabled(false);
+                        gui.getBtnInsertTime().setEnabled(false);
+                        gui.getBtnAdd().setEnabled(false);
+                        gui.getBtnRemove().setEnabled(false);
                         break;
                     case PLAYING:
-                        gui.remoteControl.setText("Remote control: Playing");
-                        gui.btnPlay.setBackground(Color.GREEN);
-                        gui.btnPause.setBackground(defColor);
-                        gui.btnStop.setBackground(defColor);
-                        gui.btnPlay.setEnabled(false);
-                        gui.btnPause.setEnabled(false);
-                        gui.btnStop.setEnabled(false);
-                        gui.btnNow.setEnabled(false);
-                        gui.btnSort.setEnabled(false);
-                        gui.btnInsert.setEnabled(false);
-                        gui.btnInsertTime.setEnabled(false);
-                        gui.btnAdd.setEnabled(false);
-                        gui.btnRemove.setEnabled(false);
+                        gui.getRemoteControl().setText("Remote control: Playing");
+                        gui.getBtnPlay().setBackground(Color.GREEN);
+                        gui.getBtnPause().setBackground(defColor);
+                        gui.getBtnStop().setBackground(defColor);
+                        gui.getBtnPlay().setEnabled(false);
+                        gui.getBtnPause().setEnabled(false);
+                        gui.getBtnStop().setEnabled(false);
+                        gui.getBtnNow().setEnabled(false);
+                        gui.getBtnSort().setEnabled(false);
+                        gui.getBtnInsert().setEnabled(false);
+                        gui.getBtnInsertTime().setEnabled(false);
+                        gui.getBtnAdd().setEnabled(false);
+                        gui.getBtnRemove().setEnabled(false);
                         break;
                     case STOPPED:
-                        gui.remoteControl.setText("Remote control: Stopped");
-                        gui.btnPlay.setBackground(defColor);
-                        gui.btnPause.setBackground(defColor);
-                        gui.btnStop.setBackground(Color.RED);
-                        gui.btnPlay.setEnabled(false);
-                        gui.btnPause.setEnabled(false);
-                        gui.btnStop.setEnabled(false);
-                        gui.btnNow.setEnabled(false);
-                        gui.btnSort.setEnabled(false);
-                        gui.btnInsert.setEnabled(false);
-                        gui.btnInsertTime.setEnabled(false);
-                        gui.btnAdd.setEnabled(false);
-                        gui.btnRemove.setEnabled(false);
+                        gui.getRemoteControl().setText("Remote control: Stopped");
+                        gui.getBtnPlay().setBackground(defColor);
+                        gui.getBtnPause().setBackground(defColor);
+                        gui.getBtnStop().setBackground(Color.RED);
+                        gui.getBtnPlay().setEnabled(false);
+                        gui.getBtnPause().setEnabled(false);
+                        gui.getBtnStop().setEnabled(false);
+                        gui.getBtnNow().setEnabled(false);
+                        gui.getBtnSort().setEnabled(false);
+                        gui.getBtnInsert().setEnabled(false);
+                        gui.getBtnInsertTime().setEnabled(false);
+                        gui.getBtnAdd().setEnabled(false);
+                        gui.getBtnRemove().setEnabled(false);
                         break;
                     default:
                         break;
@@ -227,10 +210,8 @@ public class DataGrabber implements Runnable {
     }
     
     public void shutdown() {
-        log("Shutting down...");
+        //log("Shutting down...");
         this.running = false;
-        eventHandler.removeAllListeners();
-        eventHandler.shutdown();
         synchronized (dataLock) {
             this.dataLock.notify();
         }
@@ -242,14 +223,6 @@ public class DataGrabber implements Runnable {
     
     private static void onEDT(Runnable task) {
         SwingUtilities.invokeLater(task);
-    }
-    
-    private static void log(String message) {
-        System.out.println("[DataGrabber] " + message);
-    }
-    
-    private static void err(String errorMessage) {
-        System.err.println("[DataGrabber] " + errorMessage);
     }
 
 }

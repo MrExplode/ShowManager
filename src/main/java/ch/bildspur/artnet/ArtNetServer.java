@@ -21,6 +21,7 @@ package ch.bildspur.artnet;
 
 import ch.bildspur.artnet.events.ArtNetServerListener;
 import ch.bildspur.artnet.packets.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.*;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+@Slf4j
 public class ArtNetServer extends ArtNetNode implements Runnable {
 
     public static final int DEFAULT_PORT = 0x1936;
@@ -76,7 +78,7 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
                 l.artNetPacketBroadcasted(ap);
             }
         } catch (IOException e) {
-            logger.warning(e.getMessage());
+            log.warn(e.getMessage());
         }
     }
 
@@ -94,7 +96,7 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
         try {
             while (isRunning) {
                 socket.receive(receivedPacket);
-                logger.finer("received new packet");
+                log.debug("received new packet");
                 ArtNetPacket packet = ArtNetPacketParser.parse(receivedPacket);
                 if (packet != null) {
                     if (packet.getType() == PacketType.ART_POLL) {
@@ -107,7 +109,7 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
                 }
             }
             socket.close();
-            logger.info("server thread terminated.");
+            log.info("server thread terminated.");
             for (ArtNetServerListener l : listeners) {
                 l.artNetServerStopped(this);
             }
@@ -145,9 +147,9 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
     public void setBroadcastAddress(String address) {
         try {
             broadCastAddress = InetAddress.getByName(address);
-            logger.fine("broadcast IP set to: " + broadCastAddress);
+            log.debug("broadcast IP set to: " + broadCastAddress);
         } catch (UnknownHostException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
     }
 
@@ -176,7 +178,7 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
 
             socket.bind(new InetSocketAddress(address, port));
 
-            logger.info("Art-Net server started at: " + address.getHostAddress() + ":" + port);
+            log.info("Art-Net server started at: " + address.getHostAddress() + ":" + port);
             for (ArtNetServerListener l : listeners) {
                 l.artNetServerStarted(this);
             }
@@ -208,12 +210,12 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
             DatagramPacket packet = new DatagramPacket(ap.getData(), ap
                     .getLength(), targetAdress, sendPort);
             socket.send(packet);
-            logger.finer("sent packet to: " + targetAdress);
+            log.debug("sent packet to: " + targetAdress);
             for (ArtNetServerListener l : listeners) {
                 l.artNetPacketUnicasted(ap);
             }
         } catch (IOException e) {
-            logger.warning(e.getMessage());
+            log.warn(e.getMessage());
         }
     }
 
