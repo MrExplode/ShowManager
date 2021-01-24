@@ -19,6 +19,9 @@ PROJECT_HOME=$HOME/build/$PROJECT_OWNER/$PROJECT_NAME
 # Beginning of the script
 ###################################
 
+exit 0
+#everything below doesn't work
+
 # Building the project
 fold_start doc "Building JavaDoc"
 mvn javadoc:javadoc

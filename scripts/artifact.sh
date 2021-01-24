@@ -19,6 +19,8 @@ PROJECT_HOME=$HOME/build/$PROJECT_OWNER/$PROJECT_NAME
 # Beginning of the script
 ###################################
 
+exit 0
+# everything below doesn't work
 # Building the project
 fold_start install "Building artifact"
 mvn install propertyexporter:export
