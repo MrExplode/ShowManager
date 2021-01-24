@@ -163,7 +163,7 @@
           <target>11</target>
         </configuration>
       </plugin>
-      
+
       <!-- Maven Shade -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -175,6 +175,19 @@
             <goals><goal>shade</goal></goals>
           </execution>
         </executions>
+        <configuration>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+        </configuration>
       </plugin>
       
       <!-- Maven Jar -->

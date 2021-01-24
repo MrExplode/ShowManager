@@ -75,7 +75,7 @@ public class TimecodeCellEditor extends AbstractCellEditor implements TableCellE
                 int secValue = Integer.parseInt(sec.getText());
                 int frameValue = Integer.parseInt(frame.getText());
                 
-                newValue = new Timecode(hourValue, minValue, secValue, frameValue, WorkerThread.getFramerate());
+                newValue = new Timecode(hourValue, minValue, secValue, frameValue, WorkerThread.getInstance().getFramerate());
                 fireEditingStopped();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "You fucking dumbass!", "Number format exception", JOptionPane.ERROR_MESSAGE, null);

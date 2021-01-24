@@ -43,6 +43,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
 
 
 @Slf4j
@@ -114,11 +116,6 @@ public class ServerGUI extends JFrame {
     private final JButton btnOscVis;
     private final JPanel oscPanel;
     private final JPanel mainPanel;
-    private final JPanel threadIndicator1;
-    private final JPanel threadIndicator2;
-    private final JPanel threadIndicator3;
-    private final JPanel threadIndicator4;
-    private final JPanel threadIndicator5;
     private final JCheckBox chckbxOsc;
     private final JScrollPane scrollPane;
     private JTable table;
@@ -162,8 +159,8 @@ public class ServerGUI extends JFrame {
             }
         });
         setIconImages(getIcons());
-        setBounds(100, 100, 1150, 513);
-        setMinimumSize(new Dimension(1150, 513));
+        setBounds(100, 100, 1150, 650);
+        setMinimumSize(new Dimension(1150, 650));
         contentPane = new JPanel();
         contentPane.setBorder(null);
         setContentPane(contentPane);
@@ -225,7 +222,7 @@ public class ServerGUI extends JFrame {
         setJMenuBar(menuBar);
 
         oscPanel = new JPanel();
-        oscPanel.setBorder(new TitledBorder(null, "OSC controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        oscPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "OSC controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         mainPanel = new JPanel();
         GroupLayout gl_contentPane = new GroupLayout(contentPane);
@@ -233,19 +230,18 @@ public class ServerGUI extends JFrame {
             gl_contentPane.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_contentPane.createSequentialGroup()
                     .addGap(2)
-                    .addComponent(mainPanel, GroupLayout.PREFERRED_SIZE, 609, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                    .addComponent(mainPanel, GroupLayout.PREFERRED_SIZE, 613, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(oscPanel, GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)
                     .addContainerGap())
         );
         gl_contentPane.setVerticalGroup(
-            gl_contentPane.createParallelGroup(Alignment.TRAILING)
-                .addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+            gl_contentPane.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_contentPane.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(oscPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
-                        .addComponent(mainPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 455, GroupLayout.PREFERRED_SIZE))
+                    .addComponent(oscPanel, GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
                     .addContainerGap())
+                .addComponent(mainPanel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
         );
         
         chckbxOsc = new JCheckBox("OSC control");
@@ -335,14 +331,14 @@ public class ServerGUI extends JFrame {
                             .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(chckbxOsc)
-                                    .addGap(18)
+                                    .addPreferredGap(ComponentPlacement.UNRELATED)
                                     .addComponent(lblTargetIp)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(oscIPField, GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
-                                    .addPreferredGap(ComponentPlacement.UNRELATED)
+                                    .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, 78, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18)
                                     .addComponent(lblOSCPort)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(oscPortField))
+                                    .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE))
                                 .addGroup(gl_oscPanel.createSequentialGroup()
                                     .addComponent(btnNow)
                                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -352,7 +348,7 @@ public class ServerGUI extends JFrame {
                                     .addPreferredGap(ComponentPlacement.RELATED)
                                     .addComponent(btnInsertTime)
                                     .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(btnRemoveOSC, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(btnRemoveOSC)))
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addGroup(gl_oscPanel.createParallelGroup(Alignment.LEADING)
                                 .addComponent(btnExport, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
@@ -365,11 +361,11 @@ public class ServerGUI extends JFrame {
                     .addContainerGap()
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(chckbxOsc)
+                        .addComponent(btnImport)
                         .addComponent(lblTargetIp)
                         .addComponent(oscIPField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(lblOSCPort)
-                        .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnImport))
+                        .addComponent(oscPortField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_oscPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(btnNow)
@@ -379,7 +375,7 @@ public class ServerGUI extends JFrame {
                         .addComponent(btnRemoveOSC)
                         .addComponent(btnExport))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                    .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                     .addContainerGap())
         );
         
@@ -396,7 +392,7 @@ public class ServerGUI extends JFrame {
         oscPanel.setLayout(gl_oscPanel);
         
         timePanel = new JPanel();
-        timePanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current time", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+        timePanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Current time", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         timeDisplay = new JLabel("00 : 00 : 00 / 00");
         timeDisplay.setFont(new Font("Tahoma", Font.BOLD, 24));
@@ -702,26 +698,27 @@ public class ServerGUI extends JFrame {
         GroupLayout gl_setTimePanel = new GroupLayout(setTimePanel);
         gl_setTimePanel.setHorizontalGroup(
             gl_setTimePanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_setTimePanel.createSequentialGroup()
-                    .addGap(32)
-                    .addComponent(hourField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
+                .addGroup(Alignment.TRAILING, gl_setTimePanel.createSequentialGroup()
+                    .addGap(33)
+                    .addComponent(hourField, GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                     .addGap(26)
-                    .addComponent(minField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
+                    .addComponent(minField, GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                     .addGap(26)
-                    .addComponent(secField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
+                    .addComponent(secField, GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                     .addGap(26)
-                    .addComponent(frameField, GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
-                    .addGap(24))
+                    .addComponent(frameField, GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+                    .addGap(23))
         );
         gl_setTimePanel.setVerticalGroup(
             gl_setTimePanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_setTimePanel.createSequentialGroup()
+                .addGroup(Alignment.TRAILING, gl_setTimePanel.createSequentialGroup()
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(gl_setTimePanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(hourField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(minField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(secField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(frameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addContainerGap())
         );
         setTimePanel.setLayout(gl_setTimePanel);
         
@@ -797,7 +794,7 @@ public class ServerGUI extends JFrame {
         });
         
         controlPanel = new JPanel();
-        controlPanel.setBorder(new TitledBorder(null, "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        controlPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "spaceTogglePlay");
         controlPanel.getActionMap().put("spaceTogglePlay", new AbstractAction() {
             private static final long serialVersionUID = -103271722918723118L;
@@ -862,7 +859,7 @@ public class ServerGUI extends JFrame {
         remoteControl.setForeground(Color.RED);
         
         playerPanel = new JPanel();
-        playerPanel.setBorder(new TitledBorder(null, "Music player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        playerPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Music Player", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         lblTrackInfo = new JLabel("Current track");
         
@@ -907,25 +904,22 @@ public class ServerGUI extends JFrame {
                 .addGroup(gl_playerPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
                         .addGroup(gl_playerPanel.createSequentialGroup()
                             .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(trackPanel, GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
                                 .addGroup(gl_playerPanel.createSequentialGroup()
-                                    .addGroup(gl_playerPanel.createParallelGroup(Alignment.LEADING)
-                                        .addGroup(gl_playerPanel.createSequentialGroup()
-                                            .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
-                                            .addGap(18))
-                                        .addGroup(gl_playerPanel.createSequentialGroup()
-                                            .addComponent(musicListBox, 0, 327, Short.MAX_VALUE)
-                                            .addPreferredGap(ComponentPlacement.RELATED)))
-                                    .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(59)))
-                            .addContainerGap())
+                                    .addComponent(lblTrackInfo, GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                    .addGap(18))
+                                .addGroup(gl_playerPanel.createSequentialGroup()
+                                    .addComponent(musicListBox, 0, 327, Short.MAX_VALUE)
+                                    .addPreferredGap(ComponentPlacement.RELATED)))
+                            .addComponent(volumeSlider, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
+                            .addGap(59))
                         .addGroup(gl_playerPanel.createSequentialGroup()
                             .addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 71, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(btnRemove)
-                            .addContainerGap(419, Short.MAX_VALUE))))
+                            .addComponent(btnRemove)))
+                    .addContainerGap())
         );
         gl_playerPanel.setVerticalGroup(
             gl_playerPanel.createParallelGroup(Alignment.LEADING)
@@ -941,88 +935,58 @@ public class ServerGUI extends JFrame {
                     .addGroup(gl_playerPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(btnAdd)
                         .addComponent(btnRemove))
-                    .addPreferredGap(ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                    .addGap(10)
                     .addComponent(trackPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap())
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         trackPanel.setLayout(null);
         playerPanel.setLayout(gl_playerPanel);
-
-        threadIndicator1 = new JPanel();
-
-        threadIndicator2 = new JPanel();
-
-        threadIndicator3 = new JPanel();
-
-        threadIndicator4 = new JPanel();
-
-        threadIndicator5 = new JPanel();
         GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
         gl_mainPanel.setHorizontalGroup(
             gl_mainPanel.createParallelGroup(Alignment.TRAILING)
                 .addGroup(gl_mainPanel.createSequentialGroup()
+                    .addContainerGap()
                     .addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(playerPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE)
+                        .addComponent(playerPanel, GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
                         .addGroup(gl_mainPanel.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+                            .addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+                                .addComponent(remoteControl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                                .addComponent(controlPanel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
                                 .addGroup(gl_mainPanel.createSequentialGroup()
-                                    .addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
-                                        .addGroup(gl_mainPanel.createSequentialGroup()
-                                            .addGap(2)
-                                            .addComponent(setTimePanel, GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE))
-                                        .addComponent(timePanel, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE))
+                                    .addGap(44)
+                                    .addComponent(btnSetTime, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE))
+                                .addGroup(Alignment.TRAILING, gl_mainPanel.createSequentialGroup()
+                                    .addGap(2)
+                                    .addComponent(setTimePanel, GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                                     .addGap(3))
-                                .addGroup(gl_mainPanel.createSequentialGroup()
-                                    .addGap(85)
-                                    .addComponent(btnSetTime, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGap(87))
-                                .addGroup(gl_mainPanel.createSequentialGroup()
-                                    .addComponent(controlPanel, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
-                                    .addGap(3))
-                                .addComponent(remoteControl, GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
-                                .addGroup(gl_mainPanel.createSequentialGroup()
-                                    .addComponent(threadIndicator1, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-                                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                                    .addComponent(threadIndicator2, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-                                    .addGap(18)
-                                    .addComponent(threadIndicator3, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-                                    .addGap(18)
-                                    .addComponent(threadIndicator4, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-                                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                                    .addComponent(threadIndicator5, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-                                    .addGap(2)))
+                                .addComponent(timePanel, GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE))
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(settingsPanel, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
+                            .addComponent(settingsPanel, GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(dmxSettingsPanel, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(dmxSettingsPanel, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)))
                     .addGap(0))
         );
         gl_mainPanel.setVerticalGroup(
             gl_mainPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_mainPanel.createSequentialGroup()
-                    .addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+                    .addContainerGap()
+                    .addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(dmxSettingsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGroup(gl_mainPanel.createSequentialGroup()
                             .addComponent(timePanel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(setTimePanel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(setTimePanel, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(btnSetTime)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(controlPanel, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(remoteControl, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addPreferredGap(ComponentPlacement.UNRELATED)
-                            .addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
-                                .addComponent(threadIndicator1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(threadIndicator5, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(threadIndicator2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(threadIndicator3, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(threadIndicator4, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)))
-                        .addComponent(settingsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dmxSettingsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                            .addComponent(remoteControl, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(settingsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addComponent(playerPanel, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE))
+                    .addComponent(playerPanel, GroupLayout.PREFERRED_SIZE, 271, GroupLayout.PREFERRED_SIZE)
+                    .addGap(19))
         );
         mainPanel.setLayout(gl_mainPanel);
 
@@ -1065,14 +1029,10 @@ public class ServerGUI extends JFrame {
     }
 
     private void start() {
-        if(true)
-            return;
         Mixer ltcMixer = AudioSystem.getMixer(((MixerEntry) ltcOutputBox.getSelectedItem()).getMixerInfo());
-        InetAddress address = ((NetEntry) artnetInterfaceBox.getSelectedItem()).getNetworkAddress();
+        InetAddress artnetAddress = ((NetEntry) artnetInterfaceBox.getSelectedItem()).getNetworkAddress();
         InetAddress oscAddress = null;
 
-        OscHandler oscHandler;
-        LtcHandler ltcHandler = new LtcHandler(ltcMixer, 30);
         try {
             oscAddress = InetAddress.getByName(oscIPField.getText());
         } catch (UnknownHostException e) {
@@ -1085,8 +1045,9 @@ public class ServerGUI extends JFrame {
         } catch (NumberFormatException e) {
             oscPortField.setText("0");
         }
-        //this.workThread = new WorkerThread(address, (SchedulerTableModel) table.getModel(), dThreadInstance, dataGrabber, dataGrabber.getLock());
-        //this.workThread.setFramerate((int) (framerateBox.getSelectedItem()));
+        OscHandler oscHandler = new OscHandler(null, 0, 0);
+        LtcHandler ltcHandler = new LtcHandler(ltcMixer, 30);
+        workThread = new WorkerThread(oscHandler, ltcHandler, ((SchedulerTableModel)table.getModel()), null, artnetAddress, 30);
         wThreadInstance = new Thread(workThread);
         
         //musicthread setup

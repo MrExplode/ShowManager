@@ -100,7 +100,7 @@ public class MusicAdder extends JFrame {
                 int min = Integer.parseInt(values[1]);
                 int sec = Integer.parseInt(values[2]);
                 int frame = Integer.parseInt(values[3]);
-                music.setStartingTime(new Timecode(hour, min, sec, frame, WorkerThread.getFramerate()));
+                music.setStartingTime(new Timecode(hour, min, sec, frame, WorkerThread.getInstance().getFramerate()));
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException ex) {
                 timeField.setBackground(Color.RED);
                 return;

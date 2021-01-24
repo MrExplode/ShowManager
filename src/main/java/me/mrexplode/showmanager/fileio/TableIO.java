@@ -49,7 +49,7 @@ public class TableIO {
                         if (!line.equals(CSV_HEADER)) {
                             String[] values = line.split(",");
                             String[] time = values[0].split(":");
-                            Timecode timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getFramerate());
+                            Timecode timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getInstance().getFramerate());
                             ScheduleType scType = ScheduleType.valueOf(values[1]);
                             
                             ScheduledEvent event = new ScheduledEvent(null, null);
@@ -104,7 +104,7 @@ public class TableIO {
                         Timecode timecode = null;
                         if (!var[0].equals("")) {
                             String[] time = var[2].split(":");
-                            timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getFramerate());
+                            timecode = new Timecode(Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]), Integer.parseInt(time[3]), WorkerThread.getInstance().getFramerate());
                         }
                         oscEvents.add(new ScheduledOSC(timecode, var[1], null, null));
                     }

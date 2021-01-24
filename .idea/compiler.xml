@@ -7,11 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="timecode" />
+        <module name="ShowManager" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="timecode" target="11" />
+      <module name="ShowManager" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

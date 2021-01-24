@@ -1,4 +1,4 @@
-package me.mrexplode.timecode.gui.general;
+package me.mrexplode.showmanager.gui.general;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -13,10 +13,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import me.mrexplode.timecode.music.MusicThread;
-import me.mrexplode.timecode.util.Timecode;
-import me.mrexplode.timecode.music.Tracker;
-import me.mrexplode.timecode.WorkerThread;
+import me.mrexplode.showmanager.music.MusicThread;
+import me.mrexplode.showmanager.util.Timecode;
+import me.mrexplode.showmanager.music.Tracker;
+import me.mrexplode.showmanager.WorkerThread;
 
 
 public class TrackPanel extends JPanel {

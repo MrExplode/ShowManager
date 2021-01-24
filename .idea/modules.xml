@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/timecode.iml" filepath="$PROJECT_DIR$/timecode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ShowManager.iml" filepath="$PROJECT_DIR$/ShowManager.iml" />
     </modules>
   </component>
 </project>

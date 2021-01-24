@@ -66,9 +66,9 @@ public class WorkerThread implements Runnable {
     private final DmxRemoteControl dmxRemote;
     private final OscRemoteControl oscRemote;
     
-    @Getter private static int framerate = 30;
+    private final int framerate;
     
-    public WorkerThread(OscHandler oscHandler, LtcHandler ltcHandler, SchedulerTableModel model, ArtNetServer server, InetAddress artnetAddress) {
+    public WorkerThread(OscHandler oscHandler, LtcHandler ltcHandler, SchedulerTableModel model, ArtNetServer server, InetAddress artnetAddress, int framerate) {
         instance = this;
         this.eventBus = new EventBus();
         this.oscHandler = oscHandler;
@@ -76,6 +76,7 @@ public class WorkerThread implements Runnable {
         this.model = model;
         this.artnetAddress = artnetAddress;
         this.server = (server == null ? new ArtNetServer() : server);
+        this.framerate = framerate;
         packet = new ArtTimePacket();
         artBuffer = new ArtNetBuffer();
         timecode = new Timecode(0);

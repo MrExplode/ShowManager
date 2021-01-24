@@ -1,11 +1,11 @@
-package me.mrexplode.timecode.events;
+package me.mrexplode.showmanager.events;
 
 
-import me.mrexplode.timecode.events.impl.MarkerEvent;
-import me.mrexplode.timecode.events.impl.music.MusicEvent;
-import me.mrexplode.timecode.events.impl.osc.OscEvent;
-import me.mrexplode.timecode.events.impl.time.TimeChangeEvent;
-import me.mrexplode.timecode.events.impl.time.TimeEvent;
+import me.mrexplode.showmanager.events.impl.MarkerEvent;
+import me.mrexplode.showmanager.events.impl.music.MusicEvent;
+import me.mrexplode.showmanager.events.impl.osc.OscEvent;
+import me.mrexplode.showmanager.events.impl.time.TimeChangeEvent;
+import me.mrexplode.showmanager.events.impl.time.TimeEvent;
 
 public interface TimeListener {
     
