@@ -1,12 +1,3 @@
-# Travis things
-fold_start() {
-  echo -e "travis_fold:start:$1\033[33;1m$2\033[0m"
-}
-
-fold_end() {
-  echo -e "\ntravis_fold:end:$1\r"
-}
-
 ###################################
 # Configuration
 
