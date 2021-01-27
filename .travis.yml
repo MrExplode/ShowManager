@@ -4,13 +4,3 @@ before_install:
    - chmod +x scripts/dependency.sh
 install:
    - scripts/dependency.sh
-before_script:
-#   - wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
-#   - sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
-#   - sudo apt-get update
-#   - sudo apt-get install adoptopenjdk-8-hotspot
-   - chmod +x scripts/artifact.sh
-   - chmod +x scripts/javadoc.sh
-script:
-   - scripts/artifact.sh
-   - scripts/javadoc.sh

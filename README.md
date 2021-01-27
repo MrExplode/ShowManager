@@ -1,11 +1,9 @@
 # ![icon](https://cdn.sunstorm.rocks/files/showmanager/icon32.png)  ShowManager [![Build Status](https://travis-ci.com/MrExplode/ShowManager.svg?branch=master)](https://travis-ci.com/MrExplode/ShowManager) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/06b58e31d1834512bc7016d8240cb6f8)](https://www.codacy.com/manual/MrExplode/Timecode?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrExplode/Timecode&amp;utm_campaign=Badge_Grade)
 ArtNet and LTC timecode generator.
 
-![GUI showcase](https://mrexplode.github.io/resources/Timecode.png)
+![GUI](https://cdn.sunstorm.rocks/files/showmanager/GUI_showcase.png)
 
 ## Downloads
-- Latest successful build: [here](https://mrexplode.github.io/projects/projects.html#Timecode)
-- Javadoc can be found [here](https://mrexplode.github.io/projects/Timecode/apidocs/index.html), but this project is mainly not an api
 - Latest release (recommended, because it works): [here](https://github.com/MrExplode/Timecode/releases)
 
 ## Features
