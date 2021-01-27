@@ -19,15 +19,14 @@
 
 package ch.bildspur.artnet.packets;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
-
 import ch.bildspur.artnet.ArtNetServer;
 import ch.bildspur.artnet.NodeReportCode;
 import ch.bildspur.artnet.NodeStyle;
 import ch.bildspur.artnet.PortDescriptor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Slf4j
 public class ArtPollReplyPacket extends ArtNetPacket {

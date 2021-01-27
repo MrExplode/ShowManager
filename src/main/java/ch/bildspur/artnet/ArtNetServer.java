@@ -20,14 +20,22 @@
 package ch.bildspur.artnet;
 
 import ch.bildspur.artnet.events.ArtNetServerListener;
-import ch.bildspur.artnet.packets.*;
+import ch.bildspur.artnet.packets.ArtNetPacket;
+import ch.bildspur.artnet.packets.ArtNetPacketParser;
+import ch.bildspur.artnet.packets.ArtPollPacket;
+import ch.bildspur.artnet.packets.ArtPollReplyPacket;
+import ch.bildspur.artnet.packets.PacketType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 @Slf4j
 public class ArtNetServer extends ArtNetNode implements Runnable {
