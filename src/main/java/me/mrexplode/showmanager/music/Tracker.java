@@ -22,7 +22,7 @@ public class Tracker {
         return isPaused;
     }
     
-    public void setnaturalEnd(boolean value) {
+    public void setNaturalEnd(boolean value) {
         isPaused = value;
     }
 

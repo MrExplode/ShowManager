@@ -20,7 +20,6 @@ import java.util.List;
 
 @Slf4j
 public class MusicThread implements Runnable, TimeListener {
-
     private final TrackPanel trackPanel;
     private JLabel infoLabel;
     private final Mixer mixer;
@@ -222,7 +221,7 @@ public class MusicThread implements Runnable, TimeListener {
                 if (trackList.get(i).getStartingTime().equals(e.getTime())) {
                     if (i == played) {
                         playing = true;
-                        tracker.setnaturalEnd(true);
+                        tracker.setNaturalEnd(true);
                         currentClip.start();
                         //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                     }
@@ -236,7 +235,7 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.TC_START) {
             if (enabled && currentClip != null && tracker.inTrack(e.getValue())) {
                 playing = true;
-                tracker.setnaturalEnd(true);
+                tracker.setNaturalEnd(true);
                 //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                 currentClip.start();
             }
@@ -246,7 +245,7 @@ public class MusicThread implements Runnable, TimeListener {
             playing = false;
             trackPanel.setValue(0);
             if (currentClip != null) {
-                tracker.setnaturalEnd(false);
+                tracker.setNaturalEnd(false);
                 currentClip.stop();
                 //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_STOP, null, trackList.get(played)));
             }
@@ -257,7 +256,7 @@ public class MusicThread implements Runnable, TimeListener {
         if (e.getType() == EventType.TC_PAUSE) {
             playing = false;
             if (currentClip != null) {
-                tracker.setnaturalEnd(false);
+                tracker.setNaturalEnd(false);
                 currentClip.stop();
                 //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_PAUSE, null, trackList.get(played)));
             }

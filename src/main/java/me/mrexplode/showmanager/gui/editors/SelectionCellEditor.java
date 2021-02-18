@@ -13,9 +13,6 @@ import javax.swing.table.TableCellEditor;
 
 
 public class SelectionCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener, FocusListener {
-
-    private static final long serialVersionUID = -4589883770575558611L;
-    
     private final JComboBox<?> comboBox;
     private final JTable table;
     private int row = 0;

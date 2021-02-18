@@ -17,18 +17,12 @@ import me.mrexplode.showmanager.schedule.ScheduledOSC;
 
 
 public class SchedulerTableModel extends AbstractTableModel implements TableModelListener {
-
-    private static final long serialVersionUID = 458498290356140162L;
-    
-    private String[] columnNames = new String[] {"Time", "Type", "Path", "Data Type", "Value"};
-    private ArrayList<ScheduledEvent> data;
-    
+    private final String[] columnNames = new String[] {"Time", "Type", "Path", "Data Type", "Value"};
+    private final ArrayList<Integer> dispatchedIndexes = new ArrayList<>();
+    private ArrayList<ScheduledEvent> data = new ArrayList<>();
     private boolean editable = true;
     
-    private ArrayList<Integer> dispatchedIndexes = new ArrayList<>();
-    
     public SchedulerTableModel() {
-        data = new ArrayList<>();
         data.add(new ScheduledEvent(null, null));
         
         EventQueue.invokeLater(() -> {

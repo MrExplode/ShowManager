@@ -12,7 +12,6 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 
 public class TrackProgressUI extends BasicProgressBarUI {
-    
     private Color progressColor;
     
     public TrackProgressUI(Color progressColor) {
@@ -26,7 +25,6 @@ public class TrackProgressUI extends BasicProgressBarUI {
     @Override
     protected void paintDeterminate(Graphics g, JComponent c) {
         Graphics2D g2d = (Graphics2D) g.create();
-
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int iStrokWidth = 3;

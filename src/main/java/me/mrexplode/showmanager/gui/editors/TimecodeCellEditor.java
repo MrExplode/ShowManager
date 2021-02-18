@@ -18,9 +18,6 @@ import me.mrexplode.showmanager.WorkerThread;
 
 
 public class TimecodeCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
-
-    private static final long serialVersionUID = -4616510380884099210L;
-    
     private final JTextField hour = new JTextField(3);
     private final JTextField min = new JTextField(3);
     private final JTextField sec = new JTextField(3);

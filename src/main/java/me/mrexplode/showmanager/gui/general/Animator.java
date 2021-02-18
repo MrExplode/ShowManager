@@ -5,7 +5,6 @@ import java.awt.Color;
 import javax.swing.JComponent;
 
 public class Animator implements Runnable {
-    
     private final JComponent component;
     private Color color;
     private Color base;

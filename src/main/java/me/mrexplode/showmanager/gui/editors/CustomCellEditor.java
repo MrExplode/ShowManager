@@ -15,9 +15,6 @@ import me.mrexplode.showmanager.schedule.ScheduleType;
 
 
 public class CustomCellEditor extends AbstractCellEditor implements TableCellEditor {
-
-    private static final long serialVersionUID = -4022413413794081501L;
-    
     private TableCellEditor editor;
 
     @Override

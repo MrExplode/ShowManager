@@ -35,7 +35,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -43,8 +47,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
 
 
 @Slf4j
@@ -55,8 +57,7 @@ public class ServerGUI extends JFrame {
      * THe path of the base directory for the program
      */
     public static final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\ShowManager";
-    
-    private static final long serialVersionUID = -7342971032020137377L;
+
     @Getter private static ServerGUI instance;
 
     private WorkerThread workThread;
@@ -66,10 +67,7 @@ public class ServerGUI extends JFrame {
             new ThreadFactoryBuilder().setNameFormat("Executor Thread #%d").setDaemon(true).build());
     private final ArrayList<JComponent> inputComponents = Lists.newArrayList();
     private final TimeMonitor timeMonitor;
-    private int com1Port = 7100;
-    private int com2Port = 7007;
     private JComboBox<NetEntry> com2InterfaceBox = new JComboBox<>();
-    private int packetSize = 16000;
 
     private final JPanel contentPane;
     private final JPanel timePanel;

@@ -8,7 +8,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class NetEntry {
-    
     private InetAddress networkAddress;
     private String name;
     

@@ -8,7 +8,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MixerEntry {
-    
     private Mixer.Info mixerInfo;
     private String name;
 

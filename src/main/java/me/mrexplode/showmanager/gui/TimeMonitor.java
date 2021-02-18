@@ -16,8 +16,6 @@ import me.mrexplode.showmanager.gui.general.Animator;
 
 
 public class TimeMonitor extends JFrame {
-
-    private static final long serialVersionUID = -4048782286191563689L;
     private JPanel contentPane;
     private JPanel timePanel;
     public JLabel timeDisplay;
