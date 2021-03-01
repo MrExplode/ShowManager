@@ -42,7 +42,6 @@ public class EventBus {
         if (eventListeners == null)
             return;
 
-        log.debug("[EventHandler] Invoking " + event.getClass().getSimpleName());
         eventListeners.forEach(eventContainer -> {
             try {
                 eventContainer.getMethod().setAccessible(true);

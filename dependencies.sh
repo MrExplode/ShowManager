@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=libs/ltc4j-0.0.1-SNAPSHOT.jar -DgroupId=me.mrexplode -DartifactId=ltc4j -Dversion=0.0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true

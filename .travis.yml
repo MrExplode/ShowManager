@@ -1,6 +1,6 @@
 # Timecode
 language: java
 before_install:
-   - chmod +x scripts/dependency.sh
+   - chmod +x dependencies.sh
 install:
-   - scripts/dependency.sh
+   - dependencies.sh
