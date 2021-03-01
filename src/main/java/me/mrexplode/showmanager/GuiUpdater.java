@@ -44,6 +44,9 @@ public class GuiUpdater implements Listener {
     @EventCall
     void onTimeStop(TimecodeStopEvent e) {
         onEventDispatch(() -> {
+            gui.getTimeDisplay().setText(e.ZERO.guiFormatted());
+            if (gui.getTimeMonitor().isVisible())
+                gui.getTimeMonitor().timeDisplay.setText(e.ZERO.guiFormatted());
             gui.getBtnSetTime().setEnabled(true);
             gui.getFramerateBox().setEnabled(true);
             gui.getBtnRestart().setEnabled(true);

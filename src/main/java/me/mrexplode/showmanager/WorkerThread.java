@@ -61,7 +61,7 @@ public class WorkerThread implements Runnable {
     private long start = 0;
     private long elapsed = 0;
 
-    private Timecode timecode;
+    private Timecode currentTime;
 
     private final DmxRemoteControl dmxRemote;
     private final OscRemoteControl oscRemote;
@@ -79,9 +79,10 @@ public class WorkerThread implements Runnable {
         this.framerate = framerate;
         packet = new ArtTimePacket();
         artBuffer = new ArtNetBuffer();
-        timecode = new Timecode(0);
+        currentTime = new Timecode(0);
         dmxRemote = new DmxRemoteControl();
         oscRemote = new OscRemoteControl();
+        new GuiUpdater();
     }
 
     @Override
@@ -110,7 +111,7 @@ public class WorkerThread implements Runnable {
             final long current = System.currentTimeMillis();
             if (current >= time + (1000 / framerate)) {
                 time = current;
-                
+
                 if (playing) {
                     elapsed = time - start;
                 }
@@ -118,13 +119,15 @@ public class WorkerThread implements Runnable {
                 dmxRemote.handleData(artBuffer.getDmxData((short) dmxRemote.getAddress().getSubnet(), (short) dmxRemote.getAddress().getUniverse()));
                 
                 if (playing) {
-                    timecode = new Timecode(elapsed, framerate);
-                    packet.setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
-                    ltcHandler.getGenerator().setTime(timecode.getHour(), timecode.getMin(), timecode.getSec(), timecode.getFrame());
+                    currentTime = new Timecode(elapsed, framerate);
+                    packet.setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
+                    ltcHandler.getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
+                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
+                    changeEvent.call(eventBus);
                 }
 
                 if (playing && sendOSC) {
-                    List<ScheduledEvent> events = model.getCurrentFor(getTimecode());
+                    List<ScheduledEvent> events = model.getCurrentFor(getCurrentTime());
                     if (events != null) {
                         events.forEach(scheduledEvent -> {
                             if (scheduledEvent instanceof ScheduledOSC && ((ScheduledOSC) scheduledEvent).isReady()) {
@@ -184,11 +187,12 @@ public class WorkerThread implements Runnable {
         ltcHandler.getGenerator().setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
-        this.timecode = time;
+        this.currentTime = time;
     }
     
     public void play() {
-        TimecodeStartEvent event = new TimecodeStartEvent();
+        log.info("Play");
+        TimecodeStartEvent event = new TimecodeStartEvent(currentTime);
         event.call(eventBus);
         if (event.isCancelled())
             return;
@@ -203,6 +207,7 @@ public class WorkerThread implements Runnable {
     }
     
     public void pause() {
+        log.info("Pause");
         TimecodePauseEvent event = new TimecodePauseEvent();
         event.call(eventBus);
         if (event.isCancelled())
@@ -214,6 +219,7 @@ public class WorkerThread implements Runnable {
     }
     
     public void stop() {
+        log.info("Stop");
         TimecodeStopEvent event = new TimecodeStopEvent();
         event.call(eventBus);
         if (event.isCancelled())
@@ -223,12 +229,14 @@ public class WorkerThread implements Runnable {
             ltcHandler.getGenerator().setTime(0, 0, 0, 0);
             ltcHandler.getGenerator().stop();
         }
-        timecode = new Timecode(0);
+        currentTime = new Timecode(0);
         start = 0;
     }
-    
+
+    @SneakyThrows
     public void shutdown() {
         running = false;
+        oscHandler.shutdown();
         ltcHandler.shutdown();
         server.stop();
     }

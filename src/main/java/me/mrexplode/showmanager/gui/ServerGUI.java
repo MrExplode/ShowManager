@@ -143,6 +143,7 @@ public class ServerGUI extends JFrame {
         
         setTitle("ShowManager - Server");
         LafManager.install();
+        projectManager = new ProjectManager();
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -530,7 +531,7 @@ public class ServerGUI extends JFrame {
         remoteCheckBox.addActionListener(e -> {
             //@gui action dmx remote checkbox
             boolean selected = remoteCheckBox.isSelected();
-            log.info("DMX remote control" + (selected ? "on" : "off"));
+            log.info("DMX remote control " + (selected ? "on" : "off"));
             //workThread.setRemoteControl(selected);
             dmxField.setEnabled(selected);
             lblDmxAddress.setEnabled(selected);
@@ -1078,16 +1079,11 @@ public class ServerGUI extends JFrame {
         }
         System.gc();
     }
-    
+
+    @SneakyThrows(value = {InterruptedException.class})
     public void restartInternals() {
-        //stop
         stop();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        //start
+        Thread.sleep(1000);
         start();
     }
 

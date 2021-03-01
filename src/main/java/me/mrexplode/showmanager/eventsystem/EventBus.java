@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventBus {
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
-    private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && method.getParameterTypes()[0].isAssignableFrom(Event.class);
+    private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void call(Event event) {
@@ -54,11 +54,13 @@ public class EventBus {
     }
 
     public void register(Listener listener) {
-        for (Method method : Arrays.stream(listener.getClass().getMethods()).filter(methodPredicate).collect(Collectors.toList())) {
+        log.debug("Registering listener: " + listener.getClass().getSimpleName());
+        for (Method method : Arrays.stream(listener.getClass().getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList())) {
             Class<?> eventType = method.getParameterTypes()[0];
             EventPriority priority = method.getAnnotation(EventCall.class).priority();
             listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(method, listener, priority));
             listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));
+            log.debug("Registering method: " + method.getName() + " type: " + eventType.getSimpleName());
         }
     }
 

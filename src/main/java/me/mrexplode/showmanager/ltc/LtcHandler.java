@@ -1,6 +1,7 @@
 package me.mrexplode.showmanager.ltc;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.mrexplode.ltc4j.Framerate;
 import me.mrexplode.ltc4j.LTCGenerator;
@@ -9,6 +10,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import java.util.Arrays;
 
+@Slf4j
 @Getter
 public class LtcHandler {
     private final Mixer mixer;
@@ -24,6 +26,7 @@ public class LtcHandler {
 
     //ew
     public void init() throws LineUnavailableException {
+        log.info("Starting LtcHandler...");
         generator.init();
     }
 

@@ -5,6 +5,7 @@ import com.illposed.osc.transport.udp.OSCPortIn;
 import com.illposed.osc.transport.udp.OSCPortOut;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.mrexplode.showmanager.WorkerThread;
 import me.mrexplode.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.mrexplode.showmanager.eventsystem.events.osc.OscReceiveEvent;
@@ -12,6 +13,7 @@ import me.mrexplode.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 
+@Slf4j
 @Getter
 @RequiredArgsConstructor
 public class OscHandler {
@@ -23,6 +25,7 @@ public class OscHandler {
     private OSCPortIn portIn;
 
     public void setup() throws IOException {
+        log.info("Starting OSCHandler...");
         portOut = new OSCPortOut(address, outgoingPort);
         portIn = new OSCPortIn(incomingPort);
         portIn.addPacketListener(new OSCPacketListener() {
@@ -36,7 +39,7 @@ public class OscHandler {
 
             @Override
             public void handleBadData(OSCBadDataEvent event) {
-                //fuck them stupid people sending us shit
+                log.warn("Received bad OSC data", event.getException());
             }
         });
     }
@@ -54,7 +57,7 @@ public class OscHandler {
         try {
             portOut.send(packet);
         } catch (IOException | OSCSerializeException e) {
-            e.printStackTrace();
+            log.error("Failed to send OSC packet", e);
         }
     }
 }

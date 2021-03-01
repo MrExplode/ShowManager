@@ -1,13 +1,17 @@
 package me.mrexplode.showmanager.music;
 
 import lombok.extern.slf4j.Slf4j;
-import me.mrexplode.showmanager.events.EventType;
-import me.mrexplode.showmanager.events.TimeListener;
-import me.mrexplode.showmanager.events.impl.MarkerEvent;
-import me.mrexplode.showmanager.events.impl.music.MusicEvent;
-import me.mrexplode.showmanager.events.impl.osc.OscEvent;
-import me.mrexplode.showmanager.events.impl.time.TimeChangeEvent;
-import me.mrexplode.showmanager.events.impl.time.TimeEvent;
+import me.mrexplode.showmanager.WorkerThread;
+import me.mrexplode.showmanager.eventsystem.EventCall;
+import me.mrexplode.showmanager.eventsystem.Listener;
+import me.mrexplode.showmanager.eventsystem.events.music.MusicPauseEvent;
+import me.mrexplode.showmanager.eventsystem.events.music.MusicStartEvent;
+import me.mrexplode.showmanager.eventsystem.events.music.MusicStopEvent;
+import me.mrexplode.showmanager.eventsystem.events.time.TimecodeChangeEvent;
+import me.mrexplode.showmanager.eventsystem.events.time.TimecodePauseEvent;
+import me.mrexplode.showmanager.eventsystem.events.time.TimecodeSetEvent;
+import me.mrexplode.showmanager.eventsystem.events.time.TimecodeStartEvent;
+import me.mrexplode.showmanager.eventsystem.events.time.TimecodeStopEvent;
 import me.mrexplode.showmanager.fileio.Music;
 import me.mrexplode.showmanager.gui.general.TrackPanel;
 import me.mrexplode.showmanager.util.Timecode;
@@ -19,7 +23,7 @@ import java.io.*;
 import java.util.List;
 
 @Slf4j
-public class MusicThread implements Runnable, TimeListener {
+public class MusicThread implements Runnable, Listener {
     private final TrackPanel trackPanel;
     private JLabel infoLabel;
     private final Mixer mixer;
@@ -121,6 +125,7 @@ public class MusicThread implements Runnable, TimeListener {
     private void loadTrack(int index) {
         if (trackList.size() == 0)
             return;
+        log.info("Sampling started for track " + index);
         long sampleTime = System.currentTimeMillis();
         float[] samples;
         try {
@@ -129,7 +134,7 @@ public class MusicThread implements Runnable, TimeListener {
             sampleTime = System.currentTimeMillis() - sampleTime;
         } catch (UnsupportedAudioFileException | IOException e) {
             Utils.displayError("Failed to sample the upcoming track: " + trackList.get(index).getFile() + "\n" + e.getMessage());
-            e.printStackTrace();
+            log.error("Failed to sample track " + index, e);
         }
         try {
             if (currentClip != null) {
@@ -150,7 +155,7 @@ public class MusicThread implements Runnable, TimeListener {
             currentClip.open(audioStream);
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e1) {
             Utils.displayError("Failed to load the upcoming track: " + trackList.get(index).getFile() + "\n" + e1.getMessage());
-            e1.printStackTrace();
+            log.error("Loading failed", e1);
         }
         
         currentClip.addLineListener(e -> {
@@ -213,96 +218,102 @@ public class MusicThread implements Runnable, TimeListener {
             lock.notify();
         }
     }
-    
-    @Override
-    public void onTimeChangeEvent(TimeChangeEvent e) {
-        if (enabled) {
-            for (int i = 0; i < trackList.size(); i++) {
-                if (trackList.get(i).getStartingTime().equals(e.getTime())) {
-                    if (i == played) {
+
+    @EventCall
+    void onTimeChange(TimecodeChangeEvent e) {
+        if (!enabled) return;
+        for (int i = 0; i < trackList.size(); i++) {
+            if (trackList.get(i).getStartingTime().equals(e.getTime())) {
+                if (i == played) {
+                    MusicStartEvent event = new MusicStartEvent();
+                    event.call(WorkerThread.getInstance().getEventBus());
+                    if (!event.isCancelled()) {
                         playing = true;
                         tracker.setNaturalEnd(true);
                         currentClip.start();
-                        //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                     }
                 }
             }
         }
     }
 
-    @Override
-    public void onTimeEvent(TimeEvent e) {
-        if (e.getType() == EventType.TC_START) {
-            if (enabled && currentClip != null && tracker.inTrack(e.getValue())) {
+    @EventCall
+    void onTimeStart(TimecodeStartEvent e) {
+        if (enabled && currentClip != null && tracker.inTrack(e.getTime())) {
+            MusicStartEvent event = new MusicStartEvent();
+            event.call(WorkerThread.getInstance().getEventBus());
+            if (!event.isCancelled()) {
                 playing = true;
                 tracker.setNaturalEnd(true);
-                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_START, null, trackList.get(played)));
                 currentClip.start();
             }
         }
-        
-        if (e.getType() == EventType.TC_STOP) {
-            playing = false;
-            trackPanel.setValue(0);
-            if (currentClip != null) {
+    }
+
+    @EventCall
+    void onTimeStop(TimecodeStopEvent e) {
+        playing = false;
+        trackPanel.setValue(0);
+        if (currentClip != null) {
+            MusicStopEvent event = new MusicStopEvent();
+            event.call(WorkerThread.getInstance().getEventBus());
+            if (!event.isCancelled()) {
                 tracker.setNaturalEnd(false);
                 currentClip.stop();
-                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_STOP, null, trackList.get(played)));
             }
-            played = 0;
-            loadTrack(played);
         }
-        
-        if (e.getType() == EventType.TC_PAUSE) {
-            playing = false;
-            if (currentClip != null) {
+        played = 0;
+        loadTrack(played);
+    }
+
+    @EventCall
+    void onTimePause(TimecodePauseEvent e) {
+        playing = false;
+        if (currentClip != null) {
+            MusicPauseEvent event = new MusicPauseEvent();
+            event.call(WorkerThread.getInstance().getEventBus());
+            if (!event.isCancelled()) {
                 tracker.setNaturalEnd(false);
                 currentClip.stop();
-                //DataGrabber.getEventHandler().callEvent(new MusicEvent(EventType.MUSIC_PAUSE, null, trackList.get(played)));
             }
         }
-        
-        if (e.getType() == EventType.TC_SET) {
-            if (tracker.inTrack(e.getValue())) {
-                currentClip.setMicrosecondPosition(e.getValue().subtract(tracker.getStart()).millis() * 1000);
-            } else {
-                boolean preloaded = true;
-                for (int i = 0; i < trackList.size(); i++) {
-                    Timecode start = trackList.get(i).getStartingTime();
-                    Timecode end = start.add(new Timecode(trackList.get(i).getLength()));
-                    Timecode current = e.getValue();
-                    played = i;
-                    if (current.compareTo(start) >= 0 && current.compareTo(end) <= 0) {
-                        preloaded = false;
-                        loadTrack(played);
-                        currentClip.setMicrosecondPosition(current.subtract(start).millis() * 1000);
-                        break;
-                    }
-                }
-                if (preloaded)
+    }
+
+    @EventCall
+    void onTimeSet(TimecodeSetEvent e) {
+        if (tracker.inTrack(e.getTime())) {
+            currentClip.setMicrosecondPosition(e.getTime().subtract(tracker.getStart()).millis() * 1000);
+        } else {
+            boolean preloaded = true;
+            for (int i = 0; i < trackList.size(); i++) {
+                Timecode start = trackList.get(i).getStartingTime();
+                Timecode end = start.add(new Timecode(trackList.get(i).getLength()));
+                Timecode current = e.getTime();
+                played = i;
+                if (current.compareTo(start) >= 0 && current.compareTo(end) <= 0) {
+                    preloaded = false;
                     loadTrack(played);
+                    currentClip.setMicrosecondPosition(current.subtract(start).millis() * 1000);
+                    break;
+                }
             }
+            if (preloaded)
+                loadTrack(played);
         }
     }
 
-    @Override
-    public void onOscEvent(OscEvent e) {
-        //unused event
+    @EventCall
+    void onMusicStart(MusicStartEvent e) {
+        trackPanel.setColor(TrackPanel.playColor);
     }
 
-    @Override
-    public void onMarkerEvent(MarkerEvent e) {
-        //unused event
-    }
-    
-    @Override
-    public void onMusicEvent(MusicEvent e) {
-        if (e.getType() == EventType.MUSIC_START) {
-            trackPanel.setColor(TrackPanel.playColor);
-        }
-        if (e.getType() == EventType.MUSIC_PAUSE || e.getType() == EventType.MUSIC_STOP) {
-            trackPanel.setColor(TrackPanel.pauseColor);
-        }
+    @EventCall
+    void onMusicStop(MusicStopEvent e) {
+        trackPanel.setColor(TrackPanel.pauseColor);
     }
 
+    @EventCall
+    void onMusicPause(MusicPauseEvent e) {
+        trackPanel.setColor(TrackPanel.pauseColor);
+    }
 }
