@@ -3,8 +3,7 @@ ArtNet and LTC timecode generator.
 
 ![GUI](https://cdn.sunstorm.rocks/files/showmanager/GUI_showcase.png)
 
-## Downloads
-- Latest release (recommended, because it works): [here](https://github.com/MrExplode/Timecode/releases)
+## About
 
 ## Features
 -   ArtNet Timecode

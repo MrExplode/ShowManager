@@ -1,0 +1,4 @@
+rootProject.name = 'ShowManager'
+include 'core'
+include 'bootstrap'
+
