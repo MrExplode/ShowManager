@@ -1,3 +1,5 @@
 language: java
 git:
   quiet: true
+before_install:
+  - chmod +x gradlew
