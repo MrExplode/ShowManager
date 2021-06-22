@@ -1,6 +1,3 @@
-# Timecode
 language: java
-before_install:
-   - chmod +x dependencies.sh
-install:
-   - ./dependencies.sh
+git:
+  quiet: true
