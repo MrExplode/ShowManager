@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.LineUnavailableException;
 
@@ -49,7 +50,7 @@ public class WorkerThread implements Runnable {
     private final ArtNetBuffer artBuffer;
     private final InetAddress artnetAddress;
 
-    private SchedulerTableModel model;
+    private final SchedulerTableModel model;
     
     //main controls
     private boolean running = true;
@@ -146,9 +147,9 @@ public class WorkerThread implements Runnable {
 
             //slowing down the loop
             if (playing)
-                Thread.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(1);
             else
-                Thread.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(10);
         }
     }
 
