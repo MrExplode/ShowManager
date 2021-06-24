@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 import me.sunstorm.showmanager.eventsystem.events.Event;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -20,6 +22,7 @@ public class EventBus {
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
     private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
     public void call(Event event) {
         call(false, event);
@@ -44,9 +47,8 @@ public class EventBus {
 
         eventListeners.forEach(eventContainer -> {
             try {
-                eventContainer.getMethod().setAccessible(true);
-                eventContainer.getMethod().invoke(eventContainer.getInstance(), event);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+                eventContainer.getMethodHandle().invokeExact(eventContainer.getInstance(), event);
+            } catch (Throwable e) {
                 log.error("Failed to invoke event: " + event.getClass().getSimpleName(), e);
             }
         });
@@ -55,11 +57,16 @@ public class EventBus {
     public void register(Listener listener) {
         log.debug("Registering listener: " + listener.getClass().getSimpleName());
         for (Method method : Arrays.stream(listener.getClass().getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList())) {
-            Class<?> eventType = method.getParameterTypes()[0];
-            EventPriority priority = method.getAnnotation(EventCall.class).priority();
-            listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(method, listener, priority));
-            listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));
-            log.debug("Registering method: " + method.getName() + " type: " + eventType.getSimpleName());
+            try {
+                Class<?> eventType = method.getParameterTypes()[0];
+                EventPriority priority = method.getAnnotation(EventCall.class).priority();
+                MethodHandle methodHandle = lookup.unreflect(method);
+                listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(methodHandle, listener, priority));
+                listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));
+                log.debug("Registering method: " + method.getName() + " type: " + eventType.getSimpleName());
+            } catch (IllegalAccessException e) {
+                log.error("Failed to obtain MethodHandle for '{}' method", method.getName(), e);
+            }
         }
     }
 
@@ -70,7 +77,7 @@ public class EventBus {
     @Getter
     @AllArgsConstructor
     static class ListenerContainer {
-        private final Method method;
+        private final MethodHandle methodHandle;
         private final Listener instance;
         private final EventPriority priority;
     }
