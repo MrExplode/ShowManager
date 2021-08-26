@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'com.github.oshi', name: 'oshi-core', version: '5.7.5'
+    implementation group: 'com.github.oshi',    name: 'oshi-core',   version: '5.7.5'
     implementation group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
 
     compileOnly 'org.projectlombok:lombok:1.18.20'

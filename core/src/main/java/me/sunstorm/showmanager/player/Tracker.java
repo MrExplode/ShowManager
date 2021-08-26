@@ -1,4 +1,4 @@
-package me.sunstorm.showmanager.music;
+package me.sunstorm.showmanager.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

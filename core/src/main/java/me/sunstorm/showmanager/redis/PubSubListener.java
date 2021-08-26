@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class PubSubListener extends BinaryJedisPubSub {
     private final Set<String> subscribed = ConcurrentHashMap.newKeySet();
-    private final Redis redis;
+    private final RedisImpl redis;
 
     @Override
     public void subscribe(byte[]... channels) {

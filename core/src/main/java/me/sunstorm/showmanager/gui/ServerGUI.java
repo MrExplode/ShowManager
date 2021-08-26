@@ -1,23 +1,14 @@
 package me.sunstorm.showmanager.gui;
 
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.settings.ThemeSettings;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
-import me.sunstorm.showmanager.fileio.Music;
-import me.sunstorm.showmanager.gui.editors.CustomCellEditor;
-import me.sunstorm.showmanager.gui.editors.TimecodeCellEditor;
-import me.sunstorm.showmanager.gui.entries.MixerEntry;
-import me.sunstorm.showmanager.gui.entries.NetEntry;
-import me.sunstorm.showmanager.gui.general.SchedulerTableModel;
-import me.sunstorm.showmanager.gui.general.TrackPanel;
 import me.sunstorm.showmanager.ltc.LtcHandler;
-import me.sunstorm.showmanager.music.MusicThread;
 import me.sunstorm.showmanager.osc.OscHandler;
+import me.sunstorm.showmanager.player.MusicThread;
 import me.sunstorm.showmanager.project.ProjectManager;
 
 import javax.imageio.ImageIO;
@@ -35,11 +26,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -51,11 +38,9 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
-public class ServerGUI extends JFrame {
+public class ServerGUI extends JFrame {/*
 
-    /**
-     * THe path of the base directory for the program
-     */
+
     public static final String PROG_HOME = System.getProperty("user.home") + "\\AppData\\Roaming\\ShowManager";
 
     @Getter private static ServerGUI instance;
@@ -1095,5 +1080,5 @@ public class ServerGUI extends JFrame {
             list.add(ImageIO.read(ServerGUI.class.getResource("/icons/icon" + i + ".png")));
         }
         return list;
-    }
+    }*/
 }

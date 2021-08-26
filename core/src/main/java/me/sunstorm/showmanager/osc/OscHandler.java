@@ -6,9 +6,10 @@ import com.illposed.osc.transport.OSCPortOut;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
+import me.sunstorm.showmanager.terminable.Terminable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,7 +17,7 @@ import java.net.InetAddress;
 @Slf4j
 @Getter
 @RequiredArgsConstructor
-public class OscHandler {
+public class OscHandler implements Terminable {
     private final InetAddress address;
     private final int outgoingPort;
     private final int incomingPort;
@@ -26,6 +27,7 @@ public class OscHandler {
 
     public void setup() throws IOException {
         log.info("Starting OSCHandler...");
+        register();
         portOut = new OSCPortOut(address, outgoingPort);
         portIn = new OSCPortIn(incomingPort);
         portIn.addPacketListener(new OSCPacketListener() {
@@ -33,7 +35,7 @@ public class OscHandler {
             public void handlePacket(OSCPacketEvent event) {
                 if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
                     OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
-                    oscEvent.call(Worker.getInstance().getEventBus());
+                    oscEvent.call(ShowManager.getInstance().getEventBus());
                 }
             }
 
@@ -44,14 +46,16 @@ public class OscHandler {
         });
     }
 
+    @Override
     public void shutdown() throws IOException {
+        log.info("Shutting down OSC...");
         portOut.close();
         portIn.close();
     }
 
     public void sendOscPacket(OSCPacket packet) {
         OscDispatchEvent event = new OscDispatchEvent(packet);
-        event.call(Worker.getInstance().getEventBus());
+        event.call(ShowManager.getInstance().getEventBus());
         if (event.isCancelled())
             return;
         try {

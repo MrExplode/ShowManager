@@ -30,6 +30,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
 
     public EventBus() {
         super("eventbus");
+        log.info("Loading EventBus...");
     }
 
     public void call(Event event) {

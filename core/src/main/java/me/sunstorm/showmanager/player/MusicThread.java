@@ -1,29 +1,9 @@
-package me.sunstorm.showmanager.music;
+package me.sunstorm.showmanager.player;
 
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.Worker;
-import me.sunstorm.showmanager.eventsystem.EventCall;
-import me.sunstorm.showmanager.eventsystem.Listener;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicPauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicStopEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
-import me.sunstorm.showmanager.fileio.Music;
-import me.sunstorm.showmanager.gui.general.TrackPanel;
-import me.sunstorm.showmanager.util.Timecode;
-import me.sunstorm.showmanager.util.Utils;
-
-import javax.sound.sampled.*;
-import javax.swing.*;
-import java.io.*;
-import java.util.List;
 
 @Slf4j
-public class MusicThread implements Runnable, Listener {
+public class MusicThread {/* implements Runnable, Listener {
     private final TrackPanel trackPanel;
     private JLabel infoLabel;
     private final Mixer mixer;
@@ -62,12 +42,12 @@ public class MusicThread implements Runnable, Listener {
                     playing =  true;
                     /*SwingUtilities.invokeLater(() -> {
                         infoLabel.setText("Current track: " + new File(trackList.get(played).file).getName());
-                    });*/
+                    });
                 } else {
                     playing = false;
                     /*SwingUtilities.invokeLater(() -> {
                         infoLabel.setText("Current track");
-                    });*/
+                    });
                     
                 }
                 if (playing) {
@@ -97,11 +77,7 @@ public class MusicThread implements Runnable, Listener {
             lock.notifyAll();
         }
     }
-    
-    /**
-     * 
-     * @param volume volume between 0.0f and 1.0f
-     */
+
     public void setVolume(float volume) {
         FloatControl floatControl = (FloatControl) currentClip.getControl(FloatControl.Type.MASTER_GAIN);
         floatControl.setValue(20f * (float) Math.log10(volume));
@@ -129,11 +105,11 @@ public class MusicThread implements Runnable, Listener {
         long sampleTime = System.currentTimeMillis();
         float[] samples;
         try {
-            samples = Utils.sampler(new File(trackList.get(index).getFile()));
+            samples = Sampler.sample(new File(trackList.get(index).getFile()));
             trackPanel.setSamples(samples);
             sampleTime = System.currentTimeMillis() - sampleTime;
         } catch (UnsupportedAudioFileException | IOException e) {
-            Utils.displayError("Failed to sample the upcoming track: " + trackList.get(index).getFile() + "\n" + e.getMessage());
+            Sampler.displayError("Failed to sample the upcoming track: " + trackList.get(index).getFile() + "\n" + e.getMessage());
             log.error("Failed to sample track " + index, e);
         }
         try {
@@ -154,7 +130,7 @@ public class MusicThread implements Runnable, Listener {
             currentClip.flush();
             currentClip.open(audioStream);
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e1) {
-            Utils.displayError("Failed to load the upcoming track: " + trackList.get(index).getFile() + "\n" + e1.getMessage());
+            Sampler.displayError("Failed to load the upcoming track: " + trackList.get(index).getFile() + "\n" + e1.getMessage());
             log.error("Loading failed", e1);
         }
         
@@ -315,5 +291,5 @@ public class MusicThread implements Runnable, Listener {
     @EventCall
     void onMusicPause(MusicPauseEvent e) {
         trackPanel.setColor(TrackPanel.pauseColor);
-    }
+    }*/
 }

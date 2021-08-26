@@ -1,4 +1,4 @@
-package me.sunstorm.showmanager.config.server;
+package me.sunstorm.showmanager.settings.config;
 
 import lombok.Data;
 

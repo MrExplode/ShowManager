@@ -1,7 +1,9 @@
 package me.sunstorm.showmanager.util;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * A wrapper class for holding a timecode value.
@@ -13,6 +15,8 @@ import lombok.Setter;
  *
  */
 @Setter
+@ToString
+@EqualsAndHashCode
 public class Timecode implements Comparable<Timecode> {
 
     @Setter(AccessLevel.NONE) private long millisecLength;
@@ -151,45 +155,6 @@ public class Timecode implements Comparable<Timecode> {
         return new Timecode(time);
     }
     
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + frame;
-        result = prime * result + hour;
-        result = prime * result + (int) (millisecLength ^ (millisecLength >>> 32));
-        result = prime * result + min;
-        result = prime * result + sec;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Timecode other = (Timecode) obj;
-        if (frame != other.frame)
-            return false;
-        if (hour != other.hour)
-            return false;
-        //if (millisecLength != other.millisecLength)
-        //    return false;
-        if (min != other.min)
-            return false;
-        if (sec != other.sec)
-            return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return (hour < 10 ? "0" + hour : hour) + ":" + (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec) + "/" + (frame < 10 ? "0" + frame : frame); 
-    }
-    
     /**
      * Same as {@link #toString()}, but it's spaced
      * @return gui formatted string
@@ -198,16 +163,15 @@ public class Timecode implements Comparable<Timecode> {
         return (hour < 10 ? "0" + hour : hour) + " : " + (min < 10 ? "0" + min : min) + " : " + (sec < 10 ? "0" + sec : sec) + " / " + (frame < 10 ? "0" + frame : frame); 
     }
 
-
     @Override
-    public int compareTo(Timecode tc) {
-        if (tc == null) {
+    public int compareTo(Timecode other) {
+        if (other == null) {
             return -1;
         }
-        if (this.equals(tc)) {
+        if (this.equals(other)) {
             return 0;
         }
-        if (this.millisecLength > tc.millisecLength) {
+        if (this.millisecLength > other.millisecLength) {
             return 1;
         } else {
             return -1;
