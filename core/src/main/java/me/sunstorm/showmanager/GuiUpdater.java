@@ -17,7 +17,7 @@ public class GuiUpdater implements Listener {
     private final ServerGUI gui;
 
     public GuiUpdater() {
-        WorkerThread.getInstance().getEventBus().register(this);
+        Worker.getInstance().getEventBus().register(this);
         gui = ServerGUI.getInstance();
     }
 

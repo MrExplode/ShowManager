@@ -2,7 +2,7 @@ package me.sunstorm.showmanager.remote;
 
 import com.illposed.osc.OSCMessage;
 import lombok.Data;
-import me.sunstorm.showmanager.WorkerThread;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 
@@ -23,13 +23,13 @@ public class OscRemoteControl {
 
             switch (message.getAddress()) {
                 case OSC_PLAY:
-                    WorkerThread.getInstance().play();
+                    Worker.getInstance().play();
                     break;
                 case OSC_PAUSE:
-                    WorkerThread.getInstance().pause();
+                    Worker.getInstance().pause();
                     break;
                 case OSC_STOP:
-                    WorkerThread.getInstance().stop();
+                    Worker.getInstance().stop();
                     break;
             }
         }

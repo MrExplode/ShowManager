@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -30,16 +32,14 @@ import me.sunstorm.showmanager.ltc.LtcHandler;
 import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.remote.DmxRemoteControl;
 import me.sunstorm.showmanager.remote.OscRemoteControl;
-import me.sunstorm.showmanager.schedule.OSCDataType;
-import me.sunstorm.showmanager.schedule.ScheduledEvent;
-import me.sunstorm.showmanager.schedule.ScheduledOSC;
 import me.sunstorm.showmanager.util.Timecode;
 import me.sunstorm.showmanager.util.Utils;
 
 @Slf4j
 @Getter
-public class WorkerThread implements Runnable {
-    @Getter private static WorkerThread instance;
+public class Worker implements Runnable {
+    @Getter private static Worker instance;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final EventBus eventBus;
     private final OscHandler oscHandler;
     private final LtcHandler ltcHandler;
@@ -69,7 +69,7 @@ public class WorkerThread implements Runnable {
     
     private final int framerate;
     
-    public WorkerThread(OscHandler oscHandler, LtcHandler ltcHandler, SchedulerTableModel model, ArtNetServer server, InetAddress artnetAddress, int framerate) {
+    public Worker(OscHandler oscHandler, LtcHandler ltcHandler, SchedulerTableModel model, ArtNetServer server, InetAddress artnetAddress, int framerate) {
         instance = this;
         this.eventBus = new EventBus();
         this.oscHandler = oscHandler;
@@ -128,16 +128,8 @@ public class WorkerThread implements Runnable {
                 }
 
                 if (playing && sendOSC) {
-                    List<ScheduledEvent> events = model.getCurrentFor(getCurrentTime());
-                    if (events != null) {
-                        events.forEach(scheduledEvent -> {
-                            if (scheduledEvent instanceof ScheduledOSC && ((ScheduledOSC) scheduledEvent).isReady()) {
-                                ScheduledOSC scheduledOSC = (ScheduledOSC) scheduledEvent;
-                                OSCMessage packet = new OSCMessage(scheduledOSC.getPath(), Collections.singletonList(OSCDataType.castTo(scheduledOSC.getValue(), scheduledOSC.getDataType())));
-                                oscHandler.sendOscPacket(packet);
-                            }
-                        });
-                    }
+                    //scheduler
+
                 }
                 
                 if (artnet) {
@@ -174,7 +166,7 @@ public class WorkerThread implements Runnable {
         try {
             server.start(artnetAddress);
         } catch (SocketException | ArtNetException e) {
-            e.printStackTrace();
+            log.error("Failed to start ArtNet server", e);
         }
     }
     

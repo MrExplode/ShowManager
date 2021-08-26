@@ -6,7 +6,7 @@ import com.illposed.osc.transport.OSCPortOut;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.WorkerThread;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 
@@ -33,7 +33,7 @@ public class OscHandler {
             public void handlePacket(OSCPacketEvent event) {
                 if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
                     OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
-                    oscEvent.call(WorkerThread.getInstance().getEventBus());
+                    oscEvent.call(Worker.getInstance().getEventBus());
                 }
             }
 
@@ -51,7 +51,7 @@ public class OscHandler {
 
     public void sendOscPacket(OSCPacket packet) {
         OscDispatchEvent event = new OscDispatchEvent(packet);
-        event.call(WorkerThread.getInstance().getEventBus());
+        event.call(Worker.getInstance().getEventBus());
         if (event.isCancelled())
             return;
         try {

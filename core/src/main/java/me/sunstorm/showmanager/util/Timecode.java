@@ -1,5 +1,8 @@
 package me.sunstorm.showmanager.util;
 
+import lombok.AccessLevel;
+import lombok.Setter;
+
 /**
  * A wrapper class for holding a timecode value.
  * 
@@ -9,10 +12,11 @@ package me.sunstorm.showmanager.util;
  * @author <a href="https://mrexplode.github.io">MrExplode</a>
  *
  */
+@Setter
 public class Timecode implements Comparable<Timecode> {
-    
-    private long millisecLength;
-    private int framerate;
+
+    @Setter(AccessLevel.NONE) private long millisecLength;
+    @Setter(AccessLevel.NONE) private int framerate;
     
     private int hour;
     private int min;
@@ -60,11 +64,11 @@ public class Timecode implements Comparable<Timecode> {
     private void syncTo(int framerate) {
         long value = millisecLength;
         this.hour = (int) (value / 60 / 60 / 1000);
-        value = value - (hour * 60 * 60 * 1000);
+        value = value - ((long) hour * 60 * 60 * 1000);
         this.min = (int) (value / 60 / 1000);
-        value = value - (min * 60 * 1000);
+        value = value - ((long) min * 60 * 1000);
         this.sec = (int) (value / 1000);
-        value = value - (sec * 1000);
+        value = value - (sec * 1000L);
         this.frame = (int) (value / (1000 / framerate));
     }
     
@@ -85,11 +89,6 @@ public class Timecode implements Comparable<Timecode> {
         return hour;
     }
 
-    
-    public void setHour(int hour) {
-        this.hour = hour;
-    }
-
     /**
      * 
      * @return minute value
@@ -97,11 +96,6 @@ public class Timecode implements Comparable<Timecode> {
      */
     public int getMin() {
         return min;
-    }
-
-    
-    public void setMin(int min) {
-        this.min = min;
     }
 
     /**
@@ -113,11 +107,6 @@ public class Timecode implements Comparable<Timecode> {
         return sec;
     }
 
-    
-    public void setSec(int sec) {
-        this.sec = sec;
-    }
-
     /**
      * 
      * @return frame value
@@ -125,11 +114,6 @@ public class Timecode implements Comparable<Timecode> {
      */
     public int getFrame() {
         return frame;
-    }
-
-    
-    public void setFrame(int frame) {
-        this.frame = frame;
     }
     
     /**

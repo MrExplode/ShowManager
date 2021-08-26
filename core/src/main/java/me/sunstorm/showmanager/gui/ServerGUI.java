@@ -7,7 +7,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.WorkerThread;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.fileio.Music;
 import me.sunstorm.showmanager.gui.editors.CustomCellEditor;
 import me.sunstorm.showmanager.gui.editors.TimecodeCellEditor;
@@ -60,7 +60,7 @@ public class ServerGUI extends JFrame {
 
     @Getter private static ServerGUI instance;
 
-    private WorkerThread workThread;
+    private Worker workThread;
     private MusicThread musicThread;
     private ProjectManager projectManager;
     private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
@@ -1046,7 +1046,7 @@ public class ServerGUI extends JFrame {
         }
         OscHandler oscHandler = new OscHandler(null, 0, 0);
         LtcHandler ltcHandler = new LtcHandler(ltcMixer, 30);
-        workThread = new WorkerThread(oscHandler, ltcHandler, ((SchedulerTableModel)table.getModel()), null, artnetAddress, 30);
+        workThread = new Worker(oscHandler, ltcHandler, ((SchedulerTableModel)table.getModel()), null, artnetAddress, 30);
         wThreadInstance = new Thread(workThread);
         
         //musicthread setup

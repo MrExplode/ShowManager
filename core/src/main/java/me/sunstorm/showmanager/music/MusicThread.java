@@ -1,7 +1,7 @@
 package me.sunstorm.showmanager.music;
 
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.WorkerThread;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.music.MusicPauseEvent;
@@ -226,7 +226,7 @@ public class MusicThread implements Runnable, Listener {
             if (trackList.get(i).getStartingTime().equals(e.getTime())) {
                 if (i == played) {
                     MusicStartEvent event = new MusicStartEvent();
-                    event.call(WorkerThread.getInstance().getEventBus());
+                    event.call(Worker.getInstance().getEventBus());
                     if (!event.isCancelled()) {
                         playing = true;
                         tracker.setNaturalEnd(true);
@@ -241,7 +241,7 @@ public class MusicThread implements Runnable, Listener {
     void onTimeStart(TimecodeStartEvent e) {
         if (enabled && currentClip != null && tracker.inTrack(e.getTime())) {
             MusicStartEvent event = new MusicStartEvent();
-            event.call(WorkerThread.getInstance().getEventBus());
+            event.call(Worker.getInstance().getEventBus());
             if (!event.isCancelled()) {
                 playing = true;
                 tracker.setNaturalEnd(true);
@@ -256,7 +256,7 @@ public class MusicThread implements Runnable, Listener {
         trackPanel.setValue(0);
         if (currentClip != null) {
             MusicStopEvent event = new MusicStopEvent();
-            event.call(WorkerThread.getInstance().getEventBus());
+            event.call(Worker.getInstance().getEventBus());
             if (!event.isCancelled()) {
                 tracker.setNaturalEnd(false);
                 currentClip.stop();
@@ -271,7 +271,7 @@ public class MusicThread implements Runnable, Listener {
         playing = false;
         if (currentClip != null) {
             MusicPauseEvent event = new MusicPauseEvent();
-            event.call(WorkerThread.getInstance().getEventBus());
+            event.call(Worker.getInstance().getEventBus());
             if (!event.isCancelled()) {
                 tracker.setNaturalEnd(false);
                 currentClip.stop();

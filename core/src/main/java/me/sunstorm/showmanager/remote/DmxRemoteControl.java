@@ -2,7 +2,7 @@ package me.sunstorm.showmanager.remote;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.sunstorm.showmanager.WorkerThread;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
 import me.sunstorm.showmanager.util.DmxAddress;
 
@@ -24,38 +24,38 @@ public class DmxRemoteControl {
             state = DmxRemoteState.FORCE_IDLE;
             if (state != previousState) {
                 DmxRemoteStateEvent event = new DmxRemoteStateEvent(state, previousState);
-                event.call(WorkerThread.getInstance().getEventBus());
+                event.call(Worker.getInstance().getEventBus());
                 previousState = state;
             }
         } else if (inToleratedRange(51, value)) {
             state = DmxRemoteState.PLAYING;
             if (state != previousState) {
                 DmxRemoteStateEvent event = new DmxRemoteStateEvent(state, previousState);
-                event.call(WorkerThread.getInstance().getEventBus());
+                event.call(Worker.getInstance().getEventBus());
                 previousState = state;
-                WorkerThread.getInstance().play();
+                Worker.getInstance().play();
             }
         } else if (inToleratedRange(76, value)) {
             state = DmxRemoteState.PAUSE;
             if (state != previousState) {
                 DmxRemoteStateEvent event = new DmxRemoteStateEvent(state, previousState);
-                event.call(WorkerThread.getInstance().getEventBus());
+                event.call(Worker.getInstance().getEventBus());
                 previousState = state;
-                WorkerThread.getInstance().pause();
+                Worker.getInstance().pause();
             }
         } else if (inToleratedRange(102, value)) {
             state = DmxRemoteState.STOPPED;
             if (state != previousState) {
                 DmxRemoteStateEvent event = new DmxRemoteStateEvent(state, previousState);
-                event.call(WorkerThread.getInstance().getEventBus());
+                event.call(Worker.getInstance().getEventBus());
                 previousState = state;
-                WorkerThread.getInstance().stop();
+                Worker.getInstance().stop();
             }
         } else {
             state = DmxRemoteState.IDLE;
             if (state != previousState) {
                 DmxRemoteStateEvent event = new DmxRemoteStateEvent(state, previousState);
-                event.call(WorkerThread.getInstance().getEventBus());
+                event.call(Worker.getInstance().getEventBus());
                 previousState = state;
             }
         }

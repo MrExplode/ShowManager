@@ -1,14 +1,18 @@
 package me.sunstorm.showmanager.eventsystem;
 
+import com.google.common.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 import me.sunstorm.showmanager.eventsystem.events.Event;
+import me.sunstorm.showmanager.eventsystem.registry.EventConverter;
+import me.sunstorm.showmanager.eventsystem.registry.EventWrapper;
+import me.sunstorm.showmanager.redis.AbstractMessageHandler;
+import me.sunstorm.showmanager.redis.converter.Converter;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -18,11 +22,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class EventBus {
+public class EventBus extends AbstractMessageHandler<EventWrapper> {
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
     private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+    public EventBus() {
+        super("eventbus");
+    }
 
     public void call(Event event) {
         call(false, event);
@@ -38,6 +46,7 @@ public class EventBus {
         } else {
             executeEvent(event);
         }
+        //todo send redis
     }
 
     private void executeEvent(Event event) {
@@ -72,6 +81,24 @@ public class EventBus {
 
     public void unregister(Listener listener) {
         listeners.values().forEach(list -> list.removeIf(container -> container.getInstance().equals(listener)));
+    }
+
+    @Override
+    public void handleMessage(EventWrapper message) {
+        if (message.isAsync()) {
+            if (message.getEvent() instanceof CancellableEvent) {
+                log.error("[EventHandler] Called cancellable event (" + message.getEvent().getClass().getSimpleName() + ") asynchronously");
+            } else {
+                executor.execute(() -> executeEvent(message.getEvent()));
+            }
+        } else {
+            executeEvent(message.getEvent());
+        }
+    }
+
+    @Override
+    public Converter<EventWrapper> getConverter() {
+        return new EventConverter();
     }
 
     @Getter

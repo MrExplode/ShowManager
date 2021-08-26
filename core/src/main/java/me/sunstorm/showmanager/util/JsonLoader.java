@@ -21,7 +21,6 @@ public class JsonLoader {
         try {
             config = configType.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            //HadesProxy.getLogger().severe("Failed to do something");
             e.printStackTrace();
             return null;
         }
@@ -34,7 +33,6 @@ public class JsonLoader {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            //HadesProxy.getLogger().severe("Failed to create new json file");
             e.printStackTrace();
         }
 
