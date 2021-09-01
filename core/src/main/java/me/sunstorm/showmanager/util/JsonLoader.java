@@ -1,79 +1,66 @@
 package me.sunstorm.showmanager.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.Constants;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @UtilityClass
 public class JsonLoader {
-    public Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    public <T> T loadOrDefault(String name, Class<T> configType) {
+        return loadOrDefault(new File(Constants.BASE_DIRECTORY, name), configType);
+    }
 
     public <T> T loadOrDefault(File configFile, Class<T> configType) {
         if (configFile.exists())
             return loadConfig(configFile, configType);
-
         T config;
-
         try {
-            config = configType.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+            config = configType.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            log.error("Failed to create instance for " + configType.getSimpleName(), e);
             return null;
         }
-
         try {
             if (!new File("config").exists())
                 new File("config").mkdirs();
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-            gson.toJson(config, writer);
+            Constants.GSON.toJson(config, writer);
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write default config for " + configType.getSimpleName(), e);
         }
-
         return config;
-    }
-
-    public <T> T loadOrDefault(String name, Class<T> configType) {
-        File configFile = new File("config", name);
-        return loadOrDefault(configFile, configType);
     }
 
     @SneakyThrows
     public <T> T loadConfig(String name, Class<T> configType) {
-        File configFile = new File("config", name);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8));
-        T asd = gson.fromJson(reader, configType);
-        reader.close();
-        return asd;
+        return loadConfig(new File(Constants.BASE_DIRECTORY, name), configType);
     }
 
     @SneakyThrows
     public <T> T loadConfig(File file, Class<T> configType) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-        T asd = gson.fromJson(reader, configType);
+        T object = Constants.GSON.fromJson(reader, configType);
         reader.close();
-        return asd;
+        return object;
     }
 
     @SneakyThrows
     public void saveConfig(String name, Object config) {
-        File configFile = new File("config", name);
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-        gson.toJson(config, writer);
-        writer.flush();
-        writer.close();
+        saveConfig(new File(Constants.BASE_DIRECTORY, name), config);
     }
 
     @SneakyThrows
     public void saveConfig(File file, Object config) {
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
-        gson.toJson(config, writer);
+        Constants.GSON.toJson(config, writer);
         writer.flush();
         writer.close();
     }

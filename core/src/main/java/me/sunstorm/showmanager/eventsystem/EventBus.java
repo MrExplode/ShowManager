@@ -1,6 +1,5 @@
 package me.sunstorm.showmanager.eventsystem;
 
-import com.google.common.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

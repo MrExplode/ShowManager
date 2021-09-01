@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class Config {
+    private int framerate = 25;
     private ArtNetConfig artNetConfig = new ArtNetConfig();
     private AudioPlayerConfig audioPlayerConfig = new AudioPlayerConfig();
     private DmxRemoteConfig dmxRemoteConfig = new DmxRemoteConfig();

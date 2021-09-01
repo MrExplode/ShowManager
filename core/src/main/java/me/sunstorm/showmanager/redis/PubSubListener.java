@@ -2,6 +2,7 @@ package me.sunstorm.showmanager.redis;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.redis.impl.RedisImpl;
 import redis.clients.jedis.BinaryJedisPubSub;
 
 import java.nio.charset.StandardCharsets;

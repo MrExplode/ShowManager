@@ -1,8 +1,12 @@
-package me.sunstorm.showmanager.redis;
+package me.sunstorm.showmanager.redis.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.redis.MessageHandler;
+import me.sunstorm.showmanager.redis.PubSubListener;
+import me.sunstorm.showmanager.redis.Redis;
+import me.sunstorm.showmanager.redis.RedisCredentials;
 import me.sunstorm.showmanager.redis.converter.Converter;
 import me.sunstorm.showmanager.redis.converter.GzipConverter;
 import me.sunstorm.showmanager.terminable.Terminable;
@@ -14,10 +18,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 // the redis handling design is loosely based on lucko helper-redis
 // https://github.com/lucko/helper/tree/master/helper-redis
@@ -27,9 +28,10 @@ public class RedisImpl implements Redis, Terminable {
     private PubSubListener listener = null;
     private final Map<String, MessageHandler<?>> handlers = new ConcurrentHashMap<>();
     private final BlockingQueue<Tuple<byte[], byte[]>> sendQueue = new LinkedBlockingDeque<>();
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
     public RedisImpl(@NotNull RedisCredentials credentials) {
-        val executor = ShowManager.getInstance().getScheduler();
+        register();
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(16);
 
@@ -101,7 +103,7 @@ public class RedisImpl implements Redis, Terminable {
         sendQueue.offer(new Tuple<>(handler.getChannel().getBytes(StandardCharsets.UTF_8), data));
     }
 
-    protected <T> void incomingMessage(String channel, byte[] message) {
+    public <T> void incomingMessage(String channel, byte[] message) {
         if (!handlers.containsKey(channel)) {
             log.warn("Received message on unknown channel");
             return;
@@ -131,7 +133,12 @@ public class RedisImpl implements Redis, Terminable {
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
         log.info("Shutting down Redis...");
+        executor.shutdown();
+        executor.awaitTermination(3, TimeUnit.SECONDS);
+        jedisPool.close();
+        sendQueue.clear();
+        handlers.clear();
     }
 }

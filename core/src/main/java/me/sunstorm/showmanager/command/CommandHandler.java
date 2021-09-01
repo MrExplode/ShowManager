@@ -3,6 +3,7 @@ package me.sunstorm.showmanager.command;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.command.impl.PauseCommand;
 import me.sunstorm.showmanager.command.impl.PlayCommand;
+import me.sunstorm.showmanager.command.impl.RestartCommand;
 import me.sunstorm.showmanager.command.impl.StopCommand;
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ public class CommandHandler extends SimpleTerminalConsole {
         registerCommand(new PlayCommand());
         registerCommand(new PauseCommand());
         registerCommand(new StopCommand());
+        registerCommand(new RestartCommand());
     }
 
     private void registerCommand(@NotNull Command command) {

@@ -11,8 +11,10 @@ import java.util.Arrays;
 
 @Slf4j
 public class Bootstrap {
+    private static String[] lastArgs;
 
     public static void main(String... args) {
+        lastArgs = args;
         log.info("Starting ShowManager...");
         String ver = ManagementFactory.getRuntimeMXBean().getVmVersion();
         if (Integer.parseInt(ver.substring(0, 2)) < 11) {
