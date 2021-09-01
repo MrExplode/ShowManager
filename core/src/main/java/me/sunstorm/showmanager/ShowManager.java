@@ -8,6 +8,7 @@ import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
 import me.sunstorm.showmanager.redis.Redis;
 import me.sunstorm.showmanager.redis.impl.RedisImpl;
 import me.sunstorm.showmanager.remote.OscRemoteControl;
+import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -34,6 +35,7 @@ public class ShowManager {
     private final OscRemoteControl oscRemoteControl;
     private final HttpHandler httpHandler;
     private final Redis redis;
+    private final EventScheduler eventScheduler;
     private final Worker worker;
 
     @SneakyThrows({UnknownHostException.class})
@@ -53,6 +55,7 @@ public class ShowManager {
             redis = new RedisImpl(config.getRedisConfig().getCredentials());
         else
             redis = new DummyRedisImpl();
+        eventScheduler = new EventScheduler();
         worker = new Worker(InetAddress.getByName(config.getArtNetConfig().getArtNetInterface()), config.getFramerate());
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));

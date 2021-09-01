@@ -60,10 +60,6 @@ public class Worker implements Runnable, Terminable {
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
                     changeEvent.call(ShowManager.getInstance().getEventBus());
                 }
-
-                if (playing && osc) {
-                    //scheduler
-                }
                 
                 if (artNet) {
                     artNetHandler.broadcast();

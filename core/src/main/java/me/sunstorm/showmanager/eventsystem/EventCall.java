@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventCall {
-    EventPriority priority() default EventPriority.NORMAL;
+    EventPriority value() default EventPriority.NORMAL;
 }

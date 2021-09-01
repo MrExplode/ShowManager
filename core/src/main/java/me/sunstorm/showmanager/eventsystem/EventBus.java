@@ -68,7 +68,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
         for (Method method : Arrays.stream(listener.getClass().getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList())) {
             try {
                 Class<?> eventType = method.getParameterTypes()[0];
-                EventPriority priority = method.getAnnotation(EventCall.class).priority();
+                EventPriority priority = method.getAnnotation(EventCall.class).value();
                 MethodHandle methodHandle = lookup.unreflect(method);
                 listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(methodHandle, listener, priority));
                 listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));
