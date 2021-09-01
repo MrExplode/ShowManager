@@ -11,4 +11,5 @@ public class Config {
     private LtcConfig ltcConfig = new LtcConfig();
     private OscDispatchConfig oscDispatchConfig = new OscDispatchConfig();
     private RedisConfig redisConfig = new RedisConfig();
+    private HttpConfig httpConfig = new HttpConfig();
 }

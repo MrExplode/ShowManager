@@ -54,7 +54,7 @@ public class Worker implements Runnable, Terminable {
                 dmxRemote.handleData(artNetHandler.getData(dmxRemote.getAddress().getSubnet(), dmxRemote.getAddress().getUniverse()));
                 
                 if (playing) {
-                    currentTime = new Timecode(elapsed, framerate);
+                    currentTime.set(elapsed, framerate);
                     artNetHandler.setTime(currentTime);
                     ShowManager.getInstance().getLtcHandler().getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);

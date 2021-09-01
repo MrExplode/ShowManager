@@ -55,6 +55,12 @@ public class Timecode implements Comparable<Timecode> {
         this.framerate = framerate;
         syncFrom(this.framerate);
     }
+
+    public void set(long lengthInMillis, int framerate) {
+        this.millisecLength = lengthInMillis;
+        this.framerate = framerate;
+        syncTo(this.framerate);
+    }
     
     /**
      * Creates a synced instance from the parameter, by calculating the H:MM:SS:f value from millisecond value

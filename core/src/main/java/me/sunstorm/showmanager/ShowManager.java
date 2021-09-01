@@ -3,6 +3,7 @@ package me.sunstorm.showmanager;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.http.HttpHandler;
 import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
 import me.sunstorm.showmanager.redis.Redis;
 import me.sunstorm.showmanager.redis.impl.RedisImpl;
@@ -31,6 +32,7 @@ public class ShowManager {
     private final OscHandler oscHandler;
     private final LtcHandler ltcHandler;
     private final OscRemoteControl oscRemoteControl;
+    private final HttpHandler httpHandler;
     private final Redis redis;
     private final Worker worker;
 
@@ -46,6 +48,7 @@ public class ShowManager {
         oscHandler = new OscHandler(InetAddress.getByName(config.getOscDispatchConfig().getTarget()), config.getOscDispatchConfig().getPort(), config.getOscDispatchConfig().getPort() + 1);
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         oscRemoteControl = new OscRemoteControl();
+        httpHandler = new HttpHandler();
         if (config.getRedisConfig().isEnabled())
             redis = new RedisImpl(config.getRedisConfig().getCredentials());
         else
