@@ -1,6 +1,7 @@
 package me.sunstorm.showmanager.http;
 
 import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.RateLimit;
 import io.javalin.plugin.json.JavalinJson;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class HttpHandler implements Terminable {
         register();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.info("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
+            config.addStaticFiles("/", "todo", Location.EXTERNAL);
         });
         JavalinJson.setToJsonMapper(Constants.GSON::toJson);
         JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
@@ -41,7 +43,7 @@ public class HttpHandler implements Terminable {
         });
         javalin.routes(() -> {
             before(ctx -> new RateLimit(ctx).requestPerTimeUnit(15, TimeUnit.MINUTES));
-            before(new AuthController());
+            //before(new AuthController());
             path("control", () -> {
                 post("/play", __ -> ShowManager.getInstance().getWorker().play());
                 post("/pause", __ -> ShowManager.getInstance().getWorker().pause());
@@ -53,11 +55,6 @@ public class HttpHandler implements Terminable {
                 post("/audio", OutputController::handleAudio);
             });
         });
-    }
-
-    @EventCall
-    private void onTimeChange(TimecodeChangeEvent e) {
-
     }
 
     @Override

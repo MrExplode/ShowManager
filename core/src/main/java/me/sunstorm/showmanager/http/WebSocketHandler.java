@@ -15,9 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener {
+    public static WebSocketHandler INSTANCE;
     private final Set<WsContext> wsClients = ConcurrentHashMap.newKeySet();
+    private Timecode lastDispatchedTime = null;
 
     public WebSocketHandler() {
+        INSTANCE = this;
         ShowManager.getInstance().getEventBus().register(this);
     }
 
@@ -40,12 +43,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) {
-
+        log.debug("[WS] Received: {}", ctx.message());
     }
 
     @EventCall
     private void onTimeChange(TimecodeChangeEvent e) {
-        if (wsClients.size() == 0) return;
+        //slow down the ws dispatch
+        if (wsClients.size() == 0 || (lastDispatchedTime != null && e.getTime().millis() - lastDispatchedTime.millis() < 10)) return;
         JsonObject data = new JsonObject();
         Timecode time = e.getTime();
         data.addProperty("type", "time-change");
@@ -53,6 +57,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         data.addProperty("min", time.getMin());
         data.addProperty("sec", time.getSec());
         data.addProperty("frame", time.getFrame());
+        String raw = data.toString();
+        wsClients.forEach(client -> client.send(raw));
+    }
+
+    public void consumeLog(String log) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "log");
+        data.addProperty("log", log);
         String raw = data.toString();
         wsClients.forEach(client -> client.send(raw));
     }

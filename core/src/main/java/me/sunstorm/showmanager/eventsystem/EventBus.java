@@ -56,7 +56,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
 
         eventListeners.forEach(eventContainer -> {
             try {
-                eventContainer.getMethodHandle().invokeExact(eventContainer.getInstance(), event);
+                eventContainer.getMethodHandle().invoke(eventContainer.getInstance(), event);
             } catch (Throwable e) {
                 log.error("Failed to invoke event: " + event.getClass().getSimpleName(), e);
             }
@@ -69,6 +69,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
             try {
                 Class<?> eventType = method.getParameterTypes()[0];
                 EventPriority priority = method.getAnnotation(EventCall.class).value();
+                method.setAccessible(true);
                 MethodHandle methodHandle = lookup.unreflect(method);
                 listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(methodHandle, listener, priority));
                 listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));

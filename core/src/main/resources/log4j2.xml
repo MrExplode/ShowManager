@@ -1,5 +1,8 @@
 <Configuration status="WARN" packages="me.sunstorm,ch.bildspur">
     <Appenders>
+        <WebSocketLogger name="SocketLogger">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n" />
+        </WebSocketLogger>
         <TerminalConsole name="Console">
             <PatternLayout pattern="%highlightError{[%d{HH:mm:ss}] [%t/%level]:%xEx} %minecraftFormatting{%msg}%n" />
         </TerminalConsole>
@@ -12,6 +15,9 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
+        <AsyncLogger name="me.sunstorm.showmanager" level="info" includeLocation="true">
+            <AppenderRef ref="SocketLogger"/>
+        </AsyncLogger>
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
