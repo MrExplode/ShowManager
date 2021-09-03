@@ -7,6 +7,9 @@ import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,14 +60,39 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         data.addProperty("min", time.getMin());
         data.addProperty("sec", time.getSec());
         data.addProperty("frame", time.getFrame());
-        String raw = data.toString();
-        wsClients.forEach(client -> client.send(raw));
+        broadcast(data);
+    }
+
+    @EventCall
+    private void onTimeStart(TimecodeStartEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "time-start");
+        broadcast(data);
+    }
+
+    @EventCall
+    private void onTimePause(TimecodePauseEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "time-pause");
+    }
+
+    @EventCall
+    private void onTimeStop(TimecodeStopEvent e) {
+        //notify UI about the time reset
+        onTimeChange(new TimecodeChangeEvent(e.ZERO));
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "time-stop");
+        broadcast(data);
     }
 
     public void consumeLog(String log) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "log");
         data.addProperty("log", log);
+        broadcast(data);
+    }
+
+    private void broadcast(JsonObject data) {
         String raw = data.toString();
         wsClients.forEach(client -> client.send(raw));
     }
