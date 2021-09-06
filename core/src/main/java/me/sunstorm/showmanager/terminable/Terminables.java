@@ -16,7 +16,7 @@ public class Terminables {
     }
 
     public static void shutdownAll() {
-        log.info("Shutting down...");
+        log.info("Shutdown initiated...");
         terminables.forEach(t -> {
             try {
                 t.shutdown();

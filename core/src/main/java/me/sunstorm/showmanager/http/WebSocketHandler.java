@@ -31,6 +31,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleConnect(@NotNull WsConnectContext ctx) {
         log.info("[WS] {} connected", ctx.session.getRemoteAddress().getHostString());
         wsClients.add(ctx);
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "init");
+        ctx.send(data.toString());
     }
 
     @Override
@@ -56,10 +59,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         JsonObject data = new JsonObject();
         Timecode time = e.getTime();
         data.addProperty("type", "time-change");
-        data.addProperty("hour", time.getHour());
-        data.addProperty("min", time.getMin());
-        data.addProperty("sec", time.getSec());
-        data.addProperty("frame", time.getFrame());
+        String hour = time.getHour() < 10 ? "0" + time.getHour() : String.valueOf(time.getHour());
+        String min = time.getMin() < 10 ? "0" + time.getMin() : String.valueOf(time.getMin());
+        String sec = time.getSec() < 10 ? "0" + time.getSec() : String.valueOf(time.getSec());
+        String frame = time.getFrame() < 10 ? "0" + time.getFrame() : String.valueOf(time.getFrame());
+        data.addProperty("hour", hour);
+        data.addProperty("min", min);
+        data.addProperty("sec", sec);
+        data.addProperty("frame", frame);
         broadcast(data);
     }
 
@@ -74,6 +81,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void onTimePause(TimecodePauseEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "time-pause");
+        broadcast(data);
     }
 
     @EventCall

@@ -18,7 +18,7 @@ public class AudioPlayer implements Terminable, Listener {
     public AudioPlayer() {
         register();
         ShowManager.getInstance().getEventBus().register(this);
-        player = new AdvancedPlayer();
+
     }
 
     @EventCall
