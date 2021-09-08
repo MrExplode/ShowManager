@@ -25,7 +25,8 @@ public class HttpHandler implements Terminable {
         register();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.info("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
-            config.addStaticFiles("/", "todo", Location.EXTERNAL);
+            if (System.getenv("showmanager.debug") == null)
+                config.addStaticFiles("/", "todo", Location.EXTERNAL);
         });
         JavalinJson.setToJsonMapper(Constants.GSON::toJson);
         JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
@@ -42,7 +43,7 @@ public class HttpHandler implements Terminable {
             ws.onError(wsHandler);
         });
         javalin.routes(() -> {
-            before(ctx -> new RateLimit(ctx).requestPerTimeUnit(15, TimeUnit.MINUTES));
+            before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
             //before(new AuthController());
             path("control", () -> {
                 post("/play", __ -> ShowManager.getInstance().getWorker().play());
