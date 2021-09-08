@@ -6,10 +6,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.ltc.LtcHandler;
-import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.remote.DmxRemoteControl;
-import me.sunstorm.showmanager.remote.OscRemoteControl;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 

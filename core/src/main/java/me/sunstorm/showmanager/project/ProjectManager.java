@@ -1,8 +1,6 @@
 package me.sunstorm.showmanager.project;
 
 import lombok.Getter;
-import me.sunstorm.showmanager.settings.config.Config;
-import me.sunstorm.showmanager.gui.ServerGUI;
 import me.sunstorm.showmanager.util.JsonLoader;
 
 import java.io.File;

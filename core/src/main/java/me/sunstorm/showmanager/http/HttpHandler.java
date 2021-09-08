@@ -7,9 +7,6 @@ import io.javalin.plugin.json.JavalinJson;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.ShowManager;
-import me.sunstorm.showmanager.eventsystem.EventCall;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
-import me.sunstorm.showmanager.http.controller.AuthController;
 import me.sunstorm.showmanager.http.controller.OutputController;
 import me.sunstorm.showmanager.terminable.Terminable;
 

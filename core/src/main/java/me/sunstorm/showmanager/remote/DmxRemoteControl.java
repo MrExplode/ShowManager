@@ -3,7 +3,6 @@ package me.sunstorm.showmanager.remote;
 import lombok.Getter;
 import lombok.Setter;
 import me.sunstorm.showmanager.ShowManager;
-import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
 import me.sunstorm.showmanager.util.DmxAddress;
 

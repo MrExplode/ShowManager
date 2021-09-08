@@ -1,8 +1,6 @@
 package me.sunstorm.showmanager.redis.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.redis.MessageHandler;
 import me.sunstorm.showmanager.redis.PubSubListener;
 import me.sunstorm.showmanager.redis.Redis;
