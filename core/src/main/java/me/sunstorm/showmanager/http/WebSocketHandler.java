@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager.http;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +32,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleConnect(@NotNull WsConnectContext ctx) {
         log.info("[WS] {} connected", ctx.session.getRemoteAddress().getHostString());
         wsClients.add(ctx);
+        JsonArray logs = new JsonArray();
+        WebSocketLogger.getLogCache().forEach(logs::add);
         JsonObject data = new JsonObject();
         data.addProperty("type", "init");
+        data.add("logs", logs);
         ctx.send(data.toString());
     }
 

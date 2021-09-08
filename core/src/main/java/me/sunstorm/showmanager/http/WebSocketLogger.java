@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager.http;
 
+import lombok.Getter;
 import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
@@ -12,10 +13,13 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Plugin(name = WebSocketLogger.PLUGIN_NAME, category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class WebSocketLogger extends AbstractAppender {
     public static final String PLUGIN_NAME = "WebSocketLogger";
+    @Getter private static final List<String> logCache = new ArrayList<>();
 
     protected WebSocketLogger(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
         super(name, filter, layout, ignoreExceptions);
@@ -23,8 +27,12 @@ public class WebSocketLogger extends AbstractAppender {
 
     @Override
     public void append(LogEvent event) {
+        String log = getLayout().toSerializable(event).toString();
+        logCache.add(log);
+        if (logCache.size() > 100)
+            logCache.remove(0);
         if (WebSocketHandler.INSTANCE != null)
-            WebSocketHandler.INSTANCE.consumeLog(getLayout().toSerializable(event).toString());
+            WebSocketHandler.INSTANCE.consumeLog(log);
     }
 
     @PluginFactory

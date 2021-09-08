@@ -15,7 +15,7 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
-        <AsyncLogger name="me.sunstorm.showmanager" level="info" includeLocation="true">
+        <AsyncLogger name="me.sunstorm.showmanager" level="debug" includeLocation="true">
             <AppenderRef ref="SocketLogger"/>
         </AsyncLogger>
         <Root level="info">

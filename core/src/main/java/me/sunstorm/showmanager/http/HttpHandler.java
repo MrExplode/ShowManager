@@ -22,6 +22,7 @@ public class HttpHandler implements Terminable {
     private final Javalin javalin;
 
     public HttpHandler() {
+        log.info("Loading HttpHandler...");
         register();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.info("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
