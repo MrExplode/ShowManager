@@ -42,9 +42,9 @@ public class ExecutorFactory implements Opcodes {
             {
                 mv = cw.visitMethod(ACC_PUBLIC, "execute", EXECUTE_DESC, null, null);
                 mv.visitCode();
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitTypeInsn(CHECKCAST, listenerName);
                 mv.visitVarInsn(ALOAD, 2);
+                mv.visitTypeInsn(CHECKCAST, listenerName);
+                mv.visitVarInsn(ALOAD, 1);
                 mv.visitTypeInsn(CHECKCAST, Type.getInternalName(parameter));
                 mv.visitMethodInsn(INVOKEVIRTUAL, listenerName, method.getName(), Type.getMethodDescriptor(method), false);
                 mv.visitInsn(RETURN);

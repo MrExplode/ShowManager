@@ -24,7 +24,7 @@ public class HttpHandler implements Terminable {
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.info("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
             if (System.getenv("showmanager.debug") == null)
-                config.addStaticFiles("/", "todo", Location.EXTERNAL);
+                config.addStaticFiles("/", System.getenv("showmanager.dist"), Location.EXTERNAL);
         });
         JavalinJson.setToJsonMapper(Constants.GSON::toJson);
         JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
