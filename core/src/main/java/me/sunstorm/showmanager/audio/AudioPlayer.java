@@ -22,28 +22,28 @@ public class AudioPlayer implements Terminable, Listener {
     }
 
     @EventCall
-    private void onTimeChange(TimecodeChangeEvent e) {
+    public void onTimeChange(TimecodeChangeEvent e) {
         if (!enabled) return;
 
     }
 
     @EventCall
-    private void onTimeStart(TimecodeStartEvent e) {
+    public void onTimeStart(TimecodeStartEvent e) {
         if (!enabled) return;
     }
 
     @EventCall
-    private void onTimeStop(TimecodeStopEvent e) {
+    public void onTimeStop(TimecodeStopEvent e) {
         if (!enabled) return;
     }
 
     @EventCall
-    private void onTimePause(TimecodePauseEvent e) {
+    public void onTimePause(TimecodePauseEvent e) {
         if (!enabled) return;
     }
 
     @EventCall
-    private void onTimeSet(TimecodeSetEvent e) {
+    public void onTimeSet(TimecodeSetEvent e) {
         if (!enabled) return;
     }
 

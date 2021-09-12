@@ -25,7 +25,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
     private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
+    private final ExecutorFactory executorFactory = new ExecutorFactory();
 
     public EventBus() {
         super("eventbus");
@@ -56,7 +56,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
 
         eventListeners.forEach(eventContainer -> {
             try {
-                eventContainer.getMethodHandle().invoke(eventContainer.getInstance(), event);
+                eventContainer.execute(event);
             } catch (Throwable e) {
                 log.error("Failed to invoke event: " + event.getClass().getSimpleName(), e);
             }
@@ -70,12 +70,12 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
                 Class<?> eventType = method.getParameterTypes()[0];
                 EventPriority priority = method.getAnnotation(EventCall.class).value();
                 method.setAccessible(true);
-                MethodHandle methodHandle = lookup.unreflect(method);
-                listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(methodHandle, listener, priority));
+                EventExecutor executor = executorFactory.create(listener, method);
+                listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(executor, listener, priority));
                 listeners.get(eventType).sort(Comparator.comparingInt(o -> o.getPriority().getPriority()));
                 log.debug("Registering method: " + method.getName() + " type: " + eventType.getSimpleName());
-            } catch (IllegalAccessException e) {
-                log.error("Failed to obtain MethodHandle for '{}' method", method.getName(), e);
+            } catch (InstantiationException | IllegalAccessException e) {
+                log.error("Failed to create executor for '{}' method", method.getName(), e);
             }
         }
     }
@@ -105,8 +105,12 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
     @Getter
     @AllArgsConstructor
     static class ListenerContainer {
-        private final MethodHandle methodHandle;
+        private final EventExecutor executor;
         private final Listener instance;
         private final EventPriority priority;
+
+        public void execute(Event event) {
+            executor.execute(event, instance);
+        }
     }
 }

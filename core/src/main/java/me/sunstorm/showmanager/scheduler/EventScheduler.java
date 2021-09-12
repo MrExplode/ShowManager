@@ -35,7 +35,7 @@ public class EventScheduler implements Terminable, Listener {
     }
 
     @EventCall(EventPriority.LOWEST)
-    private void onTimeChange(TimecodeChangeEvent e) {
+    public void onTimeChange(TimecodeChangeEvent e) {
         if (!enabled || scheduledEvents.size() == 0 || lastIndex + 1 == scheduledEvents.size()) return;
         Timecode current = e.getTime();
         //no exec yet or time was reset

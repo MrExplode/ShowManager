@@ -57,7 +57,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    private void onTimeChange(TimecodeChangeEvent e) {
+    public void onTimeChange(TimecodeChangeEvent e) {
         //slow down the ws dispatch
         if (wsClients.size() == 0 || (lastDispatchedTime != null && e.getTime().millis() - lastDispatchedTime.millis() < 10)) return;
         JsonObject data = new JsonObject();
@@ -75,21 +75,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    private void onTimeStart(TimecodeStartEvent e) {
+    public void onTimeStart(TimecodeStartEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "time-start");
         broadcast(data);
     }
 
     @EventCall
-    private void onTimePause(TimecodePauseEvent e) {
+    public void onTimePause(TimecodePauseEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "time-pause");
         broadcast(data);
     }
 
     @EventCall
-    private void onTimeStop(TimecodeStopEvent e) {
+    public void onTimeStop(TimecodeStopEvent e) {
         //notify UI about the time reset
         onTimeChange(new TimecodeChangeEvent(e.ZERO));
         JsonObject data = new JsonObject();
