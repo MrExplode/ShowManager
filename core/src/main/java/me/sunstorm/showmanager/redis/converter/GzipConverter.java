@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream;
 @Slf4j
 @AllArgsConstructor
 public class GzipConverter<T> implements Converter<T> {
-    private Converter<T> parent;
+    private final Converter<T> parent;
 
     @Override
     public byte[] encode(T message) {
