@@ -24,19 +24,26 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-      
+    - name: Upload build result
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-result
+        path: build
+        retention-days: 1
+
   codeql-scan:
     name: CodeQL Security Scan
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: java
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v1
+      - name: Download build result
+        uses: actions/download-artifact@v2
+        with:
+          name: build-result
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
 
