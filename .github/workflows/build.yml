@@ -24,3 +24,38 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+      
+  codeql-scan:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: java
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
+  codacy:
+    name: Codacy Analysis CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          output: results.sarif
+          format: sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@main
+        with:
+          sarif_file: results.sarif
