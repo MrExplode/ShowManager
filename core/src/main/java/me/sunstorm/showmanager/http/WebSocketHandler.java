@@ -4,13 +4,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
+import me.sunstorm.showmanager.eventsystem.events.music.MusicPauseEvent;
+import me.sunstorm.showmanager.eventsystem.events.music.MusicStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.music.MusicStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
+import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +67,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (wsClients.size() == 0 || (lastDispatchedTime != null && e.getTime().millis() - lastDispatchedTime.millis() < 10)) return;
         JsonObject data = new JsonObject();
         Timecode time = e.getTime();
-        data.addProperty("type", "time-change");
+        data.addProperty("type", "time");
+        data.addProperty("action", "change");
         String hour = time.getHour() < 10 ? "0" + time.getHour() : String.valueOf(time.getHour());
         String min = time.getMin() < 10 ? "0" + time.getMin() : String.valueOf(time.getMin());
         String sec = time.getSec() < 10 ? "0" + time.getSec() : String.valueOf(time.getSec());
@@ -77,14 +83,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onTimeStart(TimecodeStartEvent e) {
         JsonObject data = new JsonObject();
-        data.addProperty("type", "time-start");
+        data.addProperty("type", "time");
+        data.addProperty("action", "start");
         broadcast(data);
     }
 
     @EventCall
     public void onTimePause(TimecodePauseEvent e) {
         JsonObject data = new JsonObject();
-        data.addProperty("type", "time-pause");
+        data.addProperty("type", "time");
+        data.addProperty("action", "pause");
         broadcast(data);
     }
 
@@ -93,7 +101,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         //notify UI about the time reset
         onTimeChange(new TimecodeChangeEvent(e.ZERO));
         JsonObject data = new JsonObject();
-        data.addProperty("type", "time-stop");
+        data.addProperty("type", "time");
+        data.addProperty("action", "stop");
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onMusicStart(MusicStartEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "start");
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onMusicPause(MusicPauseEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "pause");
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onMusicStop(MusicStopEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "stop");
         broadcast(data);
     }
 
