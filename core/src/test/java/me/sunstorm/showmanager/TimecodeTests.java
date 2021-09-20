@@ -24,12 +24,12 @@ public class TimecodeTests {
     
     @RepeatedTest(3)
     @DisplayName("Equality test")
-    public void equal() {
+    public void testEquals() {
         assertEquals(new Timecode(0, 0, 0, 0, framerate), new Timecode(0, 0, 0, 0, framerate));
     }
     
     @RepeatedTest(3)
-    public void millis() {
+    public void testMillis() {
         assertEquals(0, new Timecode(0, 0, 0, 0, framerate).millis());
         Timecode time = new Timecode(1, 2, 3, 4, framerate);
         if (framerate == 24)
@@ -42,7 +42,7 @@ public class TimecodeTests {
     
     
     @RepeatedTest(3)
-    public void add() {
+    public void testAdd() {
         Timecode value = new Timecode(0, 0, 5, 0, framerate).add(new Timecode(0, 0, 5, 0, framerate)).syncedInstance(framerate);
         Timecode excepted = new Timecode(0, 0, 10, 0, framerate);
         assertEquals(excepted, value);
@@ -50,7 +50,7 @@ public class TimecodeTests {
     }
     
     @RepeatedTest(3)
-    public void subtract() {
+    public void testSubtract() {
         Timecode value = new Timecode(0, 0, 10, 0, framerate).subtract(new Timecode(0, 0, 5, 0, framerate)).syncedInstance(framerate);
         Timecode excepted = new Timecode(0, 0, 5, 0, framerate);
         assertEquals(excepted, value);
