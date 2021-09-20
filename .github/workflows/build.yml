@@ -27,7 +27,6 @@ jobs:
 
   codeql-scan:
     name: CodeQL Security Scan
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
