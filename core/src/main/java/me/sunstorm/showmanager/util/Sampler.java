@@ -14,22 +14,19 @@ import java.io.IOException;
 @UtilityClass
 public class Sampler {
 
-    public float[] sample(File audioFile) throws UnsupportedAudioFileException, IOException {
-        float[] samples;
-        AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(audioFile)));
-        AudioFormat fmt = in.getFormat();
-        if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
+    public float[] sample(AudioInputStream in) throws UnsupportedAudioFileException, IOException {
+        AudioFormat format = in.getFormat();
+        if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
             throw new UnsupportedAudioFileException("unsigned");
         }
 
-        boolean big = fmt.isBigEndian();
-        int chans = fmt.getChannels();
-        int bits = fmt.getSampleSizeInBits();
+        int chans = format.getChannels();
+        int bits = format.getSampleSizeInBits();
         int bytes = bits + 7 >> 3;
         int frameLength = (int) in.getFrameLength();
         int bufferLength = chans * bytes * 1024;
 
-        samples = new float[frameLength];
+        float[] samples = new float[frameLength];
         byte[] buf = new byte[bufferLength];
 
         int i = 0;
@@ -41,11 +38,10 @@ public class Sampler {
                 for (int c = 0; c < chans; c++) {
                     if (bytes == 1) {
                         sum += buf[b++] << 8;
-
                     } else {
                         int sample = 0;
                         // (quantizes to 16-bit)
-                        if (big) {
+                        if (format.isBigEndian()) {
                             sample |= (buf[b++] & 0xFF) << 8;
                             sample |= (buf[b++] & 0xFF);
                             b += bytes - 2;
