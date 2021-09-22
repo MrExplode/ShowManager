@@ -9,48 +9,61 @@ import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
+import me.sunstorm.showmanager.settings.config.OscDispatchConfig;
 import me.sunstorm.showmanager.terminable.Terminable;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
 public class OscHandler implements Terminable {
-    private final InetAddress address;
+    private InetAddress address = null;
     private final int outgoingPort;
     private final int incomingPort;
 
     private OSCPortOut portOut;
     private OSCPortIn portIn;
 
-    public void setup() throws IOException {
+    public OscHandler(OscDispatchConfig config) {
         log.info("Starting OSCHandler...");
         register();
-        portOut = new OSCPortOut(address, outgoingPort);
-        portIn = new OSCPortIn(incomingPort);
-        portIn.addPacketListener(new OSCPacketListener() {
-            @Override
-            public void handlePacket(OSCPacketEvent event) {
-                if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
-                    OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
-                    oscEvent.call(ShowManager.getInstance().getEventBus());
-                }
-            }
+        try {
+            address = InetAddress.getByName(config.getTarget());
+        } catch (UnknownHostException e) {
+            log.info("Unknown outgoing OSC host", e);
+        }
+        outgoingPort = config.getPort();
+        incomingPort = config.getPort() + 1;
 
-            @Override
-            public void handleBadData(OSCBadDataEvent event) {
-                log.warn("Received bad OSC data", event.getException());
-            }
-        });
+        try {
+            portOut = new OSCPortOut(address, outgoingPort);
+            portIn = new OSCPortIn(incomingPort);
+            portIn.addPacketListener(new OSCPacketListener() {
+                @Override
+                public void handlePacket(OSCPacketEvent event) {
+                    if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
+                        OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
+                        oscEvent.call(ShowManager.getInstance().getEventBus());
+                    }
+                }
+
+                @Override
+                public void handleBadData(OSCBadDataEvent event) {
+                    log.warn("Received bad OSC data", event.getException());
+                }
+            });
+        } catch (IOException e) {
+            log.error("Failed to start OSC dispatcher", e);
+        }
     }
 
     @Override
     public void shutdown() throws IOException {
         log.info("Shutting down OSC...");
-        portOut.close();
-        portIn.close();
+        if (portOut != null) portOut.close();
+        if (portIn != null) portIn.close();
     }
 
     public void sendOscPacket(OSCPacket packet) {
@@ -59,7 +72,7 @@ public class OscHandler implements Terminable {
         if (event.isCancelled())
             return;
         try {
-            portOut.send(packet);
+            if (portOut != null) portOut.send(packet);
         } catch (IOException | OSCSerializeException e) {
             log.error("Failed to send OSC packet", e);
         }

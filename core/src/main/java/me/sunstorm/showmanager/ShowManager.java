@@ -17,6 +17,7 @@ import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
@@ -47,7 +48,7 @@ public class ShowManager {
         settingsStore.load();
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
-        oscHandler = new OscHandler(InetAddress.getByName(config.getOscDispatchConfig().getTarget()), config.getOscDispatchConfig().getPort(), config.getOscDispatchConfig().getPort() + 1);
+        oscHandler = new OscHandler(config.getOscDispatchConfig());
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         oscRemoteControl = new OscRemoteControl();
         httpHandler = new HttpHandler();
