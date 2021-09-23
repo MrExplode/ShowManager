@@ -10,8 +10,6 @@ import me.sunstorm.showmanager.eventsystem.registry.EventWrapper;
 import me.sunstorm.showmanager.redis.AbstractMessageHandler;
 import me.sunstorm.showmanager.redis.converter.Converter;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

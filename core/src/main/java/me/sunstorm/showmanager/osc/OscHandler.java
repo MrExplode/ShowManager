@@ -4,7 +4,6 @@ import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
