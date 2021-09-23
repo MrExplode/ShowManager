@@ -4,18 +4,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicPauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.music.MusicStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
-import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -107,15 +106,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicStart(MusicStartEvent e) {
+    public void onMusicLoad(AudioLoadEvent e) {
         JsonObject data = new JsonObject();
-        data.addProperty("type", "audio");
-        data.addProperty("action", "start");
+        data.addProperty("name", e.getTrack().getName());
         broadcast(data);
     }
 
     @EventCall
-    public void onMusicPause(MusicPauseEvent e) {
+    public void onMusicStart(AudioStartEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "start");
+        data.addProperty("name", e.getTrack().getName());
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onMusicPause(AudioPauseEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "pause");
@@ -123,7 +130,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicStop(MusicStopEvent e) {
+    public void onMusicStop(AudioStopEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "stop");

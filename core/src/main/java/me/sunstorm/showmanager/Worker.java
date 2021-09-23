@@ -114,7 +114,7 @@ public class Worker implements Runnable, Terminable {
     
     public void stop() {
         log.info("Stop");
-        TimecodeStopEvent event = new TimecodeStopEvent();
+        TimecodeStopEvent event = new TimecodeStopEvent(currentTime);
         event.call(ShowManager.getInstance().getEventBus());
         if (event.isCancelled())
             return;

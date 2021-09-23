@@ -3,21 +3,21 @@ package me.sunstorm.showmanager;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.audio.AudioPlayer;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.http.HttpHandler;
-import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
+import me.sunstorm.showmanager.ltc.LtcHandler;
+import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.redis.Redis;
+import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
 import me.sunstorm.showmanager.redis.impl.RedisImpl;
 import me.sunstorm.showmanager.remote.OscRemoteControl;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
-import me.sunstorm.showmanager.eventsystem.EventBus;
-import me.sunstorm.showmanager.ltc.LtcHandler;
-import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
@@ -34,6 +34,7 @@ public class ShowManager {
     private final OscHandler oscHandler;
     private final LtcHandler ltcHandler;
     private final OscRemoteControl oscRemoteControl;
+    private final AudioPlayer audioPlayer;
     private final HttpHandler httpHandler;
     private final Redis redis;
     private final EventScheduler eventScheduler;
@@ -51,6 +52,7 @@ public class ShowManager {
         oscHandler = new OscHandler(config.getOscDispatchConfig());
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         oscRemoteControl = new OscRemoteControl();
+        audioPlayer = new AudioPlayer(config.getAudioPlayerConfig());
         httpHandler = new HttpHandler();
         if (config.getRedisConfig().isEnabled())
             redis = new RedisImpl(config.getRedisConfig().getCredentials());

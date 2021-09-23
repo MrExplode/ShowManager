@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A wrapper class for holding a timecode value.
@@ -160,6 +161,10 @@ public class Timecode implements Comparable<Timecode> {
         long time = this.millisecLength + t.millisecLength;
         return new Timecode(time);
     }
+
+    public boolean isBetween(Timecode start, Timecode end) {
+        return this.compareTo(start) <= 0 && this.compareTo(end) <= 0;
+    }
     
     /**
      * Same as {@link #toString()}, but it's spaced
@@ -170,10 +175,7 @@ public class Timecode implements Comparable<Timecode> {
     }
 
     @Override
-    public int compareTo(Timecode other) {
-        if (other == null) {
-            return -1;
-        }
+    public int compareTo(@NotNull Timecode other) {
         if (this.equals(other)) {
             return 0;
         }
