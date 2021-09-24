@@ -108,6 +108,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onMusicLoad(AudioLoadEvent e) {
         JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "load");
         data.addProperty("name", e.getTrack().getName());
         broadcast(data);
     }

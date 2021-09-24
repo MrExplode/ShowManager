@@ -8,7 +8,7 @@ import me.sunstorm.showmanager.ShowManager;
 
 public class OutputController {
 
-    public static void handleArtnet(Context ctx) {
+    public static void handleArtNet(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -26,6 +26,13 @@ public class OutputController {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
-        //todo
+        ShowManager.getInstance().getAudioPlayer().setEnabled(data.get("enabled").getAsBoolean());
+    }
+
+    public static void handleScheduler(Context ctx) {
+        JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
+        if (data.get("enabled") == null)
+            throw new BadRequestResponse();
+        ShowManager.getInstance().getEventScheduler().setEnabled(data.get("enabled").getAsBoolean());
     }
 }

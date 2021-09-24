@@ -49,9 +49,10 @@ public class HttpHandler implements Terminable {
                 post("/stop", __ -> ShowManager.getInstance().getWorker().stop());
             });
             path("output", () -> {
-                post("/artnet", OutputController::handleArtnet);
+                post("/artnet", OutputController::handleArtNet);
                 post("/ltc", OutputController::handleLtc);
                 post("/audio", OutputController::handleAudio);
+                post("/scheduler", OutputController::handleScheduler);
             });
         });
     }
