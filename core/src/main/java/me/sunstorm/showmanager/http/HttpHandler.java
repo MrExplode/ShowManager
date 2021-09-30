@@ -22,7 +22,8 @@ public class HttpHandler implements Terminable {
         log.info("Loading HttpHandler...");
         register();
         javalin = Javalin.create(config -> {
-            config.requestLogger((ctx, executionTimeMs) -> log.info("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
+            config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
+            config.enableCorsForAllOrigins();
             if (System.getenv("showmanager.debug") == null)
                 config.addStaticFiles("/", System.getenv("showmanager.dist"), Location.EXTERNAL);
         });
