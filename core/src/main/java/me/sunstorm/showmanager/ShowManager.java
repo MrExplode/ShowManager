@@ -17,11 +17,20 @@ import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
+import me.sunstorm.showmanager.util.Sampler;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Getter
@@ -40,7 +49,7 @@ public class ShowManager {
     private final EventScheduler eventScheduler;
     private final Worker worker;
 
-    @SneakyThrows({UnknownHostException.class})
+    @SneakyThrows({UnknownHostException.class, IOException.class})
     public ShowManager() {
         instance = this;
         if (!Constants.BASE_DIRECTORY.exists())
@@ -63,5 +72,26 @@ public class ShowManager {
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
         worker.run();
+    }
+
+    public void reload(boolean wait) {
+        Terminables.shutdownAll();
+        System.gc();
+        if (wait) {
+            try {
+                for (int i = 1; i <= 5; i++) {
+                    TimeUnit.SECONDS.sleep(1);
+                    log.info(". ".repeat(i));
+                }
+            } catch (InterruptedException ignored) { }
+        }
+        try {
+            Class<?> bClass = Class.forName("me.sunstorm.showmanager.Bootstrap");
+            Field lastArgField = bClass.getDeclaredField("lastArgs");
+            Method mainMethod = bClass.getDeclaredMethod("main", String[].class);
+            mainMethod.invoke(null, lastArgField.get(null));
+        } catch (ReflectiveOperationException e) {
+            log.error("Failed to invoke Bootstrap", e);
+        }
     }
 }
