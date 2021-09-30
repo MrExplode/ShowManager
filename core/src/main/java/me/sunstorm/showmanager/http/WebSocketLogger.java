@@ -14,11 +14,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Plugin(name = WebSocketLogger.PLUGIN_NAME, category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class WebSocketLogger extends AbstractAppender {
     public static final String PLUGIN_NAME = "WebSocketLogger";
-    @Getter private static final List<String> logCache = new ArrayList<>();
+    @Getter private static final List<String> logCache = new CopyOnWriteArrayList<>();
 
     protected WebSocketLogger(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
         super(name, filter, layout, ignoreExceptions);
