@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
@@ -11,10 +12,8 @@ import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,11 +35,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleConnect(@NotNull WsConnectContext ctx) {
         log.info("[WS] {} connected", ctx.session.getRemoteAddress().getHostString());
         wsClients.add(ctx);
+        val sm = ShowManager.getInstance();
         JsonArray logs = new JsonArray();
         WebSocketLogger.getLogCache().forEach(logs::add);
         JsonObject data = new JsonObject();
         data.addProperty("type", "init");
         data.add("logs", logs);
+        data.add("outputs", new JsonBuilder()
+                .addProperty("artnet", sm.getWorker().isArtNet())
+                .addProperty("audio", sm.getAudioPlayer().isEnabled())
+                .addProperty("ltc", sm.getWorker().isLtc())
+                .addProperty("scheduler", sm.getEventScheduler().isEnabled())
+                .build());
         ctx.send(data.toString());
     }
 
@@ -103,6 +109,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         data.addProperty("type", "time");
         data.addProperty("action", "stop");
         broadcast(data);
+    }
+
+    @EventCall
+    public void onTimeSet(TimecodeSetEvent e) {
+        //I don't see any case where set event needs to be distinguished from change event (yet)
+        onTimeChange(new TimecodeChangeEvent(e.getTime()));
+//        JsonObject data = new JsonObject();
+//        data.addProperty("type", "time");
+//        data.addProperty("action", "set");
     }
 
     @EventCall
