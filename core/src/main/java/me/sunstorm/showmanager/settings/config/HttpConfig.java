@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class HttpConfig {
-    private int port = 0;
-    private String header = "";
-    private String value = "";
+    private int port = 7000;
+    private String header = "secret";
+    private String value = "xxxxxxxxxx";
 }
