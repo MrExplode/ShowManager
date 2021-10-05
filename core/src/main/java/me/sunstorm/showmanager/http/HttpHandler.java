@@ -57,10 +57,11 @@ public class HttpHandler implements Terminable {
                 post("/set", this::setTime);
             });
             path("output", () -> {
-                post("/artnet", OutputController::handleArtNet);
-                post("/ltc", OutputController::handleLtc);
-                post("/audio", OutputController::handleAudio);
-                post("/scheduler", OutputController::handleScheduler);
+                OutputController controller = new OutputController();
+                post("/artnet", controller::handleArtNet);
+                post("/ltc", controller::handleLtc);
+                post("/audio", controller::handleAudio);
+                post("/scheduler", controller::handleScheduler);
             });
         });
     }

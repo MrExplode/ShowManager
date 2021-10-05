@@ -3,20 +3,30 @@ package me.sunstorm.showmanager.remote;
 import com.illposed.osc.OSCMessage;
 import lombok.Data;
 import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
 
 @Data
-public class OscRemoteControl implements Listener {
+public class OscRemoteControl implements Listener, InjectRecipient {
     public static final String OSC_PLAY = "/timecode/remote/play";
     public static final String OSC_PAUSE = "/timecode/remote/pause";
     public static final String OSC_STOP = "/timecode/remote/stop";
 
+    @Inject
+    private EventBus eventBus;
+    @Inject
+    private Worker worker;
+
     private boolean enabled = false;
 
     public OscRemoteControl() {
-        ShowManager.getInstance().getEventBus().register(this);
+        inject();
+        eventBus.register(this);
     }
 
     @EventCall
@@ -28,13 +38,13 @@ public class OscRemoteControl implements Listener {
 
             switch (message.getAddress()) {
                 case OSC_PLAY:
-                    ShowManager.getInstance().getWorker().play();
+                    worker.play();
                     break;
                 case OSC_PAUSE:
-                    ShowManager.getInstance().getWorker().pause();
+                    worker.pause();
                     break;
                 case OSC_STOP:
-                    ShowManager.getInstance().getWorker().stop();
+                    worker.stop();
                     break;
                 default:
                     break;

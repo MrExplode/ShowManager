@@ -6,43 +6,56 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.audio.AudioPlayer;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.scheduler.EventScheduler;
 
 @Slf4j
-public class OutputController {
+@Inject
+public class OutputController implements InjectRecipient {
+    private Worker worker;
+    private AudioPlayer player;
+    private EventScheduler scheduler;
 
-    public static void handleArtNet(Context ctx) {
+    public OutputController() {
+        inject();
+    }
+
+    public void handleArtNet(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("ArtNet " + (value ? "enabled" : "disabled"));
-        ShowManager.getInstance().getWorker().setArtNet(value);
+        worker.setArtNet(value);
     }
 
-    public static void handleLtc(Context ctx) {
+    public void handleLtc(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("LTC " + (value ? "enabled" : "disabled"));
-        ShowManager.getInstance().getWorker().setLtc(value);
+        worker.setLtc(value);
     }
 
-    public static void handleAudio(Context ctx) {
+    public void handleAudio(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("Audio " + (value ? "enabled" : "disabled"));
-        ShowManager.getInstance().getAudioPlayer().setEnabled(value);
+        player.setEnabled(value);
     }
 
-    public static void handleScheduler(Context ctx) {
+    public void handleScheduler(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("Scheduler " + (value ? "enabled" : "disabled"));
-        ShowManager.getInstance().getEventScheduler().setEnabled(value);
+        scheduler.setEnabled(value);
     }
 }

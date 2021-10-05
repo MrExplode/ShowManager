@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.http.HttpHandler;
+import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.ltc.LtcHandler;
 import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.redis.Redis;
@@ -52,23 +53,32 @@ public class ShowManager {
     @SneakyThrows({UnknownHostException.class, IOException.class})
     public ShowManager() {
         instance = this;
+        DependencyInjection.registerProvider(ShowManager.class, () -> this);
+        DependencyInjection.registerProvider(Worker.class, () -> null);
         if (!Constants.BASE_DIRECTORY.exists())
             Constants.BASE_DIRECTORY.mkdirs();
         settingsStore = new SettingsStore();
         settingsStore.load();
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
+        DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
         oscHandler = new OscHandler(config.getOscDispatchConfig());
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
+        DependencyInjection.registerProvider(LtcHandler.class, () -> ltcHandler);
         oscRemoteControl = new OscRemoteControl();
         audioPlayer = new AudioPlayer(config.getAudioPlayerConfig());
-        httpHandler = new HttpHandler();
-        if (config.getRedisConfig().isEnabled())
-            redis = new RedisImpl(config.getRedisConfig().getCredentials());
-        else
-            redis = new DummyRedisImpl();
+        DependencyInjection.registerProvider(AudioPlayer.class, () -> audioPlayer);
         eventScheduler = new EventScheduler();
+        DependencyInjection.registerProvider(EventScheduler.class, () -> eventScheduler);
+        httpHandler = new HttpHandler();
+        if (config.getRedisConfig().isEnabled()) {
+            redis = new RedisImpl(config.getRedisConfig().getCredentials());
+        }
+        else {
+            redis = new DummyRedisImpl();
+        }
         worker = new Worker(InetAddress.getByName(config.getArtNetConfig().getArtNetInterface()), config.getFramerate());
+        DependencyInjection.updateProvider(Worker.class, () -> worker);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
         worker.run();

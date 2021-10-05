@@ -1,18 +1,23 @@
 package me.sunstorm.showmanager.command.impl;
 
-import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.command.AbstractCommand;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
 
 import java.util.List;
 
-public class PauseCommand extends AbstractCommand {
+public class PauseCommand extends AbstractCommand implements InjectRecipient {
+    @Inject
+    private Worker worker;
 
     public PauseCommand() {
         super("pause");
+        inject();
     }
 
     @Override
     public void execute(List<String> args) {
-        ShowManager.getInstance().getWorker().pause();
+        worker.pause();
     }
 }

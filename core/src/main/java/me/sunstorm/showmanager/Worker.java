@@ -5,7 +5,11 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.ltc.LtcHandler;
 import me.sunstorm.showmanager.remote.DmxRemoteControl;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
@@ -15,7 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Getter
-public class Worker implements Runnable, Terminable {
+public class Worker implements Runnable, Terminable, InjectRecipient {
+    @Inject
+    private EventBus eventBus;
+    @Inject
+    private LtcHandler ltcHandler;
     private final DmxRemoteControl dmxRemote;
     private final ArtNetHandler artNetHandler;
     private boolean running = true;
@@ -29,6 +37,8 @@ public class Worker implements Runnable, Terminable {
     private final int framerate;
     
     public Worker(InetAddress artNetAddress, int framerate) {
+        register();
+        inject();
         this.framerate = framerate;
         artNetHandler = new ArtNetHandler(artNetAddress);
         dmxRemote = new DmxRemoteControl();
@@ -53,9 +63,9 @@ public class Worker implements Runnable, Terminable {
                 if (playing) {
                     currentTime.set(elapsed, framerate);
                     artNetHandler.setTime(currentTime);
-                    ShowManager.getInstance().getLtcHandler().getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
+                    ltcHandler.getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
-                    changeEvent.call(ShowManager.getInstance().getEventBus());
+                    changeEvent.call(eventBus);
                 }
                 
                 if (artNet) {
@@ -73,12 +83,12 @@ public class Worker implements Runnable, Terminable {
     
     public void setTime(Timecode time) {
         TimecodeSetEvent event = new TimecodeSetEvent(time);
-        event.call(ShowManager.getInstance().getEventBus());
+        event.call(eventBus);
         if (event.isCancelled())
             return;
 
         artNetHandler.setTime(time);
-        ShowManager.getInstance().getLtcHandler().getGenerator().setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
+        ltcHandler.getGenerator().setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
         this.currentTime = time;
@@ -87,7 +97,7 @@ public class Worker implements Runnable, Terminable {
     public void play() {
         log.info("Play");
         TimecodeStartEvent event = new TimecodeStartEvent(currentTime);
-        event.call(ShowManager.getInstance().getEventBus());
+        event.call(eventBus);
         if (event.isCancelled())
             return;
 
@@ -96,32 +106,32 @@ public class Worker implements Runnable, Terminable {
         else
             start = System.currentTimeMillis() - elapsed;
         if (ltc)
-            ShowManager.getInstance().getLtcHandler().getGenerator().start();
+            ltcHandler.getGenerator().start();
         this.playing = true;
     }
     
     public void pause() {
         log.info("Pause");
         TimecodePauseEvent event = new TimecodePauseEvent();
-        event.call(ShowManager.getInstance().getEventBus());
+        event.call(eventBus);
         if (event.isCancelled())
             return;
         this.playing = false;
         if (ltc) {
-            ShowManager.getInstance().getLtcHandler().getGenerator().stop();
+            ltcHandler.getGenerator().stop();
         }
     }
     
     public void stop() {
         log.info("Stop");
         TimecodeStopEvent event = new TimecodeStopEvent(currentTime);
-        event.call(ShowManager.getInstance().getEventBus());
+        event.call(eventBus);
         if (event.isCancelled())
             return;
         this.playing = false;
         if (ltc) {
-            ShowManager.getInstance().getLtcHandler().getGenerator().setTime(0, 0, 0, 0);
-            ShowManager.getInstance().getLtcHandler().getGenerator().stop();
+            ltcHandler.getGenerator().setTime(0, 0, 0, 0);
+            ltcHandler.getGenerator().stop();
         }
         currentTime = new Timecode(0);
         start = 0;
