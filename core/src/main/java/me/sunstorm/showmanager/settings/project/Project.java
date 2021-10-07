@@ -34,6 +34,7 @@ public class Project {
     }
 
     public void save() {
+        log.info("Saving project {}", name);
         JsonObject data = new JsonObject();
         if (!data.has("name")) data.addProperty("name", name);
         settings.forEach(s -> data.add(s.getName(), s.getData()));
@@ -60,6 +61,7 @@ public class Project {
         val settingsData = holder.getData();
         data.add(name, settingsData);
         holder.onLoad(settingsData);
+        settings.add(holder);
     }
 
     public static Project current() {
