@@ -1,17 +1,22 @@
 package me.sunstorm.showmanager.scheduler.impl;
 
 import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.scheduler.AbstractScheduledEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 public class ScheduledStopEvent extends AbstractScheduledEvent {
+    @Inject
+    private Worker worker;
 
     public ScheduledStopEvent(Timecode executeTime) {
         super(executeTime);
+        inject(false);
     }
 
     @Override
     public void execute() {
-        ShowManager.getInstance().getWorker().stop();
+        worker.stop();
     }
 }

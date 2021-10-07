@@ -63,6 +63,7 @@ public class ShowManager {
         DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
         projectManager = new ProjectManager();
         oscHandler = new OscHandler();
+        DependencyInjection.registerProvider(OscHandler.class, () -> oscHandler);
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         DependencyInjection.registerProvider(LtcHandler.class, () -> ltcHandler);
         oscRemoteControl = new OscRemoteControl();
