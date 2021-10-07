@@ -14,6 +14,7 @@ import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.http.controller.OutputController;
+import me.sunstorm.showmanager.http.controller.SchedulerController;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
@@ -76,6 +77,10 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
                 post("/ltc", controller::handleLtc);
                 post("/audio", controller::handleAudio);
                 post("/scheduler", controller::handleScheduler);
+            });
+            path("scheduler", () -> {
+                SchedulerController controller = new SchedulerController();
+                post("/record", controller::handleRecording);
             });
         });
     }

@@ -5,12 +5,16 @@ import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.scheduler.EventScheduler;
+import me.sunstorm.showmanager.scheduler.impl.ScheduledOscEvent;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 
@@ -21,14 +25,17 @@ import java.net.UnknownHostException;
 @Slf4j
 @Getter
 public class OscHandler extends SettingsHolder implements Terminable, InjectRecipient {
-    @Inject
-    private EventBus eventBus;
+    @Inject private EventBus eventBus;
+    @Inject private Worker worker;
+    @Inject private EventScheduler scheduler;
     private InetAddress address;
     private int outgoingPort = 8000;
     private int incomingPort = 8001;
 
     private OSCPortOut portOut;
     private OSCPortIn portIn;
+
+    @Setter private boolean recording = false;
 
     public OscHandler() {
         super("osc-dispatcher");
@@ -45,6 +52,11 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
                     if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
                         OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
                         oscEvent.call(eventBus);
+                    }
+
+                    if (recording && worker.isPlaying()) {
+                        OSCMessage message = (OSCMessage) event.getPacket();
+                        scheduler.addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments())));
                     }
                 }
 
