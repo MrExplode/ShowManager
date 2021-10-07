@@ -12,5 +12,5 @@ public enum EventPriority {
     LOW(-1),
     LOWEST(-2);
 
-    private int priority;
+    private final int priority;
 }

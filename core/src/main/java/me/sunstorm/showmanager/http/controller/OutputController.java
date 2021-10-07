@@ -5,7 +5,6 @@ import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.audio.AudioPlayer;

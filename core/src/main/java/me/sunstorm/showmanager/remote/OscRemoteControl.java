@@ -2,7 +2,6 @@ package me.sunstorm.showmanager.remote;
 
 import com.illposed.osc.OSCMessage;
 import lombok.Data;
-import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;

@@ -12,8 +12,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.http.controller.OutputController;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
@@ -23,18 +25,21 @@ import java.util.concurrent.TimeUnit;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 @Slf4j
-public class HttpHandler extends SettingsHolder implements Terminable {
+public class HttpHandler extends SettingsHolder implements Terminable, InjectRecipient {
     private final Javalin javalin;
     private int port = 7000;
     @Getter
     private String header = "secret";
     @Getter
     private String secret = "XXXXXXXXXX";
+    @Inject
+    private Worker worker;
 
     public HttpHandler() {
         super("http-server");
         log.info("Loading HttpHandler...");
         register();
+        inject();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
             config.enableCorsForAllOrigins();
@@ -59,9 +64,9 @@ public class HttpHandler extends SettingsHolder implements Terminable {
             before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
             //before(new AuthController());
             path("control", () -> {
-                post("/play", __ -> ShowManager.getInstance().getWorker().play());
-                post("/pause", __ -> ShowManager.getInstance().getWorker().pause());
-                post("/stop", __ -> ShowManager.getInstance().getWorker().stop());
+                post("/play", __ -> worker.play());
+                post("/pause", __ -> worker.pause());
+                post("/stop", __ -> worker.stop());
                 post("/set", this::setTime);
             });
             path("output", () -> {
@@ -85,7 +90,7 @@ public class HttpHandler extends SettingsHolder implements Terminable {
         val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("hour") || !data.has("min") || !data.has("sec") || !data.has("frame"))
             throw new BadRequestResponse();
-        ShowManager.getInstance().getWorker().setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt(), ShowManager.getInstance().getWorker().getFramerate()));
+        worker.setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt(), worker.getFramerate()));
     }
 
     @Override

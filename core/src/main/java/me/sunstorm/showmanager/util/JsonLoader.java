@@ -2,7 +2,6 @@ package me.sunstorm.showmanager.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;

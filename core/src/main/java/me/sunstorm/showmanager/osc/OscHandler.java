@@ -12,7 +12,6 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
-import me.sunstorm.showmanager.settings.config.OscDispatchConfig;
 import me.sunstorm.showmanager.terminable.Terminable;
 
 import java.io.IOException;

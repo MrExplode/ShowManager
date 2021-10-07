@@ -3,7 +3,6 @@ package me.sunstorm.showmanager.scheduler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
-import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;

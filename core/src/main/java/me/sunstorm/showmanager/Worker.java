@@ -14,7 +14,6 @@ import me.sunstorm.showmanager.remote.DmxRemoteControl;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 
-import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j

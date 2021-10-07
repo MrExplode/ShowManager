@@ -4,8 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import me.sunstorm.showmanager.ShowManager;
+import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.audio.AudioPlayer;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
@@ -13,6 +14,9 @@ import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
@@ -21,31 +25,39 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener {
+public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener, InjectRecipient {
     public static WebSocketHandler INSTANCE;
     private final Set<WsContext> wsClients = ConcurrentHashMap.newKeySet();
     private Timecode lastDispatchedTime = null;
+    @Inject
+    private EventBus eventBus;
+    @Inject
+    private Worker worker;
+    @Inject
+    private AudioPlayer player;
+    @Inject
+    private EventScheduler scheduler;
 
     public WebSocketHandler() {
         INSTANCE = this;
-        ShowManager.getInstance().getEventBus().register(this);
+        inject();
+        eventBus.register(this);
     }
 
     @Override
     public void handleConnect(@NotNull WsConnectContext ctx) {
         log.info("[WS] {} connected", ctx.session.getRemoteAddress().getHostString());
         wsClients.add(ctx);
-        val sm = ShowManager.getInstance();
         JsonArray logs = new JsonArray();
         WebSocketLogger.getLogCache().forEach(logs::add);
         JsonObject data = new JsonObject();
         data.addProperty("type", "init");
         data.add("logs", logs);
         data.add("outputs", new JsonBuilder()
-                .addProperty("artnet", sm.getWorker().isArtNet())
-                .addProperty("audio", sm.getAudioPlayer().isEnabled())
-                .addProperty("ltc", sm.getWorker().isLtc())
-                .addProperty("scheduler", sm.getEventScheduler().isEnabled())
+                .addProperty("artnet", worker.isArtNet())
+                .addProperty("audio", player.isEnabled())
+                .addProperty("ltc", worker.isLtc())
+                .addProperty("scheduler", scheduler.isEnabled())
                 .build());
         ctx.send(data.toString());
     }

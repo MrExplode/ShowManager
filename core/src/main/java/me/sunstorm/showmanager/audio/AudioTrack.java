@@ -1,13 +1,15 @@
 package me.sunstorm.showmanager.audio;
 
 import com.google.common.base.Stopwatch;
-import lombok.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.ShowManager;
+import lombok.val;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
+import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Sampler;
 import me.sunstorm.showmanager.util.Timecode;
@@ -21,9 +23,9 @@ import static me.sunstorm.showmanager.util.SilentClose.close;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
 public class AudioTrack implements InjectRecipient {
-    @NonNull
+    @Inject
+    private transient EventBus eventBus;
     private Timecode startTime;
     private final File file;
     private boolean loaded = false;
@@ -32,6 +34,12 @@ public class AudioTrack implements InjectRecipient {
     @Nullable private transient Clip clip;
     @Nullable private transient float[] samples;
     @Nullable private transient AudioInputStream stream;
+
+    public AudioTrack(Timecode startTime, File file) {
+        this.startTime = startTime;
+        this.file = file;
+        inject(false);
+    }
 
     public AudioTrack loadTrack(Mixer mixer) {
         discard();
@@ -52,13 +60,13 @@ public class AudioTrack implements InjectRecipient {
             clip.addLineListener(lineEvent -> {
                 if (lineEvent.getType() == LineEvent.Type.STOP && !paused) {
                     AudioStopEvent event = new AudioStopEvent(this);
-                    event.call(ShowManager.getInstance().getEventBus());
+                    event.call(eventBus);
                 }
             });
             endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
             loaded = true;
             AudioLoadEvent event = new AudioLoadEvent(this);
-            event.call(ShowManager.getInstance().getEventBus());
+            event.call(eventBus);
             log.info("Loaded track {} in {} ms", file.getName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (IOException e) {
             log.error("Failed to load track", e);
@@ -73,7 +81,7 @@ public class AudioTrack implements InjectRecipient {
     public void play() {
         if (clip != null) {
             AudioStartEvent event = new AudioStartEvent(this);
-            event.call(ShowManager.getInstance().getEventBus());
+            event.call(eventBus);
             if (!event.isCancelled()) {
                 clip.start();
                 paused = false;
@@ -86,7 +94,7 @@ public class AudioTrack implements InjectRecipient {
     public void pause() {
         if (clip != null) {
             AudioPauseEvent event = new AudioPauseEvent(this);
-            event.call(ShowManager.getInstance().getEventBus());
+            event.call(eventBus);
             if (!event.isCancelled()) {
                 paused = true;
                 clip.stop();
@@ -99,7 +107,7 @@ public class AudioTrack implements InjectRecipient {
     public void stop() {
         if (clip != null) {
             AudioStopEvent event = new AudioStopEvent(this);
-            event.call(ShowManager.getInstance().getEventBus());
+            event.call(eventBus);
             if (!event.isCancelled())
                 clip.stop();
         } else {
