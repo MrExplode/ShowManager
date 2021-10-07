@@ -2,7 +2,9 @@ package me.sunstorm.showmanager.injection;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import me.sunstorm.showmanager.terminable.Terminable;
+import me.sunstorm.showmanager.terminable.Terminables;
+import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
+import me.sunstorm.showmanager.terminable.statics.Termination;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 @Slf4j
-public class DependencyInjection implements Terminable {
+public class DependencyInjection implements StaticTerminable {
     private static final Map<Class<?>, Supplier<?>> providerMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, List<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Field[]> fieldCache = new ConcurrentHashMap<>();
@@ -72,9 +74,13 @@ public class DependencyInjection implements Terminable {
         }
     }
 
-    @Override
-    public void shutdown() throws Exception {
+    @Termination
+    public static void shutdownStatic() {
         providerMap.clear();
         injectMap.clear();
+    }
+
+    static {
+        Terminables.addTerminable(DependencyInjection.class);
     }
 }
