@@ -24,6 +24,7 @@ public class DmxRemoteControl extends SettingsHolder implements InjectRecipient 
     public DmxRemoteControl() {
         super("dmx-remote");
         inject();
+        load();
     }
 
     public void handleData(byte[] dmxData) {

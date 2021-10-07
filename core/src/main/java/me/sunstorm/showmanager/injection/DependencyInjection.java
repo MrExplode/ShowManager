@@ -31,6 +31,7 @@ public class DependencyInjection implements StaticTerminable {
     }
 
     protected static void performInjection(InjectRecipient recipient, boolean watchUpdate) {
+        log.debug("Injecting dependencies into {}", recipient.getClass().getSimpleName());
         val clazz = recipient.getClass();
         if (clazz.isAnnotationPresent(Inject.class)) {
             for (Field field : getCached(clazz)) {

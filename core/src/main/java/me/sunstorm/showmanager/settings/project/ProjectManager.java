@@ -49,8 +49,10 @@ public class ProjectManager implements Terminable {
                 currentProject = project;
             }
         });
-        if (currentProject == null)
+        if (currentProject == null) {
             currentProject = new Project(new File(PROJECTS_DIR, "unknown.json"));
+            currentProject.loadJson();
+        }
     }
 
     @Override

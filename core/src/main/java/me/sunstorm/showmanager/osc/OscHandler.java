@@ -33,8 +33,9 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
     public OscHandler() {
         super("osc-dispatcher");
         log.info("Starting OSCHandler...");
-        register();
         inject();
+        load();
+        register();
         try {
             portOut = new OSCPortOut(address, outgoingPort);
             portIn = new OSCPortIn(incomingPort);

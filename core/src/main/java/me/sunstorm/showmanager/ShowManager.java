@@ -55,6 +55,7 @@ public class ShowManager {
         if (!Constants.BASE_DIRECTORY.exists())
             Constants.BASE_DIRECTORY.mkdirs();
         settingsStore = new SettingsStore();
+        DependencyInjection.registerProvider(SettingsStore.class, () -> settingsStore);
         settingsStore.load();
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();

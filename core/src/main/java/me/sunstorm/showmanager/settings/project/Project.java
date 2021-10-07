@@ -38,7 +38,10 @@ public class Project {
         if (!data.has("name")) data.addProperty("name", name);
         settings.forEach(s -> data.add(s.getName(), s.getData()));
         try {
-            Constants.GSON.toJson(data, new FileWriter(file));
+            val writer = new FileWriter(file);
+            Constants.GSON.toJson(data, writer);
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             log.error("Failed to save project " + name, e);
         }

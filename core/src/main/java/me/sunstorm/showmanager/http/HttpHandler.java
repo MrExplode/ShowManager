@@ -38,8 +38,9 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
     public HttpHandler() {
         super("http-server");
         log.info("Loading HttpHandler...");
-        register();
         inject();
+        load();
+        register();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
             config.enableCorsForAllOrigins();

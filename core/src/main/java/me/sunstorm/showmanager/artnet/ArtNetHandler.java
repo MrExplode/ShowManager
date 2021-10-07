@@ -21,9 +21,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 @Slf4j
-public class ArtNetHandler extends SettingsHolder implements Terminable, InjectRecipient {
+public class ArtNetHandler extends SettingsHolder implements Terminable {
     @Setter private InetAddress address;
-    @Setter private boolean enabled;
+    @Setter private boolean enabled = false;
 
     private final ArtNetServer server;
     private final ArtTimePacket packet;
@@ -31,6 +31,7 @@ public class ArtNetHandler extends SettingsHolder implements Terminable, InjectR
 
     public ArtNetHandler() {
         super("art-net");
+        load();
         register();
         DependencyInjection.registerProvider(ArtNetHandler.class, () -> this);
         server = new ArtNetServer();

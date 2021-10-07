@@ -33,8 +33,9 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
 
     public AudioPlayer() {
         super("audio-player");
-        register();
         inject();
+        load();
+        register();
         eventBus.register(this);
         if (tracks.size() > 0) {
             current = tracks.get(index).loadTrack(mixer);

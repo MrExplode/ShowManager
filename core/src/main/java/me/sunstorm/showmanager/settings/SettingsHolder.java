@@ -10,6 +10,9 @@ public abstract class SettingsHolder {
 
     public SettingsHolder(String name) {
         this.name = name;
+    }
+
+    public void load() {
         Project.current().loadSettingsHolder(this);
     }
 
