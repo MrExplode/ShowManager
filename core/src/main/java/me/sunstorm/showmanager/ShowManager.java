@@ -16,6 +16,7 @@ import me.sunstorm.showmanager.remote.OscRemoteControl;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
+import me.sunstorm.showmanager.settings.project.Project;
 import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
@@ -80,6 +81,7 @@ public class ShowManager {
         DependencyInjection.updateProvider(Worker.class, () -> worker);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
+        Project.current().save();
         worker.run();
     }
 
