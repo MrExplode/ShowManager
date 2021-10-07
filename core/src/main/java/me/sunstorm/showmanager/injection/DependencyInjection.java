@@ -30,13 +30,13 @@ public class DependencyInjection implements StaticTerminable {
         injectMap.get(type).forEach(recipient -> injectSpecific(type, recipient));
     }
 
-    protected static void performInjection(InjectRecipient recipient) {
+    protected static void performInjection(InjectRecipient recipient, boolean watchUpdate) {
         val clazz = recipient.getClass();
         if (clazz.isAnnotationPresent(Inject.class)) {
             for (Field field : getCached(clazz)) {
                 if (!providerMap.containsKey(field.getType()))
                     continue;
-                injectField(field, recipient);
+                injectField(field, recipient, watchUpdate);
             }
         } else {
             Arrays.stream(getCached(clazz)).filter(f -> f.isAnnotationPresent(Inject.class)).forEach(f -> {
@@ -44,21 +44,22 @@ public class DependencyInjection implements StaticTerminable {
                     log.error("Found @Inject annotated field ({}#{}) without known provider type {}", clazz.getSimpleName(), f.getName(), f.getType().getSimpleName());
                     return;
                 }
-                injectField(f, recipient);
+                injectField(f, recipient, watchUpdate);
             });
         }
     }
 
     private static void injectSpecific(Class<?> type, InjectRecipient recipient) {
-        Arrays.stream(getCached(recipient.getClass())).filter(f -> f.getType().equals(type) && (f.isAnnotationPresent(Inject.class) || recipient.getClass().isAnnotationPresent(Inject.class))).forEach(f -> injectField(f, recipient));
+        Arrays.stream(getCached(recipient.getClass())).filter(f -> f.getType().equals(type) && (f.isAnnotationPresent(Inject.class) || recipient.getClass().isAnnotationPresent(Inject.class))).forEach(f -> injectField(f, recipient, false));
     }
 
-    private static void injectField(Field f, InjectRecipient recipient) {
+    private static void injectField(Field f, InjectRecipient recipient, boolean watchUpdate) {
         try {
             if (providerMap.get(f.getType()) == null) return;
             f.setAccessible(true);
             f.set(recipient, providerMap.get(f.getType()).get());
-            injectMap.computeIfAbsent(f.getType(), __ -> new CopyOnWriteArrayList<>()).add(recipient);
+            if (watchUpdate)
+                injectMap.computeIfAbsent(f.getType(), __ -> new CopyOnWriteArrayList<>()).add(recipient);
         } catch (IllegalAccessException e) {
             log.error("Failed to inject value to field (" + f.getName() + " - " + f.getType().getSimpleName() + ")", e);
         }
