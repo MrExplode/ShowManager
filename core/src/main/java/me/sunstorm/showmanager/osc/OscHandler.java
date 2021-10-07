@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager.osc;
 
+import com.google.gson.JsonObject;
 import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
@@ -10,6 +11,7 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.settings.config.OscDispatchConfig;
 import me.sunstorm.showmanager.terminable.Terminable;
 
@@ -19,28 +21,21 @@ import java.net.UnknownHostException;
 
 @Slf4j
 @Getter
-public class OscHandler implements Terminable, InjectRecipient {
+public class OscHandler extends SettingsHolder implements Terminable, InjectRecipient {
     @Inject
     private EventBus eventBus;
-    private InetAddress address = null;
-    private final int outgoingPort;
-    private final int incomingPort;
+    private InetAddress address;
+    private int outgoingPort = 8000;
+    private int incomingPort = 8001;
 
     private OSCPortOut portOut;
     private OSCPortIn portIn;
 
-    public OscHandler(OscDispatchConfig config) {
+    public OscHandler() {
+        super("osc-dispatcher");
         log.info("Starting OSCHandler...");
         register();
         inject();
-        try {
-            address = InetAddress.getByName(config.getTarget());
-        } catch (UnknownHostException e) {
-            log.info("Unknown outgoing OSC host", e);
-        }
-        outgoingPort = config.getPort();
-        incomingPort = config.getPort() + 1;
-
         try {
             portOut = new OSCPortOut(address, outgoingPort);
             portIn = new OSCPortIn(incomingPort);
@@ -79,6 +74,26 @@ public class OscHandler implements Terminable, InjectRecipient {
             if (portOut != null) portOut.send(packet);
         } catch (IOException | OSCSerializeException e) {
             log.error("Failed to send OSC packet", e);
+        }
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = new JsonObject();
+        data.addProperty("port-out", outgoingPort);
+        data.addProperty("port-in", incomingPort);
+        data.addProperty("target-address", address == null ? "127.0.0.1" : address.getHostAddress());
+        return data;
+    }
+
+    @Override
+    public void onLoad(JsonObject object) {
+        incomingPort = object.get("port-in").getAsInt();
+        outgoingPort = object.get("port-out").getAsInt();
+        try {
+            address = InetAddress.getByName(object.get("target-address").getAsString());
+        } catch (UnknownHostException e) {
+            log.error("Failed to find OSC target address", e);
         }
     }
 }

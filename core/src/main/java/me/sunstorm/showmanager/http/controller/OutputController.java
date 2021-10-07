@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
@@ -16,6 +17,7 @@ import me.sunstorm.showmanager.scheduler.EventScheduler;
 @Inject
 public class OutputController implements InjectRecipient {
     private Worker worker;
+    private ArtNetHandler artNetHandler;
     private AudioPlayer player;
     private EventScheduler scheduler;
 
@@ -29,7 +31,7 @@ public class OutputController implements InjectRecipient {
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("ArtNet " + (value ? "enabled" : "disabled"));
-        worker.setArtNet(value);
+        artNetHandler.setEnabled(value);
     }
 
     public void handleLtc(Context ctx) {

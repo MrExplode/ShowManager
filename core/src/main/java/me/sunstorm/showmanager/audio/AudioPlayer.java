@@ -1,12 +1,15 @@
 package me.sunstorm.showmanager.audio;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import lombok.Getter;
+import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.settings.config.AudioPlayerConfig;
+import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
@@ -16,20 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class AudioPlayer implements Terminable, Listener {
+public class AudioPlayer extends SettingsHolder implements Terminable, Listener {
     private final List<AudioTrack> tracks = new ArrayList<>();
-    private final AudioPlayerConfig config;
-    private final Mixer mixer;
+    private Mixer mixer;
     private boolean enabled = false;
     private int index = -1;
     @Nullable private AudioTrack current;
 
-    public AudioPlayer(AudioPlayerConfig config) {
-        this.config = config;
+    public AudioPlayer() {
+        super("audio-player");
         register();
         ShowManager.getInstance().getEventBus().register(this);
-        mixer = ShowManager.getInstance().getSettingsStore().getMixerByName(config.getAudioOutput());
-        tracks.addAll(config.getTracks());
         if (tracks.size() > 0) {
             current = tracks.get(index).loadTrack(mixer);
         }
@@ -107,5 +107,23 @@ public class AudioPlayer implements Terminable, Listener {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         tracks.forEach(AudioTrack::discard);
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", enabled);
+        data.addProperty("mixer", mixer != null ? mixer.getMixerInfo().getName() : ShowManager.getInstance().getSettingsStore().getMixerByName("").getMixerInfo().getName());
+        JsonArray trackArray = new JsonArray();
+        tracks.forEach(t -> trackArray.add(Constants.GSON.toJsonTree(t)));
+        data.add("tracks", trackArray);
+        return data;
+    }
+
+    @Override
+    public void onLoad(JsonObject object) {
+        enabled = object.get("enabled").getAsBoolean();
+        mixer = ShowManager.getInstance().getSettingsStore().getMixerByName(object.get("mixer").getAsString());
+        object.get("tracks").getAsJsonArray().forEach(e -> tracks.add(Constants.GSON.fromJson(e, AudioTrack.class)));
     }
 }

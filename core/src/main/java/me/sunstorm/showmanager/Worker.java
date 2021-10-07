@@ -36,11 +36,11 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
     private Timecode currentTime = new Timecode(0);
     private final int framerate;
     
-    public Worker(InetAddress artNetAddress, int framerate) {
+    public Worker(int framerate) {
         register();
         inject();
         this.framerate = framerate;
-        artNetHandler = new ArtNetHandler(artNetAddress);
+        artNetHandler = new ArtNetHandler();
         dmxRemote = new DmxRemoteControl();
     }
 
@@ -67,10 +67,8 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
                     changeEvent.call(eventBus);
                 }
-                
-                if (artNet) {
-                    artNetHandler.broadcast();
-                }
+
+                artNetHandler.broadcast();
             }
 
             //slowing down the loop

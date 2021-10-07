@@ -1,13 +1,17 @@
 package me.sunstorm.showmanager.settings;
 
 import com.google.gson.JsonObject;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import me.sunstorm.showmanager.settings.project.Project;
 
 @Getter
-@AllArgsConstructor
 public abstract class SettingsHolder {
     private final String name;
+
+    public SettingsHolder(String name) {
+        this.name = name;
+        Project.current().loadSettingsHolder(this);
+    }
 
     public abstract JsonObject getData();
 

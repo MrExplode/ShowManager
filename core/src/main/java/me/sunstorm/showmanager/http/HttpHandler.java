@@ -8,11 +8,13 @@ import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.RateLimit;
 import io.javalin.plugin.json.JavalinJson;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.http.controller.OutputController;
+import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 
@@ -21,10 +23,16 @@ import java.util.concurrent.TimeUnit;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 @Slf4j
-public class HttpHandler implements Terminable {
+public class HttpHandler extends SettingsHolder implements Terminable {
     private final Javalin javalin;
+    private int port = 7000;
+    @Getter
+    private String header = "secret";
+    @Getter
+    private String secret = "XXXXXXXXXX";
 
     public HttpHandler() {
+        super("http-server");
         log.info("Loading HttpHandler...");
         register();
         javalin = Javalin.create(config -> {
@@ -35,7 +43,7 @@ public class HttpHandler implements Terminable {
         });
         JavalinJson.setToJsonMapper(Constants.GSON::toJson);
         JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
-        javalin.start(ShowManager.getInstance().getConfig().getHttpConfig().getPort());
+        javalin.start(port);
         setupRouting();
     }
 
@@ -78,5 +86,21 @@ public class HttpHandler implements Terminable {
         if (!data.has("hour") || !data.has("min") || !data.has("sec") || !data.has("frame"))
             throw new BadRequestResponse();
         ShowManager.getInstance().getWorker().setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt(), ShowManager.getInstance().getWorker().getFramerate()));
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = new JsonObject();
+        data.addProperty("port", port);
+        data.addProperty("header", header);
+        data.addProperty("secret", secret);
+        return data;
+    }
+
+    @Override
+    public void onLoad(JsonObject object) {
+        port = object.get("port").getAsInt();
+        header = object.get("header").getAsString();
+        secret = object.get("secret").getAsString();
     }
 }

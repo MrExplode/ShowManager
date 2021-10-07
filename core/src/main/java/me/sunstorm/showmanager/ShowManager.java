@@ -16,19 +16,15 @@ import me.sunstorm.showmanager.remote.OscRemoteControl;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
+import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
-import me.sunstorm.showmanager.util.Sampler;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,10 +32,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Getter
 public class ShowManager {
+    @Deprecated
     @Getter private static ShowManager instance;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final Config config;
     private final SettingsStore settingsStore;
+    private final ProjectManager projectManager;
     private final EventBus eventBus;
     private final OscHandler oscHandler;
     private final LtcHandler ltcHandler;
@@ -62,11 +60,12 @@ public class ShowManager {
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
         DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
-        oscHandler = new OscHandler(config.getOscDispatchConfig());
+        projectManager = new ProjectManager();
+        oscHandler = new OscHandler();
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         DependencyInjection.registerProvider(LtcHandler.class, () -> ltcHandler);
         oscRemoteControl = new OscRemoteControl();
-        audioPlayer = new AudioPlayer(config.getAudioPlayerConfig());
+        audioPlayer = new AudioPlayer();
         DependencyInjection.registerProvider(AudioPlayer.class, () -> audioPlayer);
         eventScheduler = new EventScheduler();
         DependencyInjection.registerProvider(EventScheduler.class, () -> eventScheduler);
@@ -77,7 +76,7 @@ public class ShowManager {
         else {
             redis = new DummyRedisImpl();
         }
-        worker = new Worker(InetAddress.getByName(config.getArtNetConfig().getArtNetInterface()), config.getFramerate());
+        worker = new Worker(config.getFramerate());
         DependencyInjection.updateProvider(Worker.class, () -> worker);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));

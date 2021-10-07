@@ -6,27 +6,36 @@ import ch.bildspur.artnet.ArtNetServer;
 import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
+import com.google.gson.JsonObject;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.injection.DependencyInjection;
+import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 @Slf4j
-public class ArtNetHandler implements Terminable {
+public class ArtNetHandler extends SettingsHolder implements Terminable, InjectRecipient {
+    @Setter private InetAddress address;
+    @Setter private boolean enabled;
+
     private final ArtNetServer server;
     private final ArtTimePacket packet;
     private final ArtNetBuffer buffer;
-    private final InetAddress address;
 
-    public ArtNetHandler(InetAddress address) {
+    public ArtNetHandler() {
+        super("art-net");
         register();
+        DependencyInjection.registerProvider(ArtNetHandler.class, () -> this);
         server = new ArtNetServer();
         packet = new ArtTimePacket();
         buffer = new ArtNetBuffer();
-        this.address = address;
 
         server.addListener(new ArtNetServerEventAdapter() {
             @Override
@@ -58,7 +67,9 @@ public class ArtNetHandler implements Terminable {
     }
 
     public void broadcast() {
-        server.broadcastPacket(packet);
+        if (enabled) {
+            server.broadcastPacket(packet);
+        }
     }
 
     @Override
@@ -82,5 +93,23 @@ public class ArtNetHandler implements Terminable {
 
         replyPacket.translateData();
         server.setDefaultReplyPacket(replyPacket);
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", enabled);
+        data.addProperty("interface", address == null ? "127.0.0.1" : address.getHostAddress());
+        return data;
+    }
+
+    @Override
+    public void onLoad(JsonObject object) {
+        enabled = object.get("enabled").getAsBoolean();
+        try {
+            address = InetAddress.getByName(object.get("interface").getAsString());
+        } catch (UnknownHostException e) {
+            log.error("Failed to load ArtNet net interface", e);
+        }
     }
 }

@@ -8,6 +8,7 @@ import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
+import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Sampler;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +22,7 @@ import static me.sunstorm.showmanager.util.SilentClose.close;
 @Slf4j
 @Getter
 @RequiredArgsConstructor
-public class AudioTrack {
+public class AudioTrack implements InjectRecipient {
     @NonNull
     private Timecode startTime;
     private final File file;

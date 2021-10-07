@@ -19,7 +19,7 @@ public class ProjectManager implements Terminable {
     private final File PROJECTS_DIR = new File(Constants.BASE_DIRECTORY, "projects");
     private final File LAST_PROJECT = new File(PROJECTS_DIR, "lastProject");
     private final List<Project> projects = new ArrayList<>();
-    private Project currentProject;
+    protected static Project currentProject;
 
     public ProjectManager() {
         register();
@@ -41,9 +41,16 @@ public class ProjectManager implements Terminable {
             String correctFileName = project.getName().toLowerCase().replace(" ", "_");
             if (!projectFile.getName().replace(".json", "").equals(correctFileName)) {
                 log.warn("File name does not match project name for {}, making corrections...", project.getName());
-                projectFile.renameTo(new File(PROJECTS_DIR, correctFileName + ".json"));
+                if (!projectFile.renameTo(new File(PROJECTS_DIR, correctFileName + ".json")))
+                    log.warn("Renaming project file {} failed", projectFile.getName());
+            }
+            //todo load last project descriptor
+            if (project.getName().equals("")) {
+                currentProject = project;
             }
         });
+        if (currentProject == null)
+            currentProject = new Project(new File(PROJECTS_DIR, "unknown.json"));
     }
 
     @Override

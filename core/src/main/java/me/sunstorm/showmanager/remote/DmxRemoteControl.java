@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager.remote;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import me.sunstorm.showmanager.Worker;
@@ -7,21 +8,21 @@ import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.util.DmxAddress;
 
 @Getter
-public class DmxRemoteControl implements InjectRecipient {
+public class DmxRemoteControl extends SettingsHolder implements InjectRecipient {
     private static final int TOLERANCE = 5;
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private Worker worker;
+    @Inject private EventBus eventBus;
+    @Inject private Worker worker;
+    @Setter private DmxAddress address = new DmxAddress(0, 0, 0);
     @Setter private boolean enabled = false;
     private DmxRemoteState state = DmxRemoteState.DISABLED;
     private DmxRemoteState previousState = DmxRemoteState.DISABLED;
-    @Setter private DmxAddress address = new DmxAddress(0, 0, 0);
 
     public DmxRemoteControl() {
+        super("dmx-remote");
         inject();
     }
 
@@ -74,5 +75,21 @@ public class DmxRemoteControl implements InjectRecipient {
 
     private boolean inToleratedRange(int origin, byte value) {
         return value <= origin + TOLERANCE && value >= origin - TOLERANCE;
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", enabled);
+        data.addProperty("address", address.getAddress());
+        data.addProperty("universe", address.getUniverse());
+        data.addProperty("subnet", address.getSubnet());
+        return data;
+    }
+
+    @Override
+    public void onLoad(JsonObject object) {
+        enabled = object.get("enabled").getAsBoolean();
+        address = new DmxAddress(object.get("address").getAsInt(), object.get("universe").getAsInt(), object.get("subnet").getAsInt());
     }
 }
