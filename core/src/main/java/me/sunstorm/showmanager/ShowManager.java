@@ -3,6 +3,7 @@ package me.sunstorm.showmanager;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.http.HttpHandler;
@@ -62,6 +63,8 @@ public class ShowManager {
         eventBus = new EventBus();
         DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
         projectManager = new ProjectManager();
+        eventScheduler = new EventScheduler();
+        DependencyInjection.registerProvider(EventScheduler.class, () -> eventScheduler);
         oscHandler = new OscHandler();
         DependencyInjection.registerProvider(OscHandler.class, () -> oscHandler);
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
@@ -69,8 +72,7 @@ public class ShowManager {
         oscRemoteControl = new OscRemoteControl();
         audioPlayer = new AudioPlayer();
         DependencyInjection.registerProvider(AudioPlayer.class, () -> audioPlayer);
-        eventScheduler = new EventScheduler();
-        DependencyInjection.registerProvider(EventScheduler.class, () -> eventScheduler);
+        DependencyInjection.registerProvider(ArtNetHandler.class, () -> null);
         httpHandler = new HttpHandler();
         if (config.getRedisConfig().isEnabled()) {
             redis = new RedisImpl(config.getRedisConfig().getCredentials());

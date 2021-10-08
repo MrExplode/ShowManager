@@ -8,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.audio.AudioPlayer;
+import me.sunstorm.showmanager.http.WebSocketHandler;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
+import me.sunstorm.showmanager.util.JsonBuilder;
 
 @Slf4j
 @Inject
@@ -19,6 +21,7 @@ public class OutputController implements InjectRecipient {
     private ArtNetHandler artNetHandler;
     private AudioPlayer player;
     private EventScheduler scheduler;
+    private WebSocketHandler webSocketHandler;
 
     public OutputController() {
         inject();
@@ -31,6 +34,7 @@ public class OutputController implements InjectRecipient {
         boolean value = data.get("enabled").getAsBoolean();
         log.info("ArtNet " + (value ? "enabled" : "disabled"));
         artNetHandler.setEnabled(value);
+        update("artnet", value);
     }
 
     public void handleLtc(Context ctx) {
@@ -40,6 +44,7 @@ public class OutputController implements InjectRecipient {
         boolean value = data.get("enabled").getAsBoolean();
         log.info("LTC " + (value ? "enabled" : "disabled"));
         worker.setLtc(value);
+        update("ltc", value);
     }
 
     public void handleAudio(Context ctx) {
@@ -49,6 +54,7 @@ public class OutputController implements InjectRecipient {
         boolean value = data.get("enabled").getAsBoolean();
         log.info("Audio " + (value ? "enabled" : "disabled"));
         player.setEnabled(value);
+        update("audio", value);
     }
 
     public void handleScheduler(Context ctx) {
@@ -58,5 +64,16 @@ public class OutputController implements InjectRecipient {
         boolean value = data.get("enabled").getAsBoolean();
         log.info("Scheduler " + (value ? "enabled" : "disabled"));
         scheduler.setEnabled(value);
+        update("scheduler", value);
+    }
+
+    private void update(String name, boolean value) {
+        webSocketHandler.broadcast(
+                new JsonBuilder()
+                .addProperty("type", "output")
+                .addProperty("name", name)
+                .addProperty("value", value)
+                .build()
+        );
     }
 }

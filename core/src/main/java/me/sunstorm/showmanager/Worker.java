@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.ltc.LtcHandler;
@@ -40,6 +41,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         inject();
         this.framerate = framerate;
         artNetHandler = new ArtNetHandler();
+        DependencyInjection.updateProvider(ArtNetHandler.class, () -> artNetHandler);
         dmxRemote = new DmxRemoteControl();
     }
 

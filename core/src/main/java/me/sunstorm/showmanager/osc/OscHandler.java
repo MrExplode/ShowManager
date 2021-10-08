@@ -11,6 +11,8 @@ import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
+import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
@@ -35,7 +37,7 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
     private OSCPortOut portOut;
     private OSCPortIn portIn;
 
-    @Setter private boolean recording = false;
+    private boolean recording = false;
 
     public OscHandler() {
         super("osc-dispatcher");
@@ -86,6 +88,17 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
             if (portOut != null) portOut.send(packet);
         } catch (IOException | OSCSerializeException e) {
             log.error("Failed to send OSC packet", e);
+        }
+    }
+
+    public void setRecording(boolean value) {
+        recording = value;
+        if (recording) {
+            OscRecordStartEvent event = new OscRecordStartEvent();
+            event.call(eventBus);
+        } else {
+            OscRecordStopEvent event = new OscRecordStopEvent();
+            event.call(eventBus);
         }
     }
 

@@ -7,7 +7,9 @@ import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.terminable.Terminable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,14 @@ public class ProjectManager implements Terminable {
             return;
         }
 
+        String lastProjectName = "";
+        try {
+            lastProjectName = Files.readString(LAST_PROJECT.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         List<File> projectFiles = Arrays.stream(PROJECTS_DIR.listFiles()).filter(f -> f.isFile() && f.getName().endsWith(".json")).collect(Collectors.toList());
+        String finalLastProjectName = lastProjectName;
         projectFiles.forEach(projectFile -> {
             Project project = new Project(projectFile);
             try {
@@ -45,7 +54,7 @@ public class ProjectManager implements Terminable {
                     log.warn("Renaming project file {} failed", projectFile.getName());
             }
             //todo load last project descriptor
-            if (project.getName().equals("")) {
+            if (project.getName().equals(finalLastProjectName)) {
                 currentProject = project;
             }
         });
@@ -58,11 +67,11 @@ public class ProjectManager implements Terminable {
     @Override
     public void shutdown() throws Exception {
         log.info("Saving projects...");
+        currentProject.save();
         if (!LAST_PROJECT.exists())
             LAST_PROJECT.createNewFile();
         PrintWriter writer = new PrintWriter(LAST_PROJECT);
         writer.println(currentProject.getName());
         writer.close();
-        currentProject.save();
     }
 }
