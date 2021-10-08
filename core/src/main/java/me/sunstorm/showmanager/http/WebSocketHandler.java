@@ -76,7 +76,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) {
-        log.debug("[WS] Received: {}", ctx.message());
+        //log.debug("[WS] Received: {}", ctx.message());
     }
 
     @EventCall
