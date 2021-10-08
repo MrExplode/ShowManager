@@ -53,6 +53,7 @@ public class Project {
         if (data.has(name)) {
             try {
                 holder.onLoad(data.get(name).getAsJsonObject());
+                settings.add(holder);
                 return;
             } catch (Exception e) {
                 log.error("Failed to load settings for {}, falling back to default", holder.getClass().getSimpleName());
