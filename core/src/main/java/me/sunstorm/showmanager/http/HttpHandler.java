@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.http.controller.AudioController;
 import me.sunstorm.showmanager.http.controller.OutputController;
 import me.sunstorm.showmanager.http.controller.SchedulerController;
 import me.sunstorm.showmanager.injection.Inject;
@@ -81,6 +82,10 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             path("scheduler", () -> {
                 SchedulerController controller = new SchedulerController();
                 post("/record", controller::handleRecording);
+            });
+            path("audio", () -> {
+                AudioController controller = new AudioController();
+                post("/volume", controller::handleVolume);
             });
         });
     }

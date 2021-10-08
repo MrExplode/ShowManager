@@ -9,11 +9,11 @@ import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.*;
+import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
@@ -42,6 +42,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         INSTANCE = this;
         inject();
         eventBus.register(this);
+        DependencyInjection.registerProvider(WebSocketHandler.class, () -> this);
     }
 
     @Override
@@ -133,7 +134,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicLoad(AudioLoadEvent e) {
+    public void onAudioLoad(AudioLoadEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "load");
@@ -142,7 +143,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicStart(AudioStartEvent e) {
+    public void onAudioStart(AudioStartEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "start");
@@ -151,7 +152,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicPause(AudioPauseEvent e) {
+    public void onAudioPause(AudioPauseEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "pause");
@@ -159,10 +160,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @EventCall
-    public void onMusicStop(AudioStopEvent e) {
+    public void onAudioStop(AudioStopEvent e) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "audio");
         data.addProperty("action", "stop");
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onAudioVolume(AudioVolumeChangeEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "volume");
+        data.addProperty("volume", e.getVolume());
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onOscRecordStart(OscRecordStartEvent e) {
+        sendRecord(true);
+    }
+
+    @EventCall
+    public void onOscRecordStop(OscRecordStopEvent e) {
+        sendRecord(false);
+    }
+
+    private void sendRecord(boolean enabled) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "scheduler");
+        data.addProperty("action", "record");
+        data.addProperty("record", enabled);
         broadcast(data);
     }
 
@@ -173,7 +201,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         broadcast(data);
     }
 
-    private void broadcast(JsonObject data) {
+    public void broadcast(JsonObject data) {
         String raw = data.toString();
         wsClients.forEach(client -> client.send(raw));
     }

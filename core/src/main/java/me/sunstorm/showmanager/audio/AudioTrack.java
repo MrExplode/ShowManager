@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.eventsystem.EventBus;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioLoadEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioPauseEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.audio.*;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Sampler;
@@ -30,6 +27,7 @@ public class AudioTrack implements InjectRecipient {
     private final File file;
     private boolean loaded = false;
     private boolean paused = false;
+    private float volume = 1.0f;
     @Nullable private Timecode endTime;
     @Nullable private transient Clip clip;
     @Nullable private transient float[] samples;
@@ -133,6 +131,16 @@ public class AudioTrack implements InjectRecipient {
         }
         startTime = time;
         endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
+    }
+
+    public void setVolume(int volume) {
+        this.volume = volume / 100f;
+        if (isLoaded()) {
+            AudioVolumeChangeEvent event = new AudioVolumeChangeEvent(volume);
+            event.call(eventBus);
+            FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            control.setValue(20f * (float) Math.log10(this.volume));
+        }
     }
 
     public String getName() {

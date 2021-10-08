@@ -17,6 +17,7 @@ import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Mixer;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +115,12 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         tracks.forEach(AudioTrack::discard);
+    }
+
+    public void setVolume(int volume) {
+        if (volume < 0 || volume > 100) throw new IllegalArgumentException("Invalid volume");
+        if (current != null)
+            current.setVolume(volume);
     }
 
     @Override
