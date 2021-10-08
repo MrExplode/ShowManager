@@ -1,10 +1,11 @@
 package me.sunstorm.showmanager.util;
 
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 /**
  * A wrapper class for holding a timecode value.
@@ -17,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
  */
 @Setter
 @ToString
-@EqualsAndHashCode
 public class Timecode implements Comparable<Timecode> {
 
     @Setter(AccessLevel.NONE) private long millisecLength;
@@ -163,7 +163,7 @@ public class Timecode implements Comparable<Timecode> {
     }
 
     public boolean isBetween(Timecode start, Timecode end) {
-        return this.compareTo(start) <= 0 && this.compareTo(end) <= 0;
+        return this.compareTo(start) >= 0 && this.compareTo(end) <= 0;
     }
     
     /**
@@ -186,4 +186,16 @@ public class Timecode implements Comparable<Timecode> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Timecode timecode = (Timecode) o;
+        return framerate == timecode.framerate && hour == timecode.hour && min == timecode.min && sec == timecode.sec && frame == timecode.frame;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(framerate, hour, min, sec, frame);
+    }
 }

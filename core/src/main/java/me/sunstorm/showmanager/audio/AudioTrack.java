@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
 import me.sunstorm.showmanager.injection.Inject;
@@ -23,10 +24,12 @@ import static me.sunstorm.showmanager.util.SilentClose.close;
 public class AudioTrack implements InjectRecipient {
     @Inject
     private transient EventBus eventBus;
+    @Inject
+    private transient Worker worker;
     private Timecode startTime;
     private final File file;
-    private boolean loaded = false;
-    private boolean paused = false;
+    private transient boolean loaded = false;
+    private transient boolean paused = false;
     private float volume = 1.0f;
     @Nullable private Timecode endTime;
     @Nullable private transient Clip clip;
@@ -40,6 +43,9 @@ public class AudioTrack implements InjectRecipient {
     }
 
     public AudioTrack loadTrack(Mixer mixer) {
+        //bruh moment
+        if (eventBus == null)
+            inject(false);
         discard();
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.info("Loading track {}...", file.getName());
@@ -50,7 +56,7 @@ public class AudioTrack implements InjectRecipient {
                 format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true);
                 stream = AudioSystem.getAudioInputStream(format, stream);
             }
-            samples = Sampler.sample(stream);
+            //samples = Sampler.sample(stream);
             val sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();
@@ -61,10 +67,13 @@ public class AudioTrack implements InjectRecipient {
                     event.call(eventBus);
                 }
             });
-            endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
+            log.info("track length in microsec: {} in millisec: {} isopen: {} running: {}", clip.getMicrosecondLength(), clip.getMicrosecondLength() / 1000, clip.isOpen(), clip.isRunning());
+            //fixme: hadrcoded framerate
+            endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000, 25));
             loaded = true;
             AudioLoadEvent event = new AudioLoadEvent(this);
             event.call(eventBus);
+            setVolume((int) (volume * 100));
             log.info("Loaded track {} in {} ms", file.getName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (IOException e) {
             log.error("Failed to load track", e);
@@ -81,6 +90,7 @@ public class AudioTrack implements InjectRecipient {
             AudioStartEvent event = new AudioStartEvent(this);
             event.call(eventBus);
             if (!event.isCancelled()) {
+                log.info("Playing track {}", file.getName());
                 clip.start();
                 paused = false;
             }
@@ -130,12 +140,14 @@ public class AudioTrack implements InjectRecipient {
             return;
         }
         startTime = time;
-        endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
+        //fixme: hardcoded framerate
+        endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000, 25));
     }
 
     public void setVolume(int volume) {
         this.volume = volume / 100f;
         if (isLoaded()) {
+            log.info("Set volume on track {} to {}%", getName(), volume);
             AudioVolumeChangeEvent event = new AudioVolumeChangeEvent(volume);
             event.call(eventBus);
             FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);

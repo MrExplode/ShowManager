@@ -3,7 +3,9 @@ package me.sunstorm.showmanager.audio;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
@@ -17,19 +19,21 @@ import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
 
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Mixer;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Getter
 public class AudioPlayer extends SettingsHolder implements Terminable, Listener, InjectRecipient {
     private final List<AudioTrack> tracks = new ArrayList<>();
     @Inject private EventBus eventBus;
     @Inject private SettingsStore store;
+    //todo: remove after testing
+    @Inject private Worker worker;
     private Mixer mixer;
     private boolean enabled = false;
-    private int index = -1;
+    private int index = 0;
     @Nullable private AudioTrack current;
 
     public AudioPlayer() {
@@ -47,6 +51,7 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     public void onTimeChange(TimecodeChangeEvent e) {
         if (!enabled) return;
         if (current != null && current.getStartTime().equals(e.getTime())) {
+            log.info("play1");
             current.play();
         }
     }
@@ -55,6 +60,7 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     public void onTimeStart(TimecodeStartEvent e) {
         if (!enabled) return;
         if (current != null && e.getTime().isBetween(current.getStartTime(), current.getEndTime())) {
+            log.info("play2");
             current.play();
         }
     }
