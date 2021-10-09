@@ -7,6 +7,7 @@ import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
 import com.google.gson.JsonObject;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.injection.DependencyInjection;
@@ -23,6 +24,7 @@ import java.net.UnknownHostException;
 @Slf4j
 public class ArtNetHandler extends SettingsHolder implements Terminable {
     @Setter private InetAddress address;
+    @Getter
     @Setter private boolean enabled = false;
 
     private final ArtNetServer server;

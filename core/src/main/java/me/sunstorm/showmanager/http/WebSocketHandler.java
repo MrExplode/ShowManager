@@ -54,12 +54,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         JsonObject data = new JsonObject();
         data.addProperty("type", "init");
         data.add("logs", logs);
-        data.add("outputs", new JsonBuilder()
-                .addProperty("artnet", worker.isArtNet())
-                .addProperty("audio", player.isEnabled())
-                .addProperty("ltc", worker.isLtc())
-                .addProperty("scheduler", scheduler.isEnabled())
-                .build());
         ctx.send(data.toString());
     }
 

@@ -76,10 +76,15 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             });
             path("output", () -> {
                 OutputController controller = new OutputController();
-                post("/artnet", controller::handleArtNet);
-                post("/ltc", controller::handleLtc);
-                post("/audio", controller::handleAudio);
-                post("/scheduler", controller::handleScheduler);
+                get("/artnet", controller::getArtNet);
+                post("/artnet", controller::postArtNet);
+                get("/ltc", controller::getLtc);
+                post("/ltc", controller::postLtc);
+                get("/audio", controller::getAudio);
+                post("/audio", controller::postAudio);
+                get("/scheduler", controller::getScheduler);
+                post("/scheduler", controller::postScheduler);
+                get("/all", controller::getAll);
             });
             path("scheduler", () -> {
                 SchedulerController controller = new SchedulerController();

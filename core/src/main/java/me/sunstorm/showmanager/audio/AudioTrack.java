@@ -67,7 +67,6 @@ public class AudioTrack implements InjectRecipient {
                     event.call(eventBus);
                 }
             });
-            log.info("track length in microsec: {} in millisec: {} isopen: {} running: {}", clip.getMicrosecondLength(), clip.getMicrosecondLength() / 1000, clip.isOpen(), clip.isRunning());
             //fixme: hadrcoded framerate
             endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000, 25));
             loaded = true;

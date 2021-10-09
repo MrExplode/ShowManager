@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import io.javalin.http.HttpResponseException;
+import io.javalin.http.ServiceUnavailableResponse;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
@@ -27,7 +29,13 @@ public class OutputController implements InjectRecipient {
         inject();
     }
 
-    public void handleArtNet(Context ctx) {
+    public void getArtNet(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", artNetHandler.isEnabled());
+        ctx.json(data);
+    }
+
+    public void postArtNet(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -37,7 +45,11 @@ public class OutputController implements InjectRecipient {
         update("artnet", value);
     }
 
-    public void handleLtc(Context ctx) {
+    public void getLtc(Context ctx) {
+        throw new ServiceUnavailableResponse();
+    }
+
+    public void postLtc(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -47,7 +59,13 @@ public class OutputController implements InjectRecipient {
         update("ltc", value);
     }
 
-    public void handleAudio(Context ctx) {
+    public void getAudio(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", player.isEnabled());
+        ctx.json(data);
+    }
+
+    public void postAudio(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -57,7 +75,13 @@ public class OutputController implements InjectRecipient {
         update("audio", value);
     }
 
-    public void handleScheduler(Context ctx) {
+    public void getScheduler(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", scheduler.isEnabled());
+        ctx.json(data);
+    }
+
+    public void postScheduler(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -65,6 +89,15 @@ public class OutputController implements InjectRecipient {
         log.info("Scheduler " + (value ? "enabled" : "disabled"));
         scheduler.setEnabled(value);
         update("scheduler", value);
+    }
+
+    public void getAll(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("artnet", artNetHandler.isEnabled());
+        data.addProperty("ltc", false);
+        data.addProperty("audio", player.isEnabled());
+        data.addProperty("scheduler", scheduler.isEnabled());
+        ctx.json(data);
     }
 
     private void update(String name, boolean value) {
