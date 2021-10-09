@@ -16,10 +16,24 @@ public class AudioController implements InjectRecipient {
         inject();
     }
 
-    public void handleVolume(Context ctx) {
+    public void postVolume(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("volume"))
             throw new BadRequestResponse();
         player.setVolume(data.get("volume").getAsInt());
+    }
+
+    public void getInfo(Context ctx) {
+        JsonObject data = new JsonObject();
+        if (player.getCurrent() == null) {
+            data.addProperty("loaded", "");
+            data.addProperty("volume", 100);
+            data.addProperty("playing", false);
+        } else {
+            data.addProperty("loaded", player.getCurrent().getName());
+            data.addProperty("volume", (int) (player.getCurrent().getVolume() * 100));
+            data.addProperty("playing", player.getCurrent().getClip().isRunning());
+        }
+        ctx.json(data);
     }
 }

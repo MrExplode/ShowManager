@@ -20,6 +20,7 @@ import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
+import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 
 import java.util.concurrent.TimeUnit;
@@ -67,6 +68,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
             //before(new AuthController());
             path("control", () -> {
+                get("/play", ctx -> ctx.json(new JsonBuilder().addProperty("playing", worker.isPlaying()).build()));
                 post("/play", __ -> worker.play());
                 post("/pause", __ -> worker.pause());
                 post("/stop", __ -> worker.stop());
@@ -81,11 +83,13 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             });
             path("scheduler", () -> {
                 SchedulerController controller = new SchedulerController();
-                post("/record", controller::handleRecording);
+                get("/record", controller::getRecording);
+                post("/record", controller::postRecording);
             });
             path("audio", () -> {
                 AudioController controller = new AudioController();
-                post("/volume", controller::handleVolume);
+                post("/volume", controller::postVolume);
+                get("/info", controller::getInfo);
             });
         });
     }

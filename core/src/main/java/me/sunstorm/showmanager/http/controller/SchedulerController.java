@@ -21,12 +21,18 @@ public class SchedulerController implements InjectRecipient {
         inject();
     }
 
-    public void handleRecording(Context ctx) {
+    public void postRecording(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("enabled"))
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("OSC recording {}", value ? "started" : "stopped");
         oscHandler.setRecording(value);
+    }
+
+    public void getRecording(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("recording", oscHandler.isRecording());
+        ctx.json(data);
     }
 }
