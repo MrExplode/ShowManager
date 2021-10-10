@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
 import me.sunstorm.showmanager.injection.Inject;
@@ -15,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static me.sunstorm.showmanager.util.SilentClose.close;
@@ -32,6 +35,7 @@ public class AudioTrack implements InjectRecipient {
     private transient boolean paused = false;
     private float volume = 1.0f;
     @Nullable private Timecode endTime;
+    private final List<Marker> markers = new ArrayList<>();
     @Nullable private transient Clip clip;
     @Nullable private transient float[] samples;
     @Nullable private transient AudioInputStream stream;

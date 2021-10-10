@@ -48,7 +48,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
             config.enableCorsForAllOrigins();
             if (System.getenv("showmanager.debug") == null)
-                config.addStaticFiles("/", System.getenv("showmanager.dist"), Location.EXTERNAL);
+                config.addStaticFiles("/", System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist"), Location.EXTERNAL);
         });
         JavalinJson.setToJsonMapper(Constants.GSON::toJson);
         JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
@@ -95,6 +95,10 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
                 AudioController controller = new AudioController();
                 post("/volume", controller::postVolume);
                 get("/info", controller::getInfo);
+                get("/markers", controller::getMarkers);
+                post("/markers/jump", controller::markerJump);
+                post("/markers/add", controller::addMarker);
+                post("/markers/delete", controller::deleteMarker);
             });
         });
     }

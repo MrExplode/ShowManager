@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
@@ -29,8 +28,6 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     private final List<AudioTrack> tracks = new ArrayList<>();
     @Inject private EventBus eventBus;
     @Inject private SettingsStore store;
-    //todo: remove after testing
-    @Inject private Worker worker;
     private Mixer mixer;
     private boolean enabled = false;
     private int index = 0;

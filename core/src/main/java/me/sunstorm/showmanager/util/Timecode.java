@@ -19,7 +19,7 @@ import java.util.Objects;
 @Setter
 @ToString
 public class Timecode implements Comparable<Timecode> {
-
+    public static final Timecode ZERO = new Timecode(0);
     @Setter(AccessLevel.NONE) private long millisecLength;
     @Setter(AccessLevel.NONE) private int framerate;
     
@@ -170,8 +170,9 @@ public class Timecode implements Comparable<Timecode> {
      * Same as {@link #toString()}, but it's spaced
      * @return gui formatted string
      */
-    public String guiFormatted() {
-        return (hour < 10 ? "0" + hour : hour) + " : " + (min < 10 ? "0" + min : min) + " : " + (sec < 10 ? "0" + sec : sec) + " / " + (frame < 10 ? "0" + frame : frame); 
+    public String guiFormatted(boolean spaced) {
+        String spacer = spaced ? " : " : ":";
+        return (hour < 10 ? "0" + hour : hour) + spacer + (min < 10 ? "0" + min : min) + spacer + (sec < 10 ? "0" + sec : sec) + spacer.replace(':', '/') + (frame < 10 ? "0" + frame : frame);
     }
 
     @Override
