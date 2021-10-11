@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
@@ -19,6 +20,7 @@ import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.Mixer;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

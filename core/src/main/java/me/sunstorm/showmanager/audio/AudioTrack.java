@@ -35,7 +35,7 @@ public class AudioTrack implements InjectRecipient {
     private transient boolean paused = false;
     private float volume = 1.0f;
     @Nullable private Timecode endTime;
-    private final List<Marker> markers = new ArrayList<>();
+    private List<Marker> markers = new ArrayList<>();
     @Nullable private transient Clip clip;
     @Nullable private transient float[] samples;
     @Nullable private transient AudioInputStream stream;

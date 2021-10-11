@@ -5,18 +5,22 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import io.javalin.http.HttpResponseException;
-import io.javalin.http.MethodNotAllowedResponse;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.audio.marker.Marker;
+import me.sunstorm.showmanager.http.WebSocketHandler;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 
+@Slf4j
 public class AudioController implements InjectRecipient {
     @Inject
     private AudioPlayer player;
+    @Inject
+    private WebSocketHandler wsHandler;
 
     public AudioController() {
         inject();
@@ -55,27 +59,50 @@ public class AudioController implements InjectRecipient {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
-        player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().get().jump();
+        val marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().get();
+        log.info("Jumping to marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(false));
+        log.info(player.getCurrent().getMarkers().toString());
+        marker.jump();
     }
 
     public void addMarker(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null)
             throw new BadRequestResponse();
-        player.getCurrent().getMarkers().add(new Marker(data.get("name").getAsString(), new Timecode(
+        val marker = new Marker(data.get("name").getAsString(), new Timecode(
                 data.get("hour").getAsInt(),
                 data.get("min").getAsInt(),
                 data.get("sec").getAsInt(),
                 data.get("frame").getAsInt(),
                 25
-        )));
+        ));
+        log.info("Adding marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(true));
+        player.getCurrent().getMarkers().add(marker);
+        //should have a separate marker event on the bus, but hardwiring here for now. Same for OutputController#update
+        //I slowly start breaking my own rules
+        wsHandler.broadcast(
+                new JsonBuilder()
+                .addProperty("type", "audio")
+                .addProperty("action", "marker")
+                .build()
+        );
     }
 
     public void deleteMarker(Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
-        player.getCurrent().getMarkers().removeIf(m -> m.getLabel().equals(data.get("name").getAsString()));
+        boolean success = player.getCurrent().getMarkers().removeIf(m -> m.getLabel().equals(data.get("name").getAsString()));
+        if (success)
+            log.info("Deleted marker {}", data.get("name").getAsString());
+        else
+            log.warn("Attempted to delete non-existing marker: {}", data.get("name").getAsString());
+        wsHandler.broadcast(
+                new JsonBuilder()
+                        .addProperty("type", "audio")
+                        .addProperty("action", "marker")
+                        .build()
+        );
     }
 
     private JsonArray buildMarkers() {

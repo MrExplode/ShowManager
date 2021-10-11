@@ -35,7 +35,7 @@ public class ProjectManager implements Terminable {
         try {
             lastProjectName = Files.readString(LAST_PROJECT.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("Couldn't find last project descriptor");
         }
         List<File> projectFiles = Arrays.stream(PROJECTS_DIR.listFiles()).filter(f -> f.isFile() && f.getName().endsWith(".json")).collect(Collectors.toList());
         String finalLastProjectName = lastProjectName;

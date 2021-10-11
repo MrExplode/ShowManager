@@ -12,15 +12,17 @@ import me.sunstorm.showmanager.util.Timecode;
 public class Marker {
     private final String label;
     private final Timecode time;
-    private final ScheduledJumpEvent wrappedEvent;
+    private transient ScheduledJumpEvent wrappedEvent;
 
     public Marker(String label, Timecode time) {
         this.label = label;
         this.time = time;
-        wrappedEvent = new ScheduledJumpEvent(Timecode.ZERO, time);
     }
 
     public void jump() {
+        //starting to hate gson more and more.
+        if (wrappedEvent == null)
+            wrappedEvent = new ScheduledJumpEvent(Timecode.ZERO, time);
         wrappedEvent.execute();
     }
 }

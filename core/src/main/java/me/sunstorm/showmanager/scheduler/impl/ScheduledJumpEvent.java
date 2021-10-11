@@ -18,6 +18,6 @@ public class ScheduledJumpEvent extends AbstractScheduledEvent {
 
     @Override
     public void execute() {
-        worker.setTime(jumpTo);
+        worker.setTime(jumpTo.clone());
     }
 }
