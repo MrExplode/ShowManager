@@ -10,7 +10,7 @@ public class ScheduledPauseEvent extends AbstractScheduledEvent {
     private Worker worker;
 
     public ScheduledPauseEvent(Timecode executeTime) {
-        super(executeTime);
+        super(executeTime, "pause");
         inject(false);
     }
 

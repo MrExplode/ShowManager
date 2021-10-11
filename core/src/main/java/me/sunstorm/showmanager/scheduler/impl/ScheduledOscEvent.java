@@ -12,7 +12,7 @@ public class ScheduledOscEvent extends AbstractScheduledEvent {
     private OscHandler oscHandler;
 
     public ScheduledOscEvent(Timecode executeTime, OSCPacket packet) {
-        super(executeTime);
+        super(executeTime, "osc");
         inject(false);
         this.packet = packet;
     }

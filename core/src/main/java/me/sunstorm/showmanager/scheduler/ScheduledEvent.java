@@ -6,5 +6,7 @@ public interface ScheduledEvent {
 
     Timecode getExecuteTime();
 
+    String getType();
+
     void execute();
 }

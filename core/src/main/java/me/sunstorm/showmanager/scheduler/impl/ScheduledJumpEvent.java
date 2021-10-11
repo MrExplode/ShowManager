@@ -11,7 +11,7 @@ public class ScheduledJumpEvent extends AbstractScheduledEvent {
     private Worker worker;
 
     public ScheduledJumpEvent(Timecode executeTime, Timecode jumpTo) {
-        super(executeTime);
+        super(executeTime, "jump");
         inject(false);
         this.jumpTo = jumpTo;
     }

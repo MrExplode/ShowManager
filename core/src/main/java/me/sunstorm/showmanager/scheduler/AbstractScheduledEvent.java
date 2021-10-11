@@ -9,4 +9,5 @@ import me.sunstorm.showmanager.util.Timecode;
 @AllArgsConstructor
 public abstract class AbstractScheduledEvent implements ScheduledEvent, InjectRecipient {
     private final Timecode executeTime;
+    private final String type;
 }

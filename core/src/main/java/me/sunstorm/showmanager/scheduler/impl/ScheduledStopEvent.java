@@ -10,7 +10,7 @@ public class ScheduledStopEvent extends AbstractScheduledEvent {
     private Worker worker;
 
     public ScheduledStopEvent(Timecode executeTime) {
-        super(executeTime);
+        super(executeTime, "stop");
         inject(false);
     }
 
