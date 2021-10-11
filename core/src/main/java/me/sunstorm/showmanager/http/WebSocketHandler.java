@@ -10,6 +10,8 @@ import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
@@ -17,6 +19,7 @@ import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
+import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -177,6 +180,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onOscRecordStop(OscRecordStopEvent e) {
         sendRecord(false);
+    }
+
+    @EventCall
+    public void onMarkerCreate(MarkerCreateEvent e) {
+        sendMarkerSync();
+    }
+
+    @EventCall
+    public void onMarkerDelete(MarkerDeleteEvent e) {
+        sendMarkerSync();
+    }
+
+    private void sendMarkerSync() {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "audio");
+        data.addProperty("action", "marker");
+        broadcast(data);
     }
 
     private void sendRecord(boolean enabled) {

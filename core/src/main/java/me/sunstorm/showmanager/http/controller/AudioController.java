@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.audio.marker.Marker;
+import me.sunstorm.showmanager.eventsystem.EventBus;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerJumpEvent;
 import me.sunstorm.showmanager.http.WebSocketHandler;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
@@ -19,6 +23,8 @@ import me.sunstorm.showmanager.util.Timecode;
 public class AudioController implements InjectRecipient {
     @Inject
     private AudioPlayer player;
+    @Inject
+    private EventBus eventBus;
     @Inject
     private WebSocketHandler wsHandler;
 
@@ -59,9 +65,12 @@ public class AudioController implements InjectRecipient {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
-        val marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().get();
-        log.info("Jumping to marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(false));
-        marker.jump();
+        val marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().orElse(null);
+        if (marker != null) {
+            log.info("Jumping to marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(false));
+            new MarkerJumpEvent(marker).call(eventBus);
+            marker.jump();
+        }
     }
 
     public void addMarker(Context ctx) {
@@ -77,14 +86,7 @@ public class AudioController implements InjectRecipient {
         ));
         log.info("Adding marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(true));
         player.getCurrent().getMarkers().add(marker);
-        //should have a separate marker event on the bus, but hardwiring here for now. Same for OutputController#update
-        //I slowly start breaking my own rules
-        wsHandler.broadcast(
-                new JsonBuilder()
-                .addProperty("type", "audio")
-                .addProperty("action", "marker")
-                .build()
-        );
+        new MarkerCreateEvent(marker).call(eventBus);
     }
 
     public void deleteMarker(Context ctx) {
@@ -96,12 +98,7 @@ public class AudioController implements InjectRecipient {
             log.info("Deleted marker {}", data.get("name").getAsString());
         else
             log.warn("Attempted to delete non-existing marker: {}", data.get("name").getAsString());
-        wsHandler.broadcast(
-                new JsonBuilder()
-                        .addProperty("type", "audio")
-                        .addProperty("action", "marker")
-                        .build()
-        );
+        new MarkerDeleteEvent().call(eventBus);
     }
 
     private JsonArray buildMarkers() {

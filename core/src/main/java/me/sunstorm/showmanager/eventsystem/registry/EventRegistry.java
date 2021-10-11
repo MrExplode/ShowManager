@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import me.sunstorm.showmanager.eventsystem.events.Event;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
+import me.sunstorm.showmanager.eventsystem.events.marker.MarkerJumpEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
@@ -29,5 +32,8 @@ public class EventRegistry {
             .put(12, TimecodePauseEvent.class)
             .put(13, TimecodeSetEvent.class)
             .put(14, TimecodeStartEvent.class)
-            .put(15, TimecodeStopEvent.class).build();
+            .put(15, TimecodeStopEvent.class)
+            .put(16, MarkerCreateEvent.class)
+            .put(17, MarkerDeleteEvent.class)
+            .put(18, MarkerJumpEvent.class).build();
 }
