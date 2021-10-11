@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import io.javalin.http.HttpResponseException;
 import io.javalin.http.ServiceUnavailableResponse;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;

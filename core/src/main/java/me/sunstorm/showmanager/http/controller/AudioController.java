@@ -61,7 +61,6 @@ public class AudioController implements InjectRecipient {
             throw new BadRequestResponse();
         val marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().get();
         log.info("Jumping to marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(false));
-        log.info(player.getCurrent().getMarkers().toString());
         marker.jump();
     }
 

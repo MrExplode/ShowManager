@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.injection.DependencyInjection;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;

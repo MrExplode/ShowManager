@@ -10,7 +10,6 @@ import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
-import me.sunstorm.showmanager.util.Sampler;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
 
