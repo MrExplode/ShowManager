@@ -12,6 +12,8 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 
 import java.util.Map;
@@ -35,5 +37,7 @@ public class EventRegistry {
             .put(15, TimecodeStopEvent.class)
             .put(16, MarkerCreateEvent.class)
             .put(17, MarkerDeleteEvent.class)
-            .put(18, MarkerJumpEvent.class).build();
+            .put(18, MarkerJumpEvent.class)
+            .put(19, EventAddEvent.class)
+            .put(20, EventDeleteEvent.class).build();
 }

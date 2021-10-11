@@ -1,17 +1,25 @@
 package me.sunstorm.showmanager.http.controller;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.eventsystem.EventBus;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.osc.OscHandler;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 
+import java.util.function.Predicate;
+
 @Slf4j
 public class SchedulerController implements InjectRecipient {
+    @Inject
+    private EventBus eventBus;
     @Inject
     private EventScheduler scheduler;
     @Inject
@@ -19,6 +27,12 @@ public class SchedulerController implements InjectRecipient {
 
     public SchedulerController() {
         inject();
+    }
+
+    public void getRecording(Context ctx) {
+        JsonObject data = new JsonObject();
+        data.addProperty("recording", oscHandler.isRecording());
+        ctx.json(data);
     }
 
     public void postRecording(Context ctx) {
@@ -30,9 +44,15 @@ public class SchedulerController implements InjectRecipient {
         oscHandler.setRecording(value);
     }
 
-    public void getRecording(Context ctx) {
+    public void getEvents(Context ctx) {
         JsonObject data = new JsonObject();
-        data.addProperty("recording", oscHandler.isRecording());
+        data.add("events", scheduler.getEvents());
         ctx.json(data);
+    }
+
+    public void deleteEvents(Context ctx) {
+        JsonArray data = JsonParser.parseString(ctx.body()).getAsJsonArray();
+        scheduler.getScheduledEvents().removeIf(e -> data.contains(e.getData()));
+        new EventDeleteEvent().call(eventBus);
     }
 }

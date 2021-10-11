@@ -1,5 +1,7 @@
 package me.sunstorm.showmanager.scheduler.impl;
 
+import com.google.gson.JsonObject;
+import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.scheduler.AbstractScheduledEvent;
@@ -14,6 +16,13 @@ public class ScheduledJumpEvent extends AbstractScheduledEvent {
         super(executeTime, "jump");
         inject(false);
         this.jumpTo = jumpTo;
+    }
+
+    @Override
+    public JsonObject getData() {
+        JsonObject data = super.getData();
+        data.add("jumpTime", Constants.GSON.toJsonTree(jumpTo));
+        return data;
     }
 
     @Override

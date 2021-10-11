@@ -14,6 +14,8 @@ import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
@@ -190,6 +192,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onMarkerDelete(MarkerDeleteEvent e) {
         sendMarkerSync();
+    }
+
+    @EventCall
+    public void onEventAdd(EventAddEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "scheduler");
+        data.addProperty("action", "eventAdd");
+        data.add("event", e.getEvent().getData());
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onEventDelete(EventDeleteEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "scheduler");
+        data.addProperty("action", "syncEvents");
+        broadcast(data);
     }
 
     private void sendMarkerSync() {

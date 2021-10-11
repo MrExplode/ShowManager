@@ -22,6 +22,8 @@ import me.sunstorm.showmanager.terminable.Terminable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Getter
@@ -37,6 +39,7 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
     private OSCPortIn portIn;
 
     private boolean recording = false;
+    private final Map<String, Object> recordCache = new HashMap<>();
 
     public OscHandler() {
         super("osc-dispatcher");
@@ -57,7 +60,12 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
 
                     if (recording && worker.isPlaying()) {
                         OSCMessage message = (OSCMessage) event.getPacket();
-                        scheduler.addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments())));
+                        Object property = message.getArguments() == null ? null : (message.getArguments().size() > 0 ? message.getArguments().get(0) : null);
+                        if (!recordCache.containsKey(message.getAddress()) && recordCache.get(message.getAddress()) != property) {
+                            System.out.println("adding: " + message.getAddress() + " stuff: " + message.getArguments().toString());
+                            scheduler.addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments())));
+                            recordCache.put(message.getAddress(), property);
+                        }
                     }
                 }
 
@@ -66,6 +74,7 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
                     log.warn("Received bad OSC data", event.getException());
                 }
             });
+            portIn.startListening();
         } catch (IOException e) {
             log.error("Failed to start OSC dispatcher", e);
         }
