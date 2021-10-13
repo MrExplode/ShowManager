@@ -16,12 +16,12 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.SchedulerExecuteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
-import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
@@ -208,6 +208,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         JsonObject data = new JsonObject();
         data.addProperty("type", "scheduler");
         data.addProperty("action", "syncEvents");
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onSchedulerExec(SchedulerExecuteEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "scheduler");
+        data.addProperty("action", "eventExecuted");
+        data.add("event", e.getEvent().getData());
         broadcast(data);
     }
 

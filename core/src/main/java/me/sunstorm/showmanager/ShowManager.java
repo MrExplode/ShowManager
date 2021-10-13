@@ -62,11 +62,13 @@ public class ShowManager {
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
         DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
+        //top tier sketchy
+        DependencyInjection.registerProvider(OscHandler.class, () -> null);
         projectManager = new ProjectManager();
         eventScheduler = new EventScheduler();
         DependencyInjection.registerProvider(EventScheduler.class, () -> eventScheduler);
         oscHandler = new OscHandler();
-        DependencyInjection.registerProvider(OscHandler.class, () -> oscHandler);
+        DependencyInjection.updateProvider(OscHandler.class, () -> oscHandler);
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
         DependencyInjection.registerProvider(LtcHandler.class, () -> ltcHandler);
         oscRemoteControl = new OscRemoteControl();

@@ -73,6 +73,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
                 post("/pause", __ -> worker.pause());
                 post("/stop", __ -> worker.stop());
                 post("/set", this::setTime);
+                post("/quickJump", this::quickJump);
             });
             path("output", () -> {
                 OutputController controller = new OutputController();
@@ -91,7 +92,8 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
                 get("/record", controller::getRecording);
                 post("/record", controller::postRecording);
                 get("/events", controller::getEvents);
-                post("/deleteEvents", controller::deleteEvents);
+                post("/events/add", controller::addEvent);
+                post("/events/delete", controller::deleteEvents);
             });
             path("audio", () -> {
                 AudioController controller = new AudioController();
@@ -116,7 +118,18 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
         val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("hour") || !data.has("min") || !data.has("sec") || !data.has("frame"))
             throw new BadRequestResponse();
-        worker.setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt(), worker.getFramerate()));
+        worker.setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt()));
+    }
+
+    private void quickJump(Context ctx) {
+        val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
+        if (!data.has("amount"))
+            throw new BadRequestResponse();
+        int amount = data.get("amount").getAsInt();
+        if (amount > 0)
+            worker.setTime(worker.getCurrentTime().add(new Timecode(0, 0, amount, 0)));
+        else
+            worker.setTime(worker.getCurrentTime().subtract(new Timecode(0, 0, Math.abs(amount), 0)));
     }
 
     @Override

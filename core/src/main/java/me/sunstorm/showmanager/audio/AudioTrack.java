@@ -70,8 +70,7 @@ public class AudioTrack implements InjectRecipient {
                     event.call(eventBus);
                 }
             });
-            //fixme: hadrcoded framerate
-            endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000, 25));
+            endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
             loaded = true;
             AudioLoadEvent event = new AudioLoadEvent(this);
             event.call(eventBus);
@@ -142,8 +141,7 @@ public class AudioTrack implements InjectRecipient {
             return;
         }
         startTime = time;
-        //fixme: hardcoded framerate
-        endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000, 25));
+        endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
     }
 
     public void setVolume(int volume) {

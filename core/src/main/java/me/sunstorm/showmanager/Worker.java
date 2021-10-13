@@ -62,7 +62,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                 dmxRemote.handleData(artNetHandler.getData(dmxRemote.getAddress().getSubnet(), dmxRemote.getAddress().getUniverse()));
                 
                 if (playing) {
-                    currentTime.set(elapsed, framerate);
+                    currentTime.set(elapsed);
                     artNetHandler.setTime(currentTime);
                     ltcHandler.getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);

@@ -7,17 +7,14 @@ import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
 import me.sunstorm.showmanager.terminable.statics.Termination;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 @Slf4j
 public class DependencyInjection implements StaticTerminable {
     private static final Map<Class<?>, Supplier<?>> providerMap = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, List<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Set<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Field[]> fieldCache = new ConcurrentHashMap<>();
 
     public static <T> void registerProvider(Class<T> type, Supplier<T> provider) {
@@ -60,7 +57,7 @@ public class DependencyInjection implements StaticTerminable {
             f.setAccessible(true);
             f.set(recipient, providerMap.get(f.getType()).get());
             if (watchUpdate)
-                injectMap.computeIfAbsent(f.getType(), __ -> new CopyOnWriteArrayList<>()).add(recipient);
+                injectMap.computeIfAbsent(f.getType(), __ -> Collections.newSetFromMap(new WeakHashMap<>())).add(recipient);
         } catch (IllegalAccessException e) {
             log.error("Failed to inject value to field (" + f.getName() + " - " + f.getType().getSimpleName() + ")", e);
         }

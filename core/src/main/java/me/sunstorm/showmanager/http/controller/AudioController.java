@@ -81,8 +81,7 @@ public class AudioController implements InjectRecipient {
                 data.get("hour").getAsInt(),
                 data.get("min").getAsInt(),
                 data.get("sec").getAsInt(),
-                data.get("frame").getAsInt(),
-                25
+                data.get("frame").getAsInt()
         ));
         log.info("Adding marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(true));
         player.getCurrent().getMarkers().add(marker);

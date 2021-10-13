@@ -2,7 +2,6 @@ package me.sunstorm.showmanager.scheduler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.illposed.osc.OSCMessage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,15 +12,13 @@ import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
+import me.sunstorm.showmanager.eventsystem.events.scheduler.SchedulerExecuteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledJumpEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledOscEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledPauseEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledStopEvent;
 import me.sunstorm.showmanager.settings.SettingsHolder;
-import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 
 import java.util.Comparator;
@@ -75,7 +72,9 @@ public class EventScheduler extends SettingsHolder implements Listener, InjectRe
             if (current.compareTo(event.getExecuteTime()) < 0) {
                 break;
             //we are there, exec and update indexes
-            } else if (current.compareTo(event.getExecuteTime()) == 0) {
+            } else if (current.equals(event.getExecuteTime())) {
+                log.info("Executing scheduled event: {}", event.getType());
+                new SchedulerExecuteEvent(event).call(eventBus);
                 event.execute();
                 lastIndex = i;
                 lastTime = current;
@@ -84,6 +83,17 @@ public class EventScheduler extends SettingsHolder implements Listener, InjectRe
                 break;
             }
         }
+    }
+
+    @EventCall
+    public void onTimeStop(TimecodeStopEvent e) {
+        lastIndex = -1;
+    }
+
+    @EventCall
+    public void onTimeSet(TimecodeSetEvent e) {
+        //rerun search by resetting index to default
+        lastIndex = -1;
     }
 
     @Override
@@ -101,30 +111,11 @@ public class EventScheduler extends SettingsHolder implements Listener, InjectRe
         enabled = object.get("enabled").getAsBoolean();
         JsonArray eventArray = object.get("events").getAsJsonArray();
         eventArray.forEach(e -> {
-            JsonObject element = e.getAsJsonObject();
-            String type = element.get("type").getAsString();
-            switch (type) {
-                case "jump": {
-                    scheduledEvents.add(new ScheduledJumpEvent(Constants.GSON.fromJson(element.get("time"), Timecode.class), Constants.GSON.fromJson(element.get("jumpTime"), Timecode.class)));
-                    break;
-                }
-                case "osc": {
-                    scheduledEvents.add(new ScheduledOscEvent(Constants.GSON.fromJson(element.get("time"), Timecode.class), Constants.GSON.fromJson(element.get("packet"), OSCMessage.class)));
-                    break;
-                }
-                case "pause": {
-                    scheduledEvents.add(new ScheduledPauseEvent(Constants.GSON.fromJson(element.get("time"), Timecode.class)));
-                    break;
-                }
-                case "stop": {
-                    scheduledEvents.add(new ScheduledStopEvent(Constants.GSON.fromJson(element.get("time"), Timecode.class)));
-                    break;
-                }
-                default: {
-                    log.warn("Found unknown scheduled event type: {}", type);
-                    break;
-                }
-            }
+            ScheduledEvent event = Constants.GSON.fromJson(e, ScheduledEvent.class);
+            if (event != null)
+                scheduledEvents.add(event);
+            else
+                log.warn("Found unknown event: {}", e);
         });
     }
 }
