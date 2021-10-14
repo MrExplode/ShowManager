@@ -24,7 +24,8 @@ public class DependencyInjection implements StaticTerminable {
 
     public static <T> void updateProvider(Class<T> type, Supplier<T> provider) {
         providerMap.put(type, provider);
-        injectMap.get(type).forEach(recipient -> injectSpecific(type, recipient));
+        if (injectMap.get(type) != null)
+            injectMap.get(type).forEach(recipient -> injectSpecific(type, recipient));
     }
 
     protected static void performInjection(InjectRecipient recipient, boolean watchUpdate) {
