@@ -14,8 +14,10 @@ import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.http.controller.AudioController;
+import me.sunstorm.showmanager.http.controller.ControlController;
 import me.sunstorm.showmanager.http.controller.OutputController;
 import me.sunstorm.showmanager.http.controller.SchedulerController;
+import me.sunstorm.showmanager.http.routing.RoutingManager;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
@@ -64,72 +66,19 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             ws.onMessage(wsHandler);
             ws.onError(wsHandler);
         });
-        javalin.routes(() -> {
-            before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
-            //before(new AuthController());
-            path("control", () -> {
-                get("/play", ctx -> ctx.json(new JsonBuilder().addProperty("playing", worker.isPlaying()).build()));
-                post("/play", __ -> worker.play());
-                post("/pause", __ -> worker.pause());
-                post("/stop", __ -> worker.stop());
-                post("/set", this::setTime);
-                post("/quickJump", this::quickJump);
-            });
-            path("output", () -> {
-                OutputController controller = new OutputController();
-                get("/artnet", controller::getArtNet);
-                post("/artnet", controller::postArtNet);
-                get("/ltc", controller::getLtc);
-                post("/ltc", controller::postLtc);
-                get("/audio", controller::getAudio);
-                post("/audio", controller::postAudio);
-                get("/scheduler", controller::getScheduler);
-                post("/scheduler", controller::postScheduler);
-                get("/all", controller::getAll);
-            });
-            path("scheduler", () -> {
-                SchedulerController controller = new SchedulerController();
-                get("/record", controller::getRecording);
-                post("/record", controller::postRecording);
-                get("/events", controller::getEvents);
-                post("/events/add", controller::addEvent);
-                post("/events/delete", controller::deleteEvents);
-            });
-            path("audio", () -> {
-                AudioController controller = new AudioController();
-                post("/volume", controller::postVolume);
-                get("/info", controller::getInfo);
-                get("/markers", controller::getMarkers);
-                post("/markers/jump", controller::markerJump);
-                post("/markers/add", controller::addMarker);
-                post("/markers/delete", controller::deleteMarker);
-            });
-        });
+        javalin.before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
+        RoutingManager.create(javalin,
+                AudioController.class,
+                ControlController.class,
+                OutputController.class,
+                SchedulerController.class
+        );
     }
 
     @Override
     public void shutdown() throws Exception {
         log.info("Shutting down HTTP services...");
         javalin.stop();
-    }
-
-    //should move all control handling to a separate class
-    private void setTime(Context ctx) {
-        val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
-        if (!data.has("hour") || !data.has("min") || !data.has("sec") || !data.has("frame"))
-            throw new BadRequestResponse();
-        worker.setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt()));
-    }
-
-    private void quickJump(Context ctx) {
-        val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
-        if (!data.has("amount"))
-            throw new BadRequestResponse();
-        int amount = data.get("amount").getAsInt();
-        if (amount > 0)
-            worker.setTime(worker.getCurrentTime().add(new Timecode(0, 0, amount, 0)));
-        else
-            worker.setTime(worker.getCurrentTime().subtract(new Timecode(0, 0, Math.abs(amount), 0)));
     }
 
     @Override

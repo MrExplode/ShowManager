@@ -14,12 +14,17 @@ import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerJumpEvent;
 import me.sunstorm.showmanager.http.WebSocketHandler;
+import me.sunstorm.showmanager.http.routing.annotate.Get;
+import me.sunstorm.showmanager.http.routing.annotate.PathPrefix;
+import me.sunstorm.showmanager.http.routing.annotate.Post;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
+import org.jetbrains.annotations.NotNull;
 
 @Slf4j
+@PathPrefix("/audio")
 public class AudioController implements InjectRecipient {
     @Inject
     private AudioPlayer player;
@@ -32,13 +37,15 @@ public class AudioController implements InjectRecipient {
         inject();
     }
 
-    public void postVolume(Context ctx) {
+    @Post("/volume")
+    public void postVolume(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("volume"))
             throw new BadRequestResponse();
         player.setVolume(data.get("volume").getAsInt());
     }
 
+    @Get("/info")
     public void getInfo(Context ctx) {
         JsonObject data = new JsonObject();
         if (player.getCurrent() == null) {
@@ -55,13 +62,15 @@ public class AudioController implements InjectRecipient {
         ctx.json(data);
     }
 
-    public void getMarkers(Context ctx) {
+    @Get("/markers")
+    public void getMarkers(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.add("markers", buildMarkers());
         ctx.json(data);
     }
 
-    public void markerJump(Context ctx) {
+    @Post("/markers/jump")
+    public void markerJump(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
@@ -73,7 +82,8 @@ public class AudioController implements InjectRecipient {
         }
     }
 
-    public void addMarker(Context ctx) {
+    @Post("/markers/add")
+    public void addMarker(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null)
             throw new BadRequestResponse();
@@ -88,7 +98,8 @@ public class AudioController implements InjectRecipient {
         new MarkerCreateEvent(marker).call(eventBus);
     }
 
-    public void deleteMarker(Context ctx) {
+    @Post("/markers/delete")
+    public void deleteMarker(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
@@ -100,6 +111,7 @@ public class AudioController implements InjectRecipient {
         new MarkerDeleteEvent().call(eventBus);
     }
 
+    @NotNull
     private JsonArray buildMarkers() {
         JsonArray array = new JsonArray();
         player.getCurrent().getMarkers().forEach(m -> array.add(new JsonBuilder().addProperty("label", m.getLabel()).addProperty("time", m.getTime().guiFormatted(false)).build()));

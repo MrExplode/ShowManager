@@ -10,13 +10,18 @@ import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.artnet.ArtNetHandler;
 import me.sunstorm.showmanager.audio.AudioPlayer;
 import me.sunstorm.showmanager.http.WebSocketHandler;
+import me.sunstorm.showmanager.http.routing.annotate.Get;
+import me.sunstorm.showmanager.http.routing.annotate.PathPrefix;
+import me.sunstorm.showmanager.http.routing.annotate.Post;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.util.JsonBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @Slf4j
 @Inject
+@PathPrefix("/output")
 public class OutputController implements InjectRecipient {
     private Worker worker;
     private ArtNetHandler artNetHandler;
@@ -28,13 +33,15 @@ public class OutputController implements InjectRecipient {
         inject();
     }
 
-    public void getArtNet(Context ctx) {
+    @Get("/artnet")
+    public void getArtNet(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.addProperty("enabled", artNetHandler.isEnabled());
         ctx.json(data);
     }
 
-    public void postArtNet(Context ctx) {
+    @Post("/artnet")
+    public void postArtNet(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -44,11 +51,13 @@ public class OutputController implements InjectRecipient {
         update("artnet", value);
     }
 
-    public void getLtc(Context ctx) {
+    @Get("/ltc")
+    public void getLtc(@NotNull Context ctx) {
         throw new ServiceUnavailableResponse();
     }
 
-    public void postLtc(Context ctx) {
+    @Post("/ltc")
+    public void postLtc(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -58,13 +67,15 @@ public class OutputController implements InjectRecipient {
         update("ltc", value);
     }
 
-    public void getAudio(Context ctx) {
+    @Get("/audio")
+    public void getAudio(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.addProperty("enabled", player.isEnabled());
         ctx.json(data);
     }
 
-    public void postAudio(Context ctx) {
+    @Post("/audio")
+    public void postAudio(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -74,13 +85,15 @@ public class OutputController implements InjectRecipient {
         update("audio", value);
     }
 
-    public void getScheduler(Context ctx) {
+    @Get("/scheduler")
+    public void getScheduler(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.addProperty("enabled", scheduler.isEnabled());
         ctx.json(data);
     }
 
-    public void postScheduler(Context ctx) {
+    @Post("/scheduler")
+    public void postScheduler(@NotNull Context ctx) {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
@@ -90,7 +103,8 @@ public class OutputController implements InjectRecipient {
         update("scheduler", value);
     }
 
-    public void getAll(Context ctx) {
+    @Get("/all")
+    public void getAll(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.addProperty("artnet", artNetHandler.isEnabled());
         data.addProperty("ltc", false);
