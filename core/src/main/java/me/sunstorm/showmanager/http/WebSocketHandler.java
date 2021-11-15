@@ -124,7 +124,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @EventCall
     public void onTimeSet(TimecodeSetEvent e) {
-        //I don't see any case where set event needs to be distinguished from change event (yet)
+        //I don't see any case where set event needs to be distinguished from change event on frontend (yet)
         onTimeChange(new TimecodeChangeEvent(e.getTime()));
 //        JsonObject data = new JsonObject();
 //        data.addProperty("type", "time");

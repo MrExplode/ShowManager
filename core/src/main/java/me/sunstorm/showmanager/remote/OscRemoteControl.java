@@ -10,11 +10,23 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 
+/**
+ * This class handles the OSC remote capabilities.
+ */
 @Data
 public class OscRemoteControl implements Listener, InjectRecipient {
-    public static final String OSC_PLAY = "/timecode/remote/play";
-    public static final String OSC_PAUSE = "/timecode/remote/pause";
-    public static final String OSC_STOP = "/timecode/remote/stop";
+    /**
+     * OSC packets coming on this address will be considered as PLAY triggers
+     */
+    public static final String OSC_PLAY = "/showmanager/remote/play";
+    /**
+     * OSC packets coming on this address will be considered as PAUSE triggers
+     */
+    public static final String OSC_PAUSE = "/showmanager/remote/pause";
+    /**
+     * OSC packets coming on this address will be considered as STOP triggers
+     */
+    public static final String OSC_STOP = "/showmanager/remote/stop";
 
     @Inject
     private EventBus eventBus;

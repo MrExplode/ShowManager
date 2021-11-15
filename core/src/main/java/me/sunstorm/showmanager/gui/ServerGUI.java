@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 
-
+/**
+ * Deprecated and disgusting swing gui.
+ */
 @Slf4j
 @Getter
 public class ServerGUI extends JFrame {/*

@@ -12,6 +12,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+/**
+ * Simple dependency injection system. This doesn't handle instance creation,
+ * injection is done by explicitly invoking {@link InjectRecipient#inject()}<br>
+ * Instance providers can be registered for injection by {@link #registerProvider(Class, Supplier)}.
+ * Provided instances can be updated by {@link #updateProvider(Class, Supplier)}
+ */
 @Slf4j
 public class DependencyInjection implements StaticTerminable {
     private static final Map<Class<?>, Supplier<?>> providerMap = new ConcurrentHashMap<>();

@@ -25,6 +25,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * This class handles the scheduled events:<br>
+ *  - OSC packet dispatch<br>
+ *  - Internal actions (jump, pause, stop)
+ */
 @Slf4j
 @Getter
 public class EventScheduler extends SettingsHolder implements Listener, InjectRecipient {

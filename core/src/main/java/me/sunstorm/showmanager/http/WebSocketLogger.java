@@ -15,9 +15,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Custom Log4j2 appender, responsible for sending log entries to the frontend through websocket.
+ */
 @Plugin(name = WebSocketLogger.PLUGIN_NAME, category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class WebSocketLogger extends AbstractAppender {
     public static final String PLUGIN_NAME = "WebSocketLogger";
+    // when a frontend instance connects, it receives the last 100 log entries too (mainly used to see startup logs)
     @Getter private static final List<String> logCache = new CopyOnWriteArrayList<>();
 
     protected WebSocketLogger(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {

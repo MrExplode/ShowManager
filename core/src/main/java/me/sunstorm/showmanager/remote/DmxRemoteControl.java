@@ -12,6 +12,15 @@ import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.util.DmxAddress;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * It's possible to remote control ShowManager via dmx signal.
+ * This can be done by setting a single dmx channel to specific percentages. <br><br>
+ * 10% - Force Idle <br>
+ * 20% - Play <br>
+ * 30% - Pause <br>
+ * 40% - Stop <br>
+ * Any other value: idle
+ */
 @Getter
 public class DmxRemoteControl extends SettingsHolder implements InjectRecipient {
     private static final int TOLERANCE = 5;
