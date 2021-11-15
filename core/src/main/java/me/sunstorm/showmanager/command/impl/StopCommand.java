@@ -13,6 +13,7 @@ public class StopCommand extends AbstractCommand implements InjectRecipient {
 
     public StopCommand() {
         super("stop");
+        inject();
     }
 
     @Override
