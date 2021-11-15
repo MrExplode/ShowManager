@@ -2,6 +2,7 @@ package me.sunstorm.showmanager;
 
 import me.sunstorm.showmanager.util.Framerate;
 import me.sunstorm.showmanager.util.Timecode;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TimecodeTests {
     
     @BeforeEach
-    public void init(RepetitionInfo info) {
+    public void init(@NotNull RepetitionInfo info) {
         if (info.getCurrentRepetition() == 1)
             Framerate.set(24);
         if (info.getCurrentRepetition() == 2)

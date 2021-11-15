@@ -22,7 +22,7 @@ public class CommandHandler extends SimpleTerminalConsole {
         registerCommand(new RestartCommand());
     }
 
-    private void registerCommand(@NotNull Command command) {
+    public void registerCommand(@NotNull Command command) {
         if (commands.containsKey(command.getName()))
             throw new IllegalArgumentException("Command already registered");
         commands.put(command.getName(), command);

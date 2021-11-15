@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FramerateTest {
+public class FramerateTests {
 
     @Test
-    public void testValidation() {
+    void testValidation() {
         assertThrows(IllegalArgumentException.class, () -> Framerate.set(32));
     }
 }
