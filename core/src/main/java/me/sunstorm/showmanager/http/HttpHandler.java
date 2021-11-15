@@ -1,16 +1,12 @@
 package me.sunstorm.showmanager.http;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.javalin.Javalin;
-import io.javalin.http.BadRequestResponse;
-import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.RateLimit;
 import io.javalin.plugin.json.JavalinJson;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.http.controller.AudioController;
@@ -22,12 +18,9 @@ import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
-import me.sunstorm.showmanager.util.JsonBuilder;
-import me.sunstorm.showmanager.util.Timecode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
-
-import static io.javalin.apibuilder.ApiBuilder.*;
 
 @Slf4j
 public class HttpHandler extends SettingsHolder implements Terminable, InjectRecipient {
@@ -76,11 +69,12 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
     }
 
     @Override
-    public void shutdown() throws Exception {
+    public void shutdown() {
         log.info("Shutting down HTTP services...");
         javalin.stop();
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -91,7 +85,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         port = object.get("port").getAsInt();
         header = object.get("header").getAsString();
         secret = object.get("secret").getAsString();

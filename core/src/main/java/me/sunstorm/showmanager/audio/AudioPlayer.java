@@ -16,6 +16,7 @@ import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.Mixer;
@@ -110,7 +111,7 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     }
 
     @Override
-    public void shutdown() throws Exception {
+    public void shutdown() {
         tracks.forEach(AudioTrack::discard);
         mixer.close();
     }
@@ -126,6 +127,7 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
             current.setVolume(volume);
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -138,7 +140,7 @@ public class AudioPlayer extends SettingsHolder implements Terminable, Listener,
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         enabled = object.get("enabled").getAsBoolean();
         mixer = store.getMixerByName(object.get("mixer").getAsString());
         object.get("tracks").getAsJsonArray().forEach(e -> tracks.add(Constants.GSON.fromJson(e, AudioTrack.class)));

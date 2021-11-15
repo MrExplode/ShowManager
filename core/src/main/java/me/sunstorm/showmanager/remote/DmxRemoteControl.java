@@ -10,6 +10,7 @@ import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.util.DmxAddress;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class DmxRemoteControl extends SettingsHolder implements InjectRecipient {
@@ -78,6 +79,7 @@ public class DmxRemoteControl extends SettingsHolder implements InjectRecipient 
         return value <= origin + TOLERANCE && value >= origin - TOLERANCE;
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -89,7 +91,7 @@ public class DmxRemoteControl extends SettingsHolder implements InjectRecipient 
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         enabled = object.get("enabled").getAsBoolean();
         address = new DmxAddress(object.get("address").getAsInt(), object.get("universe").getAsInt(), object.get("subnet").getAsInt());
     }

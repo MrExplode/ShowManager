@@ -5,6 +5,7 @@ import lombok.val;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
 import me.sunstorm.showmanager.terminable.statics.Termination;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -17,7 +18,7 @@ public class DependencyInjection implements StaticTerminable {
     private static final Map<Class<?>, Set<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Field[]> fieldCache = new ConcurrentHashMap<>();
 
-    public static <T> void registerProvider(Class<T> type, Supplier<T> provider) {
+    public static <T> void registerProvider(@NotNull Class<T> type, Supplier<T> provider) {
         log.debug("Registering provider for {}", type.getSimpleName());
         providerMap.put(type, provider);
     }
@@ -28,7 +29,7 @@ public class DependencyInjection implements StaticTerminable {
             injectMap.get(type).forEach(recipient -> injectSpecific(type, recipient));
     }
 
-    protected static void performInjection(InjectRecipient recipient, boolean watchUpdate) {
+    protected static void performInjection(@NotNull InjectRecipient recipient, boolean watchUpdate) {
         log.debug("Injecting dependencies into {}", recipient.getClass().getSimpleName());
         val clazz = recipient.getClass();
         if (clazz.isAnnotationPresent(Inject.class)) {
@@ -48,11 +49,11 @@ public class DependencyInjection implements StaticTerminable {
         }
     }
 
-    private static void injectSpecific(Class<?> type, InjectRecipient recipient) {
+    private static void injectSpecific(Class<?> type, @NotNull InjectRecipient recipient) {
         Arrays.stream(getCached(recipient.getClass())).filter(f -> f.getType().equals(type) && (f.isAnnotationPresent(Inject.class) || recipient.getClass().isAnnotationPresent(Inject.class))).forEach(f -> injectField(f, recipient, false));
     }
 
-    private static void injectField(Field f, InjectRecipient recipient, boolean watchUpdate) {
+    private static void injectField(@NotNull Field f, InjectRecipient recipient, boolean watchUpdate) {
         try {
             if (providerMap.get(f.getType()) == null) return;
             f.setAccessible(true);

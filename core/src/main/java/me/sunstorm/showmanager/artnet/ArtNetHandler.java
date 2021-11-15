@@ -97,6 +97,7 @@ public class ArtNetHandler extends SettingsHolder implements Terminable {
         server.setDefaultReplyPacket(replyPacket);
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -106,7 +107,7 @@ public class ArtNetHandler extends SettingsHolder implements Terminable {
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         enabled = object.get("enabled").getAsBoolean();
         try {
             address = InetAddress.getByName(object.get("interface").getAsString());

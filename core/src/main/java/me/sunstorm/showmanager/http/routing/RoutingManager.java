@@ -88,6 +88,6 @@ public class RoutingManager {
             if (m.isAnnotationPresent(type.getAnnotationClass()))
                 return type;
         }
-        throw new IllegalStateException("invalid type");
+        throw new IllegalStateException("invalid/missing type");
     }
 }

@@ -18,6 +18,7 @@ import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.scheduler.impl.ScheduledOscEvent;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -110,6 +111,7 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
         }
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -120,7 +122,7 @@ public class OscHandler extends SettingsHolder implements Terminable, InjectReci
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         incomingPort = object.get("port-in").getAsInt();
         outgoingPort = object.get("port-out").getAsInt();
         try {

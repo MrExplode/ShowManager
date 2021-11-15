@@ -108,8 +108,7 @@ public class Timecode implements Comparable<Timecode> {
         return Objects.hash(hour, min, sec, frame);
     }
 
-    @Override
-    public Timecode clone() {
+    public Timecode copy() {
         return new Timecode(hour, min, sec, frame);
     }
 }

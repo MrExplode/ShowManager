@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
 import me.sunstorm.showmanager.terminable.statics.Termination;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -19,11 +20,11 @@ public class Terminables {
     private static final Set<TerminateAction> terminations = ConcurrentHashMap.newKeySet();
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-    protected static void addTerminable(Terminable terminable) {
+    protected static void addTerminable(@NotNull Terminable terminable) {
         terminations.add(terminable::shutdown);
     }
 
-    public static void addTerminable(Class<? extends StaticTerminable> staticTerminable) {
+    public static void addTerminable(@NotNull Class<? extends StaticTerminable> staticTerminable) {
         val list = Arrays.stream(staticTerminable.getDeclaredMethods())
                 .filter(m -> Modifier.isStatic(m.getModifiers()) && m.isAnnotationPresent(Termination.class))
                 .map(m -> {

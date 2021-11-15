@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
@@ -20,6 +19,7 @@ import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.util.Timecode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
@@ -104,6 +104,7 @@ public class EventScheduler extends SettingsHolder implements Listener, InjectRe
         lastIndex = -1;
     }
 
+    @NotNull
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
@@ -115,7 +116,7 @@ public class EventScheduler extends SettingsHolder implements Listener, InjectRe
     }
 
     @Override
-    public void onLoad(JsonObject object) {
+    public void onLoad(@NotNull JsonObject object) {
         enabled = object.get("enabled").getAsBoolean();
         JsonArray eventArray = object.get("events").getAsJsonArray();
         eventArray.forEach(e -> {
