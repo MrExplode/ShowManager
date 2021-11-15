@@ -65,11 +65,11 @@ public class Timecode implements Comparable<Timecode> {
         return millisecLength;
     }
 
-    public Timecode subtract(Timecode t) {
+    public Timecode subtract(@NotNull Timecode t) {
         return new Timecode(this.millisecLength - t.millisecLength);
     }
 
-    public Timecode add(Timecode t) {
+    public Timecode add(@NotNull Timecode t) {
         long time = this.millisecLength + t.millisecLength;
         return new Timecode(time);
     }

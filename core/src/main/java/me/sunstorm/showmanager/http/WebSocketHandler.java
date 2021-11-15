@@ -115,7 +115,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onTimeStop(TimecodeStopEvent e) {
         //notify UI about the time reset
-        onTimeChange(new TimecodeChangeEvent(e.ZERO));
+        onTimeChange(new TimecodeChangeEvent(Timecode.ZERO));
         JsonObject data = new JsonObject();
         data.addProperty("type", "time");
         data.addProperty("action", "stop");

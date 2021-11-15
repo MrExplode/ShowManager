@@ -8,20 +8,21 @@ import me.sunstorm.showmanager.command.impl.StopCommand;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CommandTests {
-    private static ShowManager showManager;
-    private static Worker worker;
+    private ShowManager showManager;
+    private Worker worker;
 
     @BeforeAll
-    static void setupDependencies() {
+    void setupDependencies() {
         showManager = mock(ShowManager.class);
         worker = mock(Worker.class);
         DependencyInjection.registerProvider(ShowManager.class, () -> showManager);

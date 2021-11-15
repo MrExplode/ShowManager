@@ -3,3 +3,4 @@
 build/
 run/
 **/out/*
+core/logs

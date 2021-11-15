@@ -8,6 +8,5 @@ import me.sunstorm.showmanager.util.Timecode;
 @Getter
 @AllArgsConstructor
 public class TimecodeStopEvent extends CancellableEvent {
-    public final Timecode ZERO = new Timecode(0);
     private final Timecode time;
 }
