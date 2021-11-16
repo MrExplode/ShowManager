@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
 group 'me.sunstorm'
@@ -43,4 +44,26 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled false
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'ch/bildspur/artnet/**',
+                    'javazoom/jl/**'
+            ])
+        }))
+    }
+}
+
+jacocoTestReport.dependsOn(test)
+if (System.env.CI) {
+    test.finalizedBy(jacocoTestReport)
 }
