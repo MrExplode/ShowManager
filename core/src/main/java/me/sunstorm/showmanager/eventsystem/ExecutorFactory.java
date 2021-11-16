@@ -3,6 +3,7 @@ package me.sunstorm.showmanager.eventsystem;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -56,7 +57,7 @@ public class ExecutorFactory implements Opcodes {
         }));
     }
 
-    public EventExecutor create(Listener listener, Method method) throws InstantiationException, IllegalAccessException {
+    public EventExecutor create(@NotNull Listener listener, Method method) throws InstantiationException, IllegalAccessException {
         if (!Modifier.isPublic(listener.getClass().getModifiers()))
             throw new IllegalArgumentException("Listener class must be public");
         if (!Modifier.isPublic(method.getModifiers()))

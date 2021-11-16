@@ -1,5 +1,8 @@
 package me.sunstorm.showmanager.inject;
 
+import me.sunstorm.showmanager.inject.impl.DependentStub;
+import me.sunstorm.showmanager.inject.impl.DummyHandler;
+import me.sunstorm.showmanager.inject.impl.DummyManager;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

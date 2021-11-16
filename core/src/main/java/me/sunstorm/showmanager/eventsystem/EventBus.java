@@ -9,6 +9,7 @@ import me.sunstorm.showmanager.eventsystem.registry.EventConverter;
 import me.sunstorm.showmanager.eventsystem.registry.EventWrapper;
 import me.sunstorm.showmanager.redis.AbstractMessageHandler;
 import me.sunstorm.showmanager.redis.converter.Converter;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -47,7 +48,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
         //todo send redis
     }
 
-    private void executeEvent(Event event) {
+    private void executeEvent(@NotNull Event event) {
         List<ListenerContainer> eventListeners = listeners.get(event.getClass());
         if (eventListeners == null)
             return;
@@ -61,7 +62,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
         });
     }
 
-    public void register(Listener listener) {
+    public void register(@NotNull Listener listener) {
         log.debug("Registering listener: " + listener.getClass().getSimpleName());
         for (Method method : Arrays.stream(listener.getClass().getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList())) {
             try {

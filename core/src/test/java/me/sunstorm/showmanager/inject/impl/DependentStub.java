@@ -1,4 +1,4 @@
-package me.sunstorm.showmanager.inject;
+package me.sunstorm.showmanager.inject.impl;
 
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
