@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class TimecodeTests {
     
@@ -25,19 +25,19 @@ public class TimecodeTests {
     @RepeatedTest(3)
     @DisplayName("Equality test")
     public void testEquals() {
-        assertEquals(new Timecode(0, 0, 0, 0), new Timecode(0, 0, 0, 0));
+        assertThat(new Timecode(0, 0, 0, 0)).isEqualTo(new Timecode(0, 0, 0, 0));
     }
     
     @RepeatedTest(3)
     public void testMillis() {
-        assertEquals(0, new Timecode(0, 0, 0, 0).millis());
+        assertThat(new Timecode(0, 0, 0, 0).millis()).isEqualTo(0);
         Timecode time = new Timecode(1, 2, 3, 4);
         if (Framerate.get() == 24)
-            assertEquals(3723164, time.millis());
+            assertThat(time.millis()).isEqualTo(3723164);
         if (Framerate.get() == 25)
-            assertEquals(3723160, time.millis());
+            assertThat(time.millis()).isEqualTo(3723160);
         if (Framerate.get() == 30)
-            assertEquals(3723132, time.millis());
+            assertThat(time.millis()).isEqualTo(3723132);
     }
     
     
@@ -45,15 +45,15 @@ public class TimecodeTests {
     public void testAdd() {
         Timecode value = new Timecode(0, 0, 5, 0).add(new Timecode(0, 0, 5, 0));
         Timecode excepted = new Timecode(0, 0, 10, 0);
-        assertEquals(excepted, value);
-        assertEquals(excepted.millis(), value.millis());
+        assertThat(value).isEqualTo(excepted);
+        assertThat(value.millis()).isEqualTo(excepted.millis());
     }
     
     @RepeatedTest(3)
     public void testSubtract() {
         Timecode value = new Timecode(0, 0, 10, 0).subtract(new Timecode(0, 0, 5, 0));
         Timecode excepted = new Timecode(0, 0, 5, 0);
-        assertEquals(excepted, value);
-        assertEquals(excepted.millis(), value.millis());
+        assertThat(value).isEqualTo(excepted);
+        assertThat(value.millis()).isEqualTo(excepted.millis());
     }
 }

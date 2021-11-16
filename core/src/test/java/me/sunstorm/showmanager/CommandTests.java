@@ -13,7 +13,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -32,7 +32,7 @@ public class CommandTests {
     @Test
     void testHandler() {
         CommandHandler handler = new CommandHandler();
-        assertThrows(IllegalArgumentException.class, () -> handler.registerCommand(new PauseCommand()));
+        assertThatThrownBy(() -> handler.registerCommand(new PauseCommand())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class CommandTests {
         new RestartCommand().execute(Collections.emptyList());
         ArgumentCaptor<Boolean> arg = ArgumentCaptor.forClass(Boolean.class);
         verify(showManager).reload(arg.capture());
-        assertEquals(true, arg.getValue());
+        assertThat(arg.getValue()).isEqualTo(true);
     }
 
     @Test

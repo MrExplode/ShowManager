@@ -8,8 +8,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class DependencyInjectionTests {
     private DummyManager manager;
@@ -30,17 +30,17 @@ public class DependencyInjectionTests {
     void injectTest() {
         DependencyInjection.registerProvider(DummyManager.class, () -> manager);
         DependentStub stub = new DependentStub();
-        assertEquals(manager, stub.getManager());
-        assertNull(stub.getHandler());
+        assertThat(stub.getManager()).isEqualTo(manager);
+        assertThat(stub.getHandler()).isNull();
     }
 
     @Test
     void updateTest() {
         DependencyInjection.registerProvider(DummyHandler.class, () -> null);
         DependentStub stub = new DependentStub();
-        assertNull(stub.getManager());
-        assertNull(stub.getHandler());
+        assertThat(stub.getManager()).isNull();
+        assertThat(stub.getHandler()).isNull();
         DependencyInjection.updateProvider(DummyHandler.class, () -> handler);
-        assertEquals(handler, stub.getHandler());
+        assertThat(stub.getHandler()).isEqualTo(handler);
     }
 }
