@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
-
 /**
  * Annotation based http routing system.
  */
@@ -38,49 +35,47 @@ public class RoutingManager {
      */
     public static void create(@NotNull Javalin javalin, Class<?>... handlers) {
         log.info("Starting route creation");
-        javalin.routes(() -> {
-            for (Class<?> handlerClass : handlers) {
-                try {
-                    List<Method> methodCandidates = Arrays.stream(handlerClass.getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList());
-                    if (methodCandidates.size() == 0) {
-                        log.warn("Class {} does not contain eligible methods for routing", handlerClass.getName());
-                        continue;
-                    }
-                    Object classInstance = handlerClass.getConstructor().newInstance();
-                    String pathPrefix = "";
-                    if (handlerClass.isAnnotationPresent(PathPrefix.class))
-                        pathPrefix = handlerClass.getAnnotation(PathPrefix.class).value();
-
-                    for (Method method : methodCandidates) {
-                        try {
-                            MethodHandle methodHandle = lookup.unreflect(method);
-                            CallSite referenceSite = LambdaMetafactory.metafactory(
-                                    lookup,
-                                    "handle",
-                                    MethodType.methodType(Handler.class, handlerClass),
-                                    MethodType.methodType(void.class, Context.class),
-                                    methodHandle,
-                                    MethodType.methodType(void.class, Context.class)
-                            );
-
-                            Handler handlerInstance = (Handler) referenceSite.getTarget().bindTo(classInstance).invoke();
-                            switch (getType(method)) {
-                                case GET:
-                                    get(pathPrefix + method.getAnnotation(Get.class).value(), handlerInstance);
-                                    break;
-                                case POST:
-                                    post(pathPrefix + method.getAnnotation(Post.class).value(), handlerInstance);
-                                    break;
-                            }
-                        } catch (Throwable e) {
-                            log.error("Failed to create routing for " + method.getName(), e);
-                        }
-                    }
-                } catch (ReflectiveOperationException e) {
-                    log.error("Couldn't access default constructor of class " + handlerClass.getName(), e);
+        for (Class<?> handlerClass : handlers) {
+            try {
+                List<Method> methodCandidates = Arrays.stream(handlerClass.getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList());
+                if (methodCandidates.size() == 0) {
+                    log.warn("Class {} does not contain eligible methods for routing", handlerClass.getName());
+                    continue;
                 }
+                Object classInstance = handlerClass.getConstructor().newInstance();
+                String pathPrefix = "";
+                if (handlerClass.isAnnotationPresent(PathPrefix.class))
+                    pathPrefix = handlerClass.getAnnotation(PathPrefix.class).value();
+
+                for (Method method : methodCandidates) {
+                    try {
+                        MethodHandle methodHandle = lookup.unreflect(method);
+                        CallSite referenceSite = LambdaMetafactory.metafactory(
+                                lookup,
+                                "handle",
+                                MethodType.methodType(Handler.class, handlerClass),
+                                MethodType.methodType(void.class, Context.class),
+                                methodHandle,
+                                MethodType.methodType(void.class, Context.class)
+                        );
+
+                        Handler handlerInstance = (Handler) referenceSite.getTarget().bindTo(classInstance).invoke();
+                        switch (getType(method)) {
+                            case GET:
+                                javalin.get(pathPrefix + method.getAnnotation(Get.class).value(), handlerInstance);
+                                break;
+                            case POST:
+                                javalin.post(pathPrefix + method.getAnnotation(Post.class).value(), handlerInstance);
+                                break;
+                        }
+                    } catch (Throwable e) {
+                        log.error("Failed to create routing for " + method.getName(), e);
+                    }
+                }
+            } catch (ReflectiveOperationException e) {
+                log.error("Couldn't access default constructor of class " + handlerClass.getName(), e);
             }
-        });
+        }
     }
 
     private static HandlerType getType(Method m) {

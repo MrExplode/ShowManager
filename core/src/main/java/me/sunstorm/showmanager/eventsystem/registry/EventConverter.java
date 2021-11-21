@@ -5,12 +5,13 @@ import com.google.gson.JsonParser;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.eventsystem.events.Event;
 import me.sunstorm.showmanager.redis.converter.Converter;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
 public class EventConverter implements Converter<EventWrapper> {
     @Override
-    public byte[] encode(EventWrapper message) {
+    public byte[] encode(@NotNull EventWrapper message) {
         JsonObject object = new JsonObject();
         object.addProperty("id", message.getId());
         object.addProperty("async", message.isAsync());
