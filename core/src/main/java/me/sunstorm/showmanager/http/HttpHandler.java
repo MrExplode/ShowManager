@@ -3,8 +3,9 @@ package me.sunstorm.showmanager.http;
 import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
-import io.javalin.http.util.RateLimit;
-import io.javalin.plugin.json.JavalinJson;
+import io.javalin.http.util.NaiveRateLimit;
+import io.javalin.http.util.RateLimiter;
+import io.javalin.plugin.json.JsonMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
@@ -20,6 +21,9 @@ import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -40,13 +44,28 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
         load();
         register();
         javalin = Javalin.create(config -> {
-            config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from " + ctx.ip() + " to " + ctx.path() + " took " + executionTimeMs + " ms"));
+            config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from {} to {} took {} ms", ctx.ip(), ctx.path(), executionTimeMs));
             config.enableCorsForAllOrigins();
-            if (System.getenv("showmanager.debug") == null)
-                config.addStaticFiles("/", System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist"), Location.EXTERNAL);
+            config.jsonMapper(new JsonMapper() {
+                @NotNull
+                @Override
+                public String toJsonString(@NotNull Object obj) {
+                    return Constants.GSON.toJson(obj);
+                }
+
+                @NotNull
+                @Override
+                public <T> T fromJsonStream(@NotNull InputStream json, @NotNull Class<T> targetClass) {
+                    return Constants.GSON.fromJson(new BufferedReader(new InputStreamReader(json)), targetClass);
+                }
+            });
+            if (System.getenv("showmanager.debug") == null) {
+                config.addStaticFiles(staticConfig -> {
+                    staticConfig.hostedPath = "/";
+                    staticConfig.directory = System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist");
+                });
+            }
         });
-        JavalinJson.setToJsonMapper(Constants.GSON::toJson);
-        JavalinJson.setFromJsonMapper(Constants.GSON::fromJson);
         javalin.start(port);
         setupRouting();
     }
@@ -59,7 +78,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             ws.onMessage(wsHandler);
             ws.onError(wsHandler);
         });
-        javalin.before(ctx -> new RateLimit(ctx).requestPerTimeUnit(100, TimeUnit.MINUTES));
+        javalin.before(ctx -> NaiveRateLimit.requestPerTimeUnit(ctx, 100, TimeUnit.MINUTES));
         RoutingManager.create(javalin,
                 AudioController.class,
                 ControlController.class,
