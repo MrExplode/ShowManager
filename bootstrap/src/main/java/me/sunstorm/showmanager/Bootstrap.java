@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 @Slf4j
@@ -35,6 +36,8 @@ public class Bootstrap {
             Class<?> mainClass = Class.forName("me.sunstorm.showmanager.ShowManager");
             Constructor<?> constructor = mainClass.getConstructor();
             constructor.newInstance();
+        } catch (InvocationTargetException e) {
+            log.error("Unhandled error occurred", e.getCause());
         } catch (ReflectiveOperationException e) {
             log.error("Failed to bootstrap ShowManager", e);
         }

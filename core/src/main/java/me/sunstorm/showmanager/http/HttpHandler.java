@@ -62,6 +62,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
             if (System.getenv("showmanager.debug") == null) {
                 config.addStaticFiles(staticConfig -> {
                     staticConfig.hostedPath = "/";
+                    staticConfig.location = Location.EXTERNAL;
                     staticConfig.directory = System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist");
                 });
             }
