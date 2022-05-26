@@ -28,7 +28,7 @@ You can build the Java artifact with:
 the artifact will be in `build/libs`  
 
 ### ShowManager-Frontend
-ShowManager uses a web UI. Currently you have to build it separately and tell it's location to ShowManager.  
+ShowManager uses a [web UI](https://github.com/MrExplode/SM-Frontend). Currently you have to build it separately and tell it's location to ShowManager.  
 The frontend is built with `npm`, obviously you have to install it first.  
   
 Setting up the repo:
