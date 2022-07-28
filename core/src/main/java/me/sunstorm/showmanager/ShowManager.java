@@ -22,6 +22,7 @@ import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
 
+import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -49,7 +50,7 @@ public class ShowManager {
     private final EventScheduler eventScheduler;
     private final Worker worker;
 
-    @SneakyThrows({UnknownHostException.class, IOException.class})
+    @SneakyThrows({UnknownHostException.class, IOException.class, LineUnavailableException.class})
     public ShowManager() {
         instance = this;
         DependencyInjection.registerProvider(ShowManager.class, () -> this);
@@ -70,6 +71,7 @@ public class ShowManager {
         oscHandler = new OscHandler();
         DependencyInjection.updateProvider(OscHandler.class, () -> oscHandler);
         ltcHandler = new LtcHandler(settingsStore.getMixerByName(config.getLtcConfig().getLtcOutput()), config.getFramerate());
+        ltcHandler.init();
         DependencyInjection.registerProvider(LtcHandler.class, () -> ltcHandler);
         oscRemoteControl = new OscRemoteControl();
         audioPlayer = new AudioPlayer();

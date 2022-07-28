@@ -8,8 +8,15 @@ plugins {
 group 'me.sunstorm'
 version '2.0-SNAPSHOT'
 
-tasks.withType(JavaCompile) {
-    options.encoding('UTF-8')
+allprojects {
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+    tasks.withType(JavaCompile) {
+        options.encoding('UTF-8')
+    }
 }
 
 repositories {
@@ -18,7 +25,6 @@ repositories {
 
 dependencies {
     implementation project(':core')
-    implementation project(':bootstrap')
 }
 
 shadowJar {

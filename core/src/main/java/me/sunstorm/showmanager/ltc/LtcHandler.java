@@ -3,8 +3,8 @@ package me.sunstorm.showmanager.ltc;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import me.mrexplode.ltc4j.Framerate;
-import me.mrexplode.ltc4j.LTCGenerator;
+import me.sunstorm.ltc4j.Framerate;
+import me.sunstorm.ltc4j.LTCGenerator;
 import me.sunstorm.showmanager.terminable.Terminable;
 
 import javax.sound.sampled.LineUnavailableException;
