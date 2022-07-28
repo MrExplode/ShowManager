@@ -11,16 +11,17 @@ version '2.0-SNAPSHOT'
 allprojects {
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(18))
         }
     }
     tasks.withType(JavaCompile) {
         options.encoding('UTF-8')
     }
-}
 
-repositories {
-    mavenCentral()
+    repositories {
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
+    }
 }
 
 dependencies {
