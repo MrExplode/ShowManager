@@ -111,7 +111,7 @@ public class OutputController implements InjectRecipient {
     public void getAll(@NotNull Context ctx) {
         JsonObject data = new JsonObject();
         data.addProperty("artnet", artNetHandler.isEnabled());
-        data.addProperty("ltc", false);
+        data.addProperty("ltc", ltcHandler.isEnabled());
         data.addProperty("audio", player.isEnabled());
         data.addProperty("scheduler", scheduler.isEnabled());
         ctx.json(data);

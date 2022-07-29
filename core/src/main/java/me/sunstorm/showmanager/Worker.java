@@ -61,7 +61,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                 if (playing) {
                     currentTime.set(elapsed);
                     artNetHandler.setTime(currentTime);
-                    ltcHandler.getGenerator().setTime(currentTime.getHour(), currentTime.getMin(), currentTime.getSec(), currentTime.getFrame());
+                    ltcHandler.setTime(currentTime);
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
                     changeEvent.call(eventBus);
                 }
@@ -84,7 +84,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
             return;
 
         artNetHandler.setTime(time);
-        ltcHandler.getGenerator().setTime(time.getHour(), time.getMin(), time.getSec(), time.getFrame());
+        ltcHandler.setTime(time);
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
         this.currentTime = time;
@@ -122,7 +122,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
         this.playing = false;
-        ltcHandler.getGenerator().setTime(0, 0, 0, 0);
+        ltcHandler.setTime(Timecode.ZERO);
         ltcHandler.stop();
         currentTime = new Timecode(0);
         start = 0;

@@ -4,3 +4,7 @@ build/
 run/
 **/out/*
 core/logs
+
+**/.vs/
+**/Debug/
+**/Release/
