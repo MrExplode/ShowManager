@@ -15,6 +15,7 @@ import me.sunstorm.showmanager.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.http.routing.annotate.Post;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.ltc.LtcHandler;
 import me.sunstorm.showmanager.scheduler.EventScheduler;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 @PathPrefix("/output")
 public class OutputController implements InjectRecipient {
     private Worker worker;
+    private LtcHandler ltcHandler;
     private ArtNetHandler artNetHandler;
     private AudioPlayer player;
     private EventScheduler scheduler;
@@ -53,7 +55,9 @@ public class OutputController implements InjectRecipient {
 
     @Get("/ltc")
     public void getLtc(@NotNull Context ctx) {
-        throw new ServiceUnavailableResponse();
+        JsonObject data = new JsonObject();
+        data.addProperty("enabled", ltcHandler.isEnabled());
+        ctx.json(data);
     }
 
     @Post("/ltc")
@@ -63,7 +67,7 @@ public class OutputController implements InjectRecipient {
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
         log.info("LTC " + (value ? "enabled" : "disabled"));
-        worker.setLtc(value);
+        ltcHandler.setEnabled(value);
         update("ltc", value);
     }
 

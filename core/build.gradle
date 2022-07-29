@@ -7,7 +7,8 @@ group 'me.sunstorm'
 version '2.0-SNAPSHOT'
 
 dependencies {
-    implementation group: 'com.github.MrExplode',     name: 'ltc4j',                   version: '1.0.1'
+     //fileTree(dir: 'libs/', include: '*.jar')
+    implementation group: 'com.github.MrExplode',     name: 'ltc4j',                   version: '9918267f58'
     implementation group: 'com.google.code.gson',     name: 'gson',                    version: '2.9.0'
     implementation group: 'com.google.guava',         name: 'guava',                   version: '31.1-jre'
     implementation(group: 'com.illposed.osc',         name: 'javaosc-core',            version: '0.8') {

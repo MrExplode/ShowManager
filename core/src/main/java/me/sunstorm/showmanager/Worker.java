@@ -27,9 +27,6 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
     private final DmxRemoteControl dmxRemote;
     private final ArtNetHandler artNetHandler;
     private boolean running = true;
-    @Setter private boolean artNet = false;
-    @Setter private boolean ltc = false;
-    @Setter private boolean osc = false;
     private boolean playing = false;
     private long start = 0;
     private long elapsed = 0;
@@ -104,8 +101,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
             start = System.currentTimeMillis();
         else
             start = System.currentTimeMillis() - elapsed;
-        if (ltc)
-            ltcHandler.getGenerator().start();
+        ltcHandler.start();
         this.playing = true;
     }
     
@@ -116,9 +112,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
         this.playing = false;
-        if (ltc) {
-            ltcHandler.getGenerator().stop();
-        }
+        ltcHandler.stop();
     }
     
     public void stop() {
@@ -128,10 +122,8 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
         this.playing = false;
-        if (ltc) {
-            ltcHandler.getGenerator().setTime(0, 0, 0, 0);
-            ltcHandler.getGenerator().stop();
-        }
+        ltcHandler.getGenerator().setTime(0, 0, 0, 0);
+        ltcHandler.stop();
         currentTime = new Timecode(0);
         start = 0;
     }
