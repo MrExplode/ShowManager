@@ -61,7 +61,6 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                 if (playing) {
                     currentTime.set(elapsed);
                     artNetHandler.setTime(currentTime);
-                    ltcHandler.setTime(currentTime);
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
                     changeEvent.call(eventBus);
                 }

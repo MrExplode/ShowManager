@@ -50,7 +50,7 @@ public class ShowManager {
     private final EventScheduler eventScheduler;
     private final Worker worker;
 
-    @SneakyThrows({UnknownHostException.class, IOException.class, LineUnavailableException.class})
+    @SneakyThrows({UnknownHostException.class, IOException.class})
     public ShowManager() {
         instance = this;
         DependencyInjection.registerProvider(ShowManager.class, () -> this);
