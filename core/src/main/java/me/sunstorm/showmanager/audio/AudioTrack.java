@@ -45,6 +45,11 @@ public class AudioTrack implements InjectRecipient {
         inject(false);
     }
 
+    public AudioTrack(Timecode startTime, File file, List<Marker> markers) {
+        this(startTime, file);
+        this.markers.addAll(markers);
+    }
+
     public AudioTrack loadTrack(Mixer mixer) {
         //bruh moment
         if (eventBus == null)
