@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpHandler extends SettingsHolder implements Terminable, InjectRecipient {
     private final Javalin javalin;
+    private String host = "127.0.0.1";
     private int port = 7000;
     @Getter
     private String header = "secret";
@@ -64,7 +65,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
                 });
             }
         });
-        javalin.start(port);
+        javalin.start(host, port);
         setupRouting();
     }
 
@@ -95,6 +96,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
+        data.addProperty("host", host);
         data.addProperty("port", port);
         data.addProperty("header", header);
         data.addProperty("secret", secret);
@@ -103,6 +105,7 @@ public class HttpHandler extends SettingsHolder implements Terminable, InjectRec
 
     @Override
     public void onLoad(@NotNull JsonObject object) {
+        host = object.get("host").getAsString();
         port = object.get("port").getAsInt();
         header = object.get("header").getAsString();
         secret = object.get("secret").getAsString();
