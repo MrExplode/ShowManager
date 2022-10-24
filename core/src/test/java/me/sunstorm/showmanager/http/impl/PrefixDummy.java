@@ -1,8 +1,8 @@
 package me.sunstorm.showmanager.http.impl;
 
 import io.javalin.http.Context;
-import me.sunstorm.showmanager.http.routing.annotate.Get;
-import me.sunstorm.showmanager.http.routing.annotate.PathPrefix;
+import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
+import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 
 @PathPrefix("/prefix")
 public class PrefixDummy {

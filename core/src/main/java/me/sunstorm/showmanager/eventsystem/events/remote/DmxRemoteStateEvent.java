@@ -3,7 +3,7 @@ package me.sunstorm.showmanager.eventsystem.events.remote;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.sunstorm.showmanager.eventsystem.events.Event;
-import me.sunstorm.showmanager.remote.DmxRemoteState;
+import me.sunstorm.showmanager.modules.remote.DmxRemoteState;
 
 @Getter
 @AllArgsConstructor

@@ -1,17 +1,16 @@
 package me.sunstorm.showmanager;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import me.sunstorm.showmanager.artnet.ArtNetHandler;
+import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
-import me.sunstorm.showmanager.ltc.LtcHandler;
-import me.sunstorm.showmanager.remote.DmxRemoteControl;
+import me.sunstorm.showmanager.modules.ltc.LtcModule;
+import me.sunstorm.showmanager.modules.remote.DmxRemoteModule;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 
@@ -23,9 +22,9 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
     @Inject
     private EventBus eventBus;
     @Inject
-    private LtcHandler ltcHandler;
-    private final DmxRemoteControl dmxRemote;
-    private final ArtNetHandler artNetHandler;
+    private LtcModule ltcModule;
+    private final DmxRemoteModule dmxRemote;
+    private final ArtNetModule artNetModule;
     private boolean running = true;
     private boolean playing = false;
     private long start = 0;
@@ -37,9 +36,9 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         register();
         inject();
         this.framerate = framerate;
-        artNetHandler = new ArtNetHandler();
-        DependencyInjection.updateProvider(ArtNetHandler.class, () -> artNetHandler);
-        dmxRemote = new DmxRemoteControl();
+        artNetModule = new ArtNetModule();
+        DependencyInjection.updateProvider(ArtNetModule.class, () -> artNetModule);
+        dmxRemote = new DmxRemoteModule();
     }
 
     @Override
@@ -56,16 +55,16 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                 if (playing) {
                     elapsed = time - start;
                 }
-                dmxRemote.handleData(artNetHandler.getData(dmxRemote.getAddress().getSubnet(), dmxRemote.getAddress().getUniverse()));
+                dmxRemote.handleData(artNetModule.getData(dmxRemote.getAddress().getSubnet(), dmxRemote.getAddress().getUniverse()));
                 
                 if (playing) {
                     currentTime.set(elapsed);
-                    artNetHandler.setTime(currentTime);
+                    artNetModule.setTime(currentTime);
                     TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
                     changeEvent.call(eventBus);
                 }
 
-                artNetHandler.broadcast();
+                artNetModule.broadcast();
             }
 
             //slowing down the loop
@@ -82,8 +81,8 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
 
-        artNetHandler.setTime(time);
-        ltcHandler.setTime(time);
+        artNetModule.setTime(time);
+        ltcModule.setTime(time);
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
         this.currentTime = time;
@@ -100,7 +99,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
             start = System.currentTimeMillis();
         else
             start = System.currentTimeMillis() - elapsed;
-        ltcHandler.start();
+        ltcModule.start();
         this.playing = true;
     }
     
@@ -111,7 +110,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
         this.playing = false;
-        ltcHandler.stop();
+        ltcModule.stop();
     }
     
     public void stop() {
@@ -121,8 +120,8 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
         if (event.isCancelled())
             return;
         this.playing = false;
-        ltcHandler.setTime(Timecode.ZERO);
-        ltcHandler.stop();
+        ltcModule.setTime(Timecode.ZERO);
+        ltcModule.stop();
         currentTime = new Timecode(0);
         start = 0;
     }

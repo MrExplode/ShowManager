@@ -1,12 +1,12 @@
 package me.sunstorm.showmanager.redis.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import me.sunstorm.showmanager.redis.converter.Converter;
+import me.sunstorm.showmanager.redis.converter.GzipConverter;
 import me.sunstorm.showmanager.redis.MessageHandler;
 import me.sunstorm.showmanager.redis.PubSubListener;
 import me.sunstorm.showmanager.redis.Redis;
 import me.sunstorm.showmanager.redis.RedisCredentials;
-import me.sunstorm.showmanager.redis.converter.Converter;
-import me.sunstorm.showmanager.redis.converter.GzipConverter;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Tuple;
 import org.jetbrains.annotations.NotNull;

@@ -2,11 +2,11 @@ package me.sunstorm.showmanager.util.serialize;
 
 import com.google.gson.*;
 import com.illposed.osc.OSCMessage;
-import me.sunstorm.showmanager.scheduler.ScheduledEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledJumpEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledOscEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledPauseEvent;
-import me.sunstorm.showmanager.scheduler.impl.ScheduledStopEvent;
+import me.sunstorm.showmanager.modules.scheduler.ScheduledEvent;
+import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledJumpEvent;
+import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
+import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledPauseEvent;
+import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledStopEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 import java.lang.reflect.Type;

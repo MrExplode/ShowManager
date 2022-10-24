@@ -4,7 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Handler;
 import me.sunstorm.showmanager.http.impl.PrefixDummy;
 import me.sunstorm.showmanager.http.impl.RouteDummy;
-import me.sunstorm.showmanager.http.routing.RoutingManager;
+import me.sunstorm.showmanager.modules.http.routing.RoutingManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

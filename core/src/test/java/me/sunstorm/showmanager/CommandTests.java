@@ -1,10 +1,10 @@
 package me.sunstorm.showmanager;
 
-import me.sunstorm.showmanager.command.CommandHandler;
-import me.sunstorm.showmanager.command.impl.PauseCommand;
-import me.sunstorm.showmanager.command.impl.PlayCommand;
-import me.sunstorm.showmanager.command.impl.RestartCommand;
-import me.sunstorm.showmanager.command.impl.StopCommand;
+import me.sunstorm.showmanager.modules.command.CommandModule;
+import me.sunstorm.showmanager.modules.command.impl.PauseCommand;
+import me.sunstorm.showmanager.modules.command.impl.PlayCommand;
+import me.sunstorm.showmanager.modules.command.impl.RestartCommand;
+import me.sunstorm.showmanager.modules.command.impl.StopCommand;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class CommandTests {
 
     @Test
     void testHandler() {
-        CommandHandler handler = new CommandHandler();
+        CommandModule handler = new CommandModule();
         assertThatThrownBy(() -> handler.registerCommand(new PauseCommand())).isInstanceOf(IllegalArgumentException.class);
     }
 

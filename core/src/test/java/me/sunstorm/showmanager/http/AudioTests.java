@@ -2,9 +2,9 @@ package me.sunstorm.showmanager.http;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import me.sunstorm.showmanager.audio.AudioPlayer;
+import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
-import me.sunstorm.showmanager.http.controller.AudioController;
+import me.sunstorm.showmanager.modules.http.controller.AudioController;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,16 +16,16 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AudioTests {
-    private AudioPlayer player;
+    private AudioModule player;
     private EventBus eventBus;
     private Context ctx;
 
     @BeforeAll
     void setupDependencies() {
-        player = mock(AudioPlayer.class);
+        player = mock(AudioModule.class);
         eventBus = mock(EventBus.class);
         ctx = mock(Context.class);
-        DependencyInjection.registerProvider(AudioPlayer.class, () -> player);
+        DependencyInjection.registerProvider(AudioModule.class, () -> player);
         DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
     }
 

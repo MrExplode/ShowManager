@@ -1,8 +1,8 @@
 package me.sunstorm.showmanager.util.serialize;
 
 import com.google.gson.*;
-import me.sunstorm.showmanager.audio.AudioTrack;
-import me.sunstorm.showmanager.audio.marker.Marker;
+import me.sunstorm.showmanager.modules.audio.AudioTrack;
+import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.util.Timecode;
 
 import java.io.File;

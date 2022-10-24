@@ -3,7 +3,7 @@ package me.sunstorm.showmanager.eventsystem.events.scheduler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.sunstorm.showmanager.eventsystem.events.Event;
-import me.sunstorm.showmanager.scheduler.ScheduledEvent;
+import me.sunstorm.showmanager.modules.scheduler.ScheduledEvent;
 
 @Getter
 @AllArgsConstructor

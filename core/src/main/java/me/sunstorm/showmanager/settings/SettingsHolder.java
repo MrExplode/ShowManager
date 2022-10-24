@@ -13,7 +13,7 @@ public abstract class SettingsHolder {
         this.name = name;
     }
 
-    public void load() {
+    public final void load() {
         Project.current().loadSettingsHolder(this);
     }
 
