@@ -34,7 +34,7 @@ shadowJar {
     archiveClassifier.set('')
     manifest {
         attributes(
-                'Main-Class': 'me.sunstorm.showmanager.Bootstrap'
+                'Main-Class': 'me.sunstorm.showmanager.Loader'
         )
     }
 }

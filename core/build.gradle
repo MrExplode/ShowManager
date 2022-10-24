@@ -9,30 +9,30 @@ version '2.0-SNAPSHOT'
 dependencies {
      //fileTree(dir: 'libs/', include: '*.jar')
     implementation group: 'com.github.MrExplode',     name: 'ltc4j',                   version: '9918267f58'
-    implementation group: 'com.google.code.gson',     name: 'gson',                    version: '2.9.0'
+    implementation group: 'com.google.code.gson',     name: 'gson',                    version: '2.9.1'
     implementation group: 'com.google.guava',         name: 'guava',                   version: '31.1-jre'
     implementation(group: 'com.illposed.osc',         name: 'javaosc-core',            version: '0.8') {
         exclude group: 'org.slf4j'
     }
     implementation group: 'com.lmax',                 name: 'disruptor',               version: '3.4.4'
-    implementation group: 'io.javalin',               name: 'javalin',                 version: '4.6.4'
+    implementation group: 'io.javalin',               name: 'javalin',                 version: '4.6.6'
     implementation group: 'javax.xml.bind',           name: 'jaxb-api',                version: '2.3.1'
     implementation group: 'net.minecrell',            name: 'terminalconsoleappender', version: '1.2.0'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core',              version: '2.18.0'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api',               version: '2.18.0'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl',        version: '2.18.0'
-    implementation group: 'org.ow2.asm',              name: 'asm',                     version: '9.3'
+    implementation group: 'org.ow2.asm',              name: 'asm',                     version: '9.4'
     implementation group: 'org.slf4j',                name: 'slf4j-api',               version: '1.7.36'
-    implementation group: 'redis.clients',            name: 'jedis',                   version: '4.2.3'
+    implementation group: 'redis.clients',            name: 'jedis',                   version: '4.3.1'
 
     compileOnly         group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api',     version: '5.8.2'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api',     version: '5.9.1'
     testImplementation group: 'org.assertj',       name: 'assertj-core',          version: '3.23.1'
-    testImplementation group: 'org.mockito',       name: 'mockito-core',          version: '4.6.1'
-    testImplementation group: 'org.mockito',       name: 'mockito-junit-jupiter', version: '4.6.1'
-    testRuntimeOnly    group: 'org.junit.jupiter', name: 'junit-jupiter-engine',  version: '5.8.2'
+    testImplementation group: 'org.mockito',       name: 'mockito-core',          version: '4.8.1'
+    testImplementation group: 'org.mockito',       name: 'mockito-junit-jupiter', version: '4.8.1'
+    testRuntimeOnly    group: 'org.junit.jupiter', name: 'junit-jupiter-engine',  version: '5.9.1'
 }
 
 test {
