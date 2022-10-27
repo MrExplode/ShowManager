@@ -32,6 +32,8 @@ public class LtcModule extends Module {
 
     public LtcModule() {
         super("ltc-timecode");
+        super.init();
+        init();
     }
 
     public void init() {

@@ -41,6 +41,7 @@ public class SchedulerModule extends Module {
 
     public SchedulerModule() {
         super("scheduler");
+        init();
     }
 
     public void addEvent(ScheduledEvent event) {

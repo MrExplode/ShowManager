@@ -33,6 +33,7 @@ public class ArtNetModule extends Module {
 
     public ArtNetModule() {
         super("art-net");
+        init();
         DependencyInjection.registerProvider(ArtNetModule.class, () -> this);
         server = new ArtNetServer();
         packet = new ArtTimePacket();

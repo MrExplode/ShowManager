@@ -36,6 +36,7 @@ public class AudioModule extends Module {
 
     public AudioModule() {
         super("audio-player");
+        init();
         if (tracks.size() > 0) {
             current = tracks.get(index).loadTrack(mixer);
         }

@@ -41,6 +41,7 @@ public class OscModule extends Module {
 
     public OscModule() {
         super("osc-dispatcher");
+        init();
         try {
             portOut = new OSCPortOut(address, outgoingPort);
             portIn = new OSCPortIn(incomingPort);

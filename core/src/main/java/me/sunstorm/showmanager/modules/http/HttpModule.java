@@ -37,6 +37,7 @@ public class HttpModule extends Module {
 
     public HttpModule() {
         super("http-server");
+        init();
         javalin = Javalin.create(config -> {
             config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from {} to {} took {} ms", ctx.ip(), ctx.path(), executionTimeMs));
             config.enableCorsForAllOrigins();

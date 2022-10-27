@@ -15,6 +15,9 @@ public abstract class Module extends SettingsHolder implements InjectRecipient, 
 
     public Module(String name) {
         super(name);
+    }
+
+    protected void init() {
         log.info("Loading {}...", getClass().getSimpleName());
         inject();
         load();

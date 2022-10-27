@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class DependencyInjection implements StaticTerminable {
     private static final Map<Class<?>, Supplier<?>> providerMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Set<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Field[]> fieldCache = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, List<Field>> fieldCache = new ConcurrentHashMap<>();
 
     public static <T> void registerProvider(@NotNull Class<T> type, Supplier<T> provider) {
         log.debug("Registering provider for {}", type.getSimpleName());
@@ -39,13 +39,13 @@ public class DependencyInjection implements StaticTerminable {
         log.debug("Injecting dependencies into {}", recipient.getClass().getSimpleName());
         val clazz = recipient.getClass();
         if (clazz.isAnnotationPresent(Inject.class)) {
-            for (Field field : getCached(clazz)) {
+            for (Field field : allFields(clazz)) {
                 if (!providerMap.containsKey(field.getType()))
                     continue;
                 injectField(field, recipient, watchUpdate);
             }
         } else {
-            Arrays.stream(getCached(clazz)).filter(f -> f.isAnnotationPresent(Inject.class)).forEach(f -> {
+            allFields(clazz).stream().filter(f -> f.isAnnotationPresent(Inject.class)).forEach(f -> {
                 if (!providerMap.containsKey(f.getType())) {
                     log.error("Found @Inject annotated field ({}#{}) without known provider type {}", clazz.getSimpleName(), f.getName(), f.getType().getSimpleName());
                     return;
@@ -56,7 +56,7 @@ public class DependencyInjection implements StaticTerminable {
     }
 
     private static void injectSpecific(Class<?> type, @NotNull InjectRecipient recipient) {
-        Arrays.stream(getCached(recipient.getClass())).filter(f -> f.getType().equals(type) && (f.isAnnotationPresent(Inject.class) || recipient.getClass().isAnnotationPresent(Inject.class))).forEach(f -> injectField(f, recipient, false));
+        allFields(recipient.getClass()).stream().filter(f -> f.getType().equals(type) && (f.isAnnotationPresent(Inject.class) || recipient.getClass().isAnnotationPresent(Inject.class))).forEach(f -> injectField(f, recipient, false));
     }
 
     private static void injectField(@NotNull Field f, InjectRecipient recipient, boolean watchUpdate) {
@@ -71,14 +71,21 @@ public class DependencyInjection implements StaticTerminable {
         }
     }
 
-    private static Field[] getCached(Class<?> type) {
-        if (fieldCache.containsKey(type)) {
-            return fieldCache.get(type);
-        } else {
-            val fields = type.getDeclaredFields();
-            fieldCache.put(type, fields);
-            return fields;
+    public static List<Field> allFields(Class<?> clazz) {
+        if (fieldCache.get(clazz) != null) return fieldCache.get(clazz);
+        List<Field> fields = new ArrayList<>();
+        if (clazz == null || clazz.equals(Object.class)) return fields;
+
+        try {
+            fields.addAll(List.of(clazz.getDeclaredFields()));
+        } catch (Exception ignored) {}
+
+        if (clazz.getSuperclass() != null) {
+            fields.addAll(allFields(clazz.getSuperclass()));
         }
+
+        fieldCache.put(clazz, fields);
+        return fields;
     }
 
     @Termination
