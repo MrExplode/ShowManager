@@ -11,7 +11,7 @@ version '2.0-SNAPSHOT'
 allprojects {
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(18))
+            languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
     tasks.withType(JavaCompile) {
