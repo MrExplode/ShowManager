@@ -25,6 +25,7 @@ import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,7 +52,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleConnect(@NotNull WsConnectContext ctx) {
-        log.info("[WS] {} connected", ctx.session.getRemoteAddress().getHostString());
+        var host = ctx.session.getRemoteAddress() instanceof InetSocketAddress r ? r.getHostString() : "unknown";
+        log.info("[WS] {} connected", host);
         wsClients.add(ctx);
         JsonArray logs = new JsonArray();
         WebSocketLogger.getLogCache().forEach(logs::add);
@@ -63,13 +65,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleClose(@NotNull WsCloseContext ctx) {
-        log.info("[WS] {} disconnected", ctx.session.getRemoteAddress().getHostString());
+        if (ctx.session.getRemoteAddress() instanceof InetSocketAddress remote) {
+            log.info("[WS] {} disconnected", remote.getHostString());
+        } else {
+            log.info("[WS] unknown disconnect");
+        }
         wsClients.remove(ctx);
     }
 
     @Override
     public void handleError(@NotNull WsErrorContext ctx) {
-        log.error("[WS] Error on " + ctx.session.getRemoteAddress().getHostString(), ctx.error());
+        if (ctx.session.getRemoteAddress() instanceof InetSocketAddress remote) {
+            log.error("[WS] Error on " + remote.getHostString(), ctx.error());
+        } else {
+            log.error("[WS] Error on unknown client", ctx.error());
+        }
     }
 
     @Override

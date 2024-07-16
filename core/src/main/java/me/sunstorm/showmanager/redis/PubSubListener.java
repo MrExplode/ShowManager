@@ -15,15 +15,16 @@ public class PubSubListener extends BinaryJedisPubSub {
     private final Set<String> subscribed = ConcurrentHashMap.newKeySet();
     private final RedisImpl redis;
 
-    @Override
-    public void subscribe(byte[]... channels) {
-        for (byte[] channel : channels) {
-            String channelName = new String(channel, StandardCharsets.UTF_8).intern();
-            if (this.subscribed.add(channelName)) {
-                super.subscribe(channel);
-            }
-        }
-    }
+    // why did they make this final?
+//    @Override
+//    public void subscribe(byte[]... channels) {
+//        for (byte[] channel : channels) {
+//            String channelName = new String(channel, StandardCharsets.UTF_8).intern();
+//            if (this.subscribed.add(channelName)) {
+//                super.subscribe(channel);
+//            }
+//        }
+//    }
 
     @Override
     public void onSubscribe(byte[] channel, int subscribedChannels) {

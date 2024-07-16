@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.NaiveRateLimit;
-import io.javalin.plugin.json.JsonMapper;
+import io.javalin.json.JsonMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -39,29 +40,24 @@ public class HttpModule extends Module {
         super("http-server");
         init();
         javalin = Javalin.create(config -> {
-            config.requestLogger((ctx, executionTimeMs) -> log.debug("[H] Request from {} to {} took {} ms", ctx.ip(), ctx.path(), executionTimeMs));
-            config.enableCorsForAllOrigins();
+            config.requestLogger.http((ctx, ms) -> log.debug("[H] Request from {} to {} took {} ms", ctx.ip(), ctx.path(), ms));
             config.jsonMapper(new JsonMapper() {
                 @NotNull
                 @Override
-                public String toJsonString(@NotNull Object obj) {
+                public String toJsonString(@NotNull Object obj, @NotNull Type type) {
                     return Constants.GSON.toJson(obj);
                 }
 
                 @NotNull
                 @Override
-                public <T> T fromJsonStream(@NotNull InputStream json, @NotNull Class<T> targetClass) {
-                    return Constants.GSON.fromJson(new BufferedReader(new InputStreamReader(json)), targetClass);
+                public <T> T fromJsonStream(@NotNull InputStream json, @NotNull Type targetType) {
+                    return Constants.GSON.fromJson(new BufferedReader(new InputStreamReader(json)), targetType);
                 }
             });
             if (System.getenv("showmanager.debug") == null) {
                 var directory = System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist");
                 if (directory != null) {
-                    config.addStaticFiles(staticConfig -> {
-                        staticConfig.hostedPath = "/";
-                        staticConfig.location = Location.EXTERNAL;
-                        staticConfig.directory = directory;
-                    });
+                    config.staticFiles.add(directory, Location.EXTERNAL);
                 } else {
                     log.warn("Couldn't find frontend location, did you specify it correctly?");
                 }
