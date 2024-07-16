@@ -42,7 +42,7 @@ public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
             state = DmxRemoteState.DISABLED;
             return;
         }
-        byte value = dmxData[address.getAddress() - 1];
+        byte value = dmxData[address.address() - 1];
         if (inToleratedRange(25, value)) {
             state = DmxRemoteState.FORCE_IDLE;
             if (state != previousState) {
@@ -93,9 +93,9 @@ public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
     public JsonObject getData() {
         JsonObject data = new JsonObject();
         data.addProperty("enabled", enabled);
-        data.addProperty("address", address.getAddress());
-        data.addProperty("universe", address.getUniverse());
-        data.addProperty("subnet", address.getSubnet());
+        data.addProperty("address", address.address());
+        data.addProperty("universe", address.universe());
+        data.addProperty("subnet", address.subnet());
         return data;
     }
 

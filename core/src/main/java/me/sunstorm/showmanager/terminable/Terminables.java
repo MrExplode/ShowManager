@@ -34,7 +34,7 @@ public class Terminables {
                     } catch (IllegalAccessException e) {
                         return null;
                     }
-                }).filter(Objects::nonNull).collect(Collectors.toList());
+                }).filter(Objects::nonNull).toList();
         terminations.add(() -> {
             for (MethodHandle methodHandle : list) {
                 methodHandle.invokeExact();

@@ -55,7 +55,7 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
                 if (playing) {
                     elapsed = time - start;
                 }
-                dmxRemote.handleData(artNetModule.getData(dmxRemote.getAddress().getSubnet(), dmxRemote.getAddress().getUniverse()));
+                dmxRemote.handleData(artNetModule.getData(dmxRemote.getAddress().subnet(), dmxRemote.getAddress().universe()));
                 
                 if (playing) {
                     currentTime.set(elapsed);

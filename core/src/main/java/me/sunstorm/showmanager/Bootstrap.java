@@ -3,7 +3,7 @@ package me.sunstorm.showmanager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Loader {
+public class Bootstrap {
 
     public static void main(String[] args) {
         log.info("Loading ShowManager...");

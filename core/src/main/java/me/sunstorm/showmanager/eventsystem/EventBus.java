@@ -85,14 +85,14 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
 
     @Override
     public void handleMessage(EventWrapper message) {
-        if (message.isAsync()) {
-            if (message.getEvent() instanceof CancellableEvent) {
-                log.error("[EventHandler] Called cancellable event (" + message.getEvent().getClass().getSimpleName() + ") asynchronously");
+        if (message.async()) {
+            if (message.event() instanceof CancellableEvent) {
+                log.error("[EventHandler] Called cancellable event (" + message.event().getClass().getSimpleName() + ") asynchronously");
             } else {
-                executor.execute(() -> executeEvent(message.getEvent()));
+                executor.execute(() -> executeEvent(message.event()));
             }
         } else {
-            executeEvent(message.getEvent());
+            executeEvent(message.event());
         }
     }
 

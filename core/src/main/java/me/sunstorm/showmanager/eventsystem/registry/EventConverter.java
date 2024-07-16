@@ -13,9 +13,9 @@ public class EventConverter implements Converter<EventWrapper> {
     @Override
     public byte[] encode(@NotNull EventWrapper message) {
         JsonObject object = new JsonObject();
-        object.addProperty("id", message.getId());
-        object.addProperty("async", message.isAsync());
-        object.add("event", Constants.GSON.toJsonTree(message.getEvent()));
+        object.addProperty("id", message.id());
+        object.addProperty("async", message.async());
+        object.add("event", Constants.GSON.toJsonTree(message.event()));
         return object.toString().getBytes(StandardCharsets.UTF_8);
     }
 

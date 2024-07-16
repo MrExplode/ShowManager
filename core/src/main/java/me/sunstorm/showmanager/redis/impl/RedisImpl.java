@@ -120,7 +120,7 @@ public class RedisImpl implements Redis, Terminable {
             while (true) {
                 try (Jedis jedis = jedisPool.getResource()) {
                     Tuple<byte[], byte[]> data = sendQueue.take();
-                    jedis.publish(data.getFirst(), data.getSecond());
+                    jedis.publish(data.first(), data.second());
                 } catch (InterruptedException e) {
                     log.error("SendQueue wait interrupted", e);
                 }

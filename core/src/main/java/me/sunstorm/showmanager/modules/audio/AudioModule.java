@@ -37,7 +37,7 @@ public class AudioModule extends Module {
     public AudioModule() {
         super("audio-player");
         init();
-        if (tracks.size() > 0) {
+        if (!tracks.isEmpty()) {
             current = tracks.get(index).loadTrack(mixer);
         }
     }
@@ -67,7 +67,7 @@ public class AudioModule extends Module {
             current.discard();
         }
         index = 0;
-        if (tracks.size() > 0) {
+        if (!tracks.isEmpty()) {
             current = tracks.get(index).loadTrack(mixer);
         }
     }

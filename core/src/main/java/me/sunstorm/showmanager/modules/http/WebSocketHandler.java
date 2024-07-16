@@ -90,7 +90,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @EventCall
     public void onTimeChange(TimecodeChangeEvent e) {
         //slow down the ws dispatch
-        if (wsClients.size() == 0 || (lastDispatchedTime != null && e.getTime().millis() - lastDispatchedTime.millis() < 10)) return;
+        if (wsClients.isEmpty() || (lastDispatchedTime != null && e.getTime().millis() - lastDispatchedTime.millis() < 10)) return;
         JsonObject data = new JsonObject();
         Timecode time = e.getTime();
         data.addProperty("type", "time");

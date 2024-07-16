@@ -25,10 +25,10 @@ public class EventConverterTests {
         EventWrapper excepted = new EventWrapper(5, false, new AudioVolumeChangeEvent(15));
         EventConverter converter = new EventConverter();
         assertThat(converter.decode(input.getBytes(StandardCharsets.UTF_8))).satisfies(w -> {
-            assertThat(w.getId()).as("event id").isEqualTo(excepted.getId());
-            assertThat(w.isAsync()).isEqualTo(excepted.isAsync());
-            assertThat(w.getEvent()).isNotNull().isInstanceOf(AudioVolumeChangeEvent.class);
-            assertThat(((AudioVolumeChangeEvent) w.getEvent()).getVolume()).isEqualTo(15);
+            assertThat(w.id()).as("event id").isEqualTo(excepted.id());
+            assertThat(w.async()).isEqualTo(excepted.async());
+            assertThat(w.event()).isNotNull().isInstanceOf(AudioVolumeChangeEvent.class);
+            assertThat(((AudioVolumeChangeEvent) w.event()).getVolume()).isEqualTo(15);
         });
     }
 }
