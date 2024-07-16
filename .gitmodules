@@ -1,4 +1,0 @@
-[submodule "frontend"]
-	path = frontend
-	url = https://github.com/MrExplode/SM-Frontend
-	branch = master
