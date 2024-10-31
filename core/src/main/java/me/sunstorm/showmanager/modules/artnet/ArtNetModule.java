@@ -8,7 +8,7 @@ import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.injection.DependencyInjection;
-import me.sunstorm.showmanager.modules.Module;
+import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -18,11 +18,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class ArtNetModule extends Module {
+public class ArtNetModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(ArtNetModule.class);
 
     private InetAddress address;
-    private boolean enabled = false;
 
     private final ArtNetServer server;
     private final ArtTimePacket packet;
@@ -66,7 +65,7 @@ public class ArtNetModule extends Module {
     }
 
     public void broadcast() {
-        if (enabled) {
+        if (isEnabled()) {
             server.broadcastPacket(packet);
         }
     }
@@ -98,14 +97,14 @@ public class ArtNetModule extends Module {
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
-        data.addProperty("enabled", enabled);
+        data.addProperty("enabled", isEnabled());
         data.addProperty("interface", address == null ? "127.0.0.1" : address.getHostAddress());
         return data;
     }
 
     @Override
     public void onLoad(@NotNull JsonObject object) {
-        enabled = object.get("enabled").getAsBoolean();
+        setEnabled(object.get("enabled").getAsBoolean());
         try {
             address = InetAddress.getByName(object.get("interface").getAsString());
         } catch (UnknownHostException e) {
@@ -115,15 +114,7 @@ public class ArtNetModule extends Module {
 
     // generated
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
     public void setAddress(InetAddress address) {
         this.address = address;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

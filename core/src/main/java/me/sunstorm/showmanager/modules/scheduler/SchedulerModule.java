@@ -11,7 +11,7 @@ import me.sunstorm.showmanager.eventsystem.events.scheduler.SchedulerExecuteEven
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
-import me.sunstorm.showmanager.modules.Module;
+import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,11 +26,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *  - OSC packet dispatch<br>
  *  - Internal actions (jump, pause, stop)
  */
-public class SchedulerModule extends Module {
+public class SchedulerModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(SchedulerModule.class);
 
     private final List<ScheduledEvent> scheduledEvents = new CopyOnWriteArrayList<>();
-    private boolean enabled = false;
     private int lastIndex = -1;
     private Timecode lastTime = new Timecode(-1);
 
@@ -55,7 +54,7 @@ public class SchedulerModule extends Module {
 
     @EventCall(EventPriority.LOWEST)
     public void onTimeChange(TimecodeChangeEvent e) {
-        if (!enabled || scheduledEvents.size() == 0 || lastIndex + 1 == scheduledEvents.size()) return;
+        if (!isEnabled() || scheduledEvents.size() == 0 || lastIndex + 1 == scheduledEvents.size()) return;
         Timecode current = e.getTime();
         //no exec yet or time was reset
         //I don't have time to debug buggy behaviour rn
@@ -105,7 +104,7 @@ public class SchedulerModule extends Module {
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
-        data.addProperty("enabled", enabled);
+        data.addProperty("enabled", isEnabled());
         JsonArray eventArray = new JsonArray();
         scheduledEvents.forEach(e -> eventArray.add(e.getData()));
         data.add("events", eventArray);
@@ -114,7 +113,7 @@ public class SchedulerModule extends Module {
 
     @Override
     public void onLoad(@NotNull JsonObject object) {
-        enabled = object.get("enabled").getAsBoolean();
+        setEnabled(object.get("enabled").getAsBoolean());
         JsonArray eventArray = object.get("events").getAsJsonArray();
         eventArray.forEach(e -> {
             ScheduledEvent event = Constants.GSON.fromJson(e, ScheduledEvent.class);
@@ -131,14 +130,6 @@ public class SchedulerModule extends Module {
     }
 
     // generated
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 
     public List<ScheduledEvent> getScheduledEvents() {
         return scheduledEvents;
