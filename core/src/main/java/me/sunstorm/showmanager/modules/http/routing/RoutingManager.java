@@ -71,11 +71,11 @@ public class RoutingManager {
                                 break;
                         }
                     } catch (Throwable e) {
-                        log.error("Failed to create routing for " + method.getName(), e);
+                        log.error("Failed to create routing for {}", method.getName(), e);
                     }
                 }
             } catch (ReflectiveOperationException e) {
-                log.error("Couldn't access default constructor of class " + handlerClass.getName(), e);
+                log.error("Couldn't access default constructor of class {}", handlerClass.getName(), e);
             }
         }
     }

@@ -48,7 +48,7 @@ public class Terminables {
             try {
                 t.terminate();
             } catch (Throwable e) {
-                log.error("Failed to terminate " + t, e);
+                log.error("Failed to terminate {}", t, e);
             }
         });
         terminations.clear();

@@ -50,7 +50,7 @@ public class OutputController implements InjectRecipient {
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
-        log.info("ArtNet " + (value ? "enabled" : "disabled"));
+        log.info("ArtNet {}", value ? "enabled" : "disabled");
         artNetModule.setEnabled(value);
         update("artnet", value);
     }
@@ -68,7 +68,7 @@ public class OutputController implements InjectRecipient {
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
-        log.info("LTC " + (value ? "enabled" : "disabled"));
+        log.info("LTC {}", value ? "enabled" : "disabled");
         ltcModule.setEnabled(value);
         update("ltc", value);
     }
@@ -86,7 +86,7 @@ public class OutputController implements InjectRecipient {
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
-        log.info("Audio " + (value ? "enabled" : "disabled"));
+        log.info("Audio {}", value ? "enabled" : "disabled");
         player.setEnabled(value);
         update("audio", value);
     }
@@ -104,7 +104,7 @@ public class OutputController implements InjectRecipient {
         if (data.get("enabled") == null)
             throw new BadRequestResponse();
         boolean value = data.get("enabled").getAsBoolean();
-        log.info("Scheduler " + (value ? "enabled" : "disabled"));
+        log.info("Scheduler {}", value ? "enabled" : "disabled");
         scheduler.setEnabled(value);
         update("scheduler", value);
     }

@@ -50,7 +50,7 @@ public class Project {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            log.error("Failed to save project " + name, e);
+            log.error("Failed to save project {}", name, e);
         }
     }
 

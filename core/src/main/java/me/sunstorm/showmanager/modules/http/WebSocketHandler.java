@@ -78,7 +78,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleError(@NotNull WsErrorContext ctx) {
         if (ctx.session.getRemoteAddress() instanceof InetSocketAddress remote) {
-            log.error("[WS] Error on " + remote.getHostString(), ctx.error());
+            log.error("[WS] Error on {}", remote.getHostString(), ctx.error());
         } else {
             log.error("[WS] Error on unknown client", ctx.error());
         }

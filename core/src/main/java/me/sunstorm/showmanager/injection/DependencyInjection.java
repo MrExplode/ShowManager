@@ -68,7 +68,7 @@ public class DependencyInjection implements StaticTerminable {
             if (watchUpdate)
                 injectMap.computeIfAbsent(f.getType(), __ -> Collections.newSetFromMap(new WeakHashMap<>())).add(recipient);
         } catch (IllegalAccessException e) {
-            log.error("Failed to inject value to field (" + f.getName() + " - " + f.getType().getSimpleName() + ")", e);
+            log.error("Failed to inject value to field ({} - {})", f.getName(), f.getType().getSimpleName(), e);
         }
     }
 

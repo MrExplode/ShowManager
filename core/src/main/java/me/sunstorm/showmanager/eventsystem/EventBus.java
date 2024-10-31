@@ -37,7 +37,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
     public void call(boolean async, Event event) {
         if (async) {
             if (event instanceof CancellableEvent) {
-                log.error("[EventHandler] Called cancellable event (" + event.getClass().getSimpleName() + ") asynchronously");
+                log.error("[EventHandler] Called cancellable event ({}) asynchronously", event.getClass().getSimpleName());
             } else {
                 executor.execute(() -> executeEvent(event));
             }
@@ -56,13 +56,13 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
             try {
                 eventContainer.execute(event);
             } catch (Throwable e) {
-                log.error("Failed to invoke event: " + event.getClass().getSimpleName(), e);
+                log.error("Failed to invoke event: {}", event.getClass().getSimpleName(), e);
             }
         });
     }
 
     public void register(@NotNull Listener listener) {
-        log.debug("Registering listener: " + listener.getClass().getSimpleName());
+        log.debug("Registering listener: {}", listener.getClass().getSimpleName());
         for (Method method : Arrays.stream(listener.getClass().getDeclaredMethods()).filter(methodPredicate).toList()) {
             try {
                 Class<?> eventType = method.getParameterTypes()[0];
@@ -71,7 +71,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
                 EventExecutor executor = executorFactory.create(listener, method);
                 listeners.computeIfAbsent(eventType, typeList -> new CopyOnWriteArrayList<>()).add(new ListenerContainer(executor, listener, priority));
                 listeners.get(eventType).sort(Comparator.comparingInt(o -> o.priority().getPriority()));
-                log.debug("Registering method: " + method.getName() + " type: " + eventType.getSimpleName());
+                log.debug("Registering method: {} type: {}", method.getName(), eventType.getSimpleName());
             } catch (InstantiationException | IllegalAccessException e) {
                 log.error("Failed to create executor for '{}' method", method.getName(), e);
             }
@@ -86,7 +86,7 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
     public void handleMessage(EventWrapper message) {
         if (message.async()) {
             if (message.event() instanceof CancellableEvent) {
-                log.error("[EventHandler] Called cancellable event (" + message.event().getClass().getSimpleName() + ") asynchronously");
+                log.error("[EventHandler] Called cancellable event ({}) asynchronously", message.event().getClass().getSimpleName());
             } else {
                 executor.execute(() -> executeEvent(message.event()));
             }
