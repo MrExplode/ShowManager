@@ -39,7 +39,7 @@ public class RoutingManager {
         log.info("Starting route creation");
         for (Class<?> handlerClass : handlers) {
             try {
-                List<Method> methodCandidates = Arrays.stream(handlerClass.getDeclaredMethods()).filter(methodPredicate).collect(Collectors.toList());
+                List<Method> methodCandidates = Arrays.stream(handlerClass.getDeclaredMethods()).filter(methodPredicate).toList();
                 if (methodCandidates.size() == 0) {
                     log.warn("Class {} does not contain eligible methods for routing", handlerClass.getName());
                     continue;
