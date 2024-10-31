@@ -42,16 +42,12 @@ tasks.jacocoTestReport {
         csv.required = false
     }
 
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.map {
-            fileTree(it) {
-                exclude("ch/bildspur/artnet/**")
-            }
-        }))
-    }
-}
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it) {
+            exclude("ch/bildspur/artnet/**")
+        }
+    }))
 
-tasks.jacocoTestReport {
     dependsOn(tasks.test)
 }
 
