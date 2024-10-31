@@ -1,15 +1,17 @@
 package me.sunstorm.showmanager.modules;
 
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.terminable.Terminable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public abstract class Module extends SettingsHolder implements InjectRecipient, Listener, Terminable {
+    private static final Logger log = LoggerFactory.getLogger(Module.class);
+
     @Inject
     protected EventBus eventBus;
 

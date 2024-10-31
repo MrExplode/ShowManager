@@ -1,19 +1,12 @@
 package me.sunstorm.showmanager.util;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
 public class Timecode implements Comparable<Timecode> {
     public static final Timecode ZERO = new Timecode(0);
-    @Setter(AccessLevel.NONE) private long millisecLength;
+    private long millisecLength;
     
     private int hour;
     private int min;
@@ -110,5 +103,43 @@ public class Timecode implements Comparable<Timecode> {
 
     public Timecode copy() {
         return new Timecode(hour, min, sec, frame);
+    }
+
+    // gemerated
+
+    public int getHour() {
+        return hour;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getSec() {
+        return sec;
+    }
+
+    public int getFrame() {
+        return frame;
+    }
+
+    public long getMillisecLength() {
+        return millisecLength;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+
+    public void setMin(int min) {
+        this.min = min;
+    }
+
+    public void setSec(int sec) {
+        this.sec = sec;
+    }
+
+    public void setFrame(int frame) {
+        this.frame = frame;
     }
 }

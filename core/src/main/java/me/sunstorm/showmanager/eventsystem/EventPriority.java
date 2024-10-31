@@ -1,10 +1,5 @@
 package me.sunstorm.showmanager.eventsystem;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum EventPriority {
     HIGHEST(2),
     HIGH(1),
@@ -13,4 +8,12 @@ public enum EventPriority {
     LOWEST(-2);
 
     private final int priority;
+
+    EventPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
 }

@@ -1,11 +1,11 @@
 package me.sunstorm.showmanager.injection;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
 import me.sunstorm.showmanager.terminable.statics.Termination;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -18,8 +18,9 @@ import java.util.function.Supplier;
  * Instance providers can be registered for injection by {@link #registerProvider(Class, Supplier)}.
  * Provided instances can be updated by {@link #updateProvider(Class, Supplier)}
  */
-@Slf4j
 public class DependencyInjection implements StaticTerminable {
+    private static final Logger log = LoggerFactory.getLogger(DependencyInjection.class);
+
     private static final Map<Class<?>, Supplier<?>> providerMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Set<InjectRecipient>> injectMap = new ConcurrentHashMap<>();
     private static final Map<Class<?>, List<Field>> fieldCache = new ConcurrentHashMap<>();
@@ -37,7 +38,7 @@ public class DependencyInjection implements StaticTerminable {
 
     protected static void performInjection(@NotNull InjectRecipient recipient, boolean watchUpdate) {
         log.debug("Injecting dependencies into {}", recipient.getClass().getSimpleName());
-        val clazz = recipient.getClass();
+        var clazz = recipient.getClass();
         if (clazz.isAnnotationPresent(Inject.class)) {
             for (Field field : allFields(clazz)) {
                 if (!providerMap.containsKey(field.getType()))

@@ -1,6 +1,5 @@
 package me.sunstorm.showmanager.modules.audio.marker;
 
-import lombok.Getter;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledJumpEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
@@ -8,7 +7,6 @@ import me.sunstorm.showmanager.util.Timecode;
  * Temporary workaround for easy jumps in time (and audio) until the planned audio manager is implemented
  * or not
  */
-@Getter
 public class Marker {
     private final String label;
     private final Timecode time;
@@ -24,5 +22,19 @@ public class Marker {
         if (wrappedEvent == null)
             wrappedEvent = new ScheduledJumpEvent(Timecode.ZERO, time);
         wrappedEvent.execute();
+    }
+
+    // generated
+
+    public String getLabel() {
+        return label;
+    }
+
+    public Timecode getTime() {
+        return time;
+    }
+
+    public ScheduledJumpEvent getWrappedEvent() {
+        return wrappedEvent;
     }
 }

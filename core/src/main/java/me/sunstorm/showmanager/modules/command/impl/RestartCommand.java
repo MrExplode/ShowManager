@@ -1,16 +1,17 @@
 package me.sunstorm.showmanager.modules.command.impl;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.modules.command.AbstractCommand;
 import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Slf4j
 public class RestartCommand extends AbstractCommand implements InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(RestartCommand.class);
+
     @Inject
     private ShowManager sm;
 
@@ -20,7 +21,6 @@ public class RestartCommand extends AbstractCommand implements InjectRecipient {
     }
 
     @Override
-    @SneakyThrows
     public void execute(List<String> args) {
         log.info("Performing restart...");
         sm.reload(true);

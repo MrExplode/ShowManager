@@ -1,13 +1,8 @@
 package me.sunstorm.showmanager.util.serialize;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-@Getter
-@AllArgsConstructor
 public enum OscParameterType {
     INTEGER(Integer::parseInt, r -> Integer.toString((Integer) r)),
     FLOAT(Float::parseFloat, r -> Float.toString((Float) r)),
@@ -18,10 +13,23 @@ public enum OscParameterType {
     private final Function<String, Object> deserializer;
     private final Function<Object, String> serializer;
 
+    OscParameterType(Function<String, Object> deserializer, Function<Object, String> serializer) {
+        this.deserializer = deserializer;
+        this.serializer = serializer;
+    }
+
     @Nullable
     public Object convert(String raw) {
         if (raw.length() == 0) return null;
         return deserializer.apply(raw);
+    }
+
+    public Function<String, Object> getDeserializer() {
+        return deserializer;
+    }
+
+    public Function<Object, String> getSerializer() {
+        return serializer;
     }
 
     public static OscParameterType find(Object obj) {

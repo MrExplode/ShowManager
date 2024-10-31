@@ -1,16 +1,13 @@
 package me.sunstorm.showmanager.util;
 
-import lombok.experimental.UtilityClass;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 
-@UtilityClass
 public class Sampler {
 
-    public float[] sample(AudioInputStream in) throws UnsupportedAudioFileException, IOException {
+    public static float[] sample(AudioInputStream in) throws UnsupportedAudioFileException, IOException {
         AudioFormat format = in.getFormat();
         if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
             throw new UnsupportedAudioFileException("unsigned");

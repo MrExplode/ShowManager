@@ -7,25 +7,22 @@ import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.injection.DependencyInjection;
 import me.sunstorm.showmanager.modules.Module;
-import me.sunstorm.showmanager.settings.SettingsHolder;
-import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-@Slf4j
 public class ArtNetModule extends Module {
-    @Setter private InetAddress address;
-    @Getter
-    @Setter private boolean enabled = false;
+    private static final Logger log = LoggerFactory.getLogger(ArtNetModule.class);
+
+    private InetAddress address;
+    private boolean enabled = false;
 
     private final ArtNetServer server;
     private final ArtTimePacket packet;
@@ -114,5 +111,19 @@ public class ArtNetModule extends Module {
         } catch (UnknownHostException e) {
             log.error("Failed to load ArtNet net interface", e);
         }
+    }
+
+    // generated
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setAddress(InetAddress address) {
+        this.address = address;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

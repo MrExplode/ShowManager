@@ -1,7 +1,6 @@
 package me.sunstorm.showmanager.eventsystem.registry;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.Getter;
 import me.sunstorm.showmanager.eventsystem.events.Event;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
@@ -18,8 +17,8 @@ import me.sunstorm.showmanager.eventsystem.events.time.*;
 
 import java.util.Map;
 
-public class EventRegistry {
-    @Getter private static final Map<Integer, Class<? extends Event>> registry = ImmutableMap.<Integer, Class<? extends Event>>builder()
+public interface EventRegistry {
+    Map<Integer, Class<? extends Event>> REGISTRY = ImmutableMap.<Integer, Class<? extends Event>>builder()
             .put(1, AudioLoadEvent.class)
             .put(2, AudioPauseEvent.class)
             .put(3, AudioStartEvent.class)

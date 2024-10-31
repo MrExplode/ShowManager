@@ -3,11 +3,12 @@ package me.sunstorm.showmanager.modules.http.routing;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
@@ -19,8 +20,9 @@ import java.util.stream.Collectors;
 /**
  * Annotation based http routing system.
  */
-@Slf4j
 public class RoutingManager {
+    private static final Logger log = LoggerFactory.getLogger(RoutingManager.class);
+
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
     private static final Predicate<Method> methodPredicate = m ->
             (m.isAnnotationPresent(Post.class) || m.isAnnotationPresent(Get.class))

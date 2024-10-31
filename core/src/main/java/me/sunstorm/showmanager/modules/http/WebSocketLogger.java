@@ -1,6 +1,5 @@
 package me.sunstorm.showmanager.modules.http;
 
-import lombok.Getter;
 import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -22,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WebSocketLogger extends AbstractAppender {
     public static final String PLUGIN_NAME = "WebSocketLogger";
     // when a frontend instance connects, it receives the last 100 log entries too (mainly used to see startup logs)
-    @Getter private static final List<String> logCache = new CopyOnWriteArrayList<>();
+    private static final List<String> logCache = new CopyOnWriteArrayList<>();
 
     protected WebSocketLogger(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
         super(name, filter, layout, ignoreExceptions);
@@ -33,7 +32,7 @@ public class WebSocketLogger extends AbstractAppender {
         String log = getLayout().toSerializable(event).toString();
         logCache.add(log);
         if (logCache.size() > 100)
-            logCache.remove(0);
+            logCache.removeFirst();
         if (WebSocketHandler.INSTANCE != null)
             WebSocketHandler.INSTANCE.consumeLog(log);
     }
@@ -49,5 +48,9 @@ public class WebSocketLogger extends AbstractAppender {
         }
 
         return new WebSocketLogger(name, filter, layout, ignoreExceptions);
+    }
+
+    public static List<String> getLogCache() {
+        return logCache;
     }
 }

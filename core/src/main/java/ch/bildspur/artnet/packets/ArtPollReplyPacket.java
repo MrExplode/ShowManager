@@ -23,13 +23,14 @@ import ch.bildspur.artnet.ArtNetServer;
 import ch.bildspur.artnet.NodeReportCode;
 import ch.bildspur.artnet.NodeStyle;
 import ch.bildspur.artnet.PortDescriptor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-@Slf4j
 public class ArtPollReplyPacket extends ArtNetPacket {
+    private static final Logger log = LoggerFactory.getLogger(ArtPollReplyPacket.class);
 
     private InetAddress ip;
 

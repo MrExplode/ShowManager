@@ -1,6 +1,5 @@
 package me.sunstorm.showmanager.modules.command;
 
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.modules.command.impl.PauseCommand;
 import me.sunstorm.showmanager.modules.command.impl.PlayCommand;
 import me.sunstorm.showmanager.modules.command.impl.RestartCommand;
@@ -11,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 public class CommandModule extends SimpleTerminalConsole {
     private final Map<String, Command> commands = new HashMap<>();
 

@@ -1,11 +1,9 @@
 package me.sunstorm.showmanager.settings;
 
 import com.google.gson.JsonObject;
-import lombok.Getter;
 import me.sunstorm.showmanager.settings.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 public abstract class SettingsHolder {
     private final String name;
 
@@ -21,4 +19,8 @@ public abstract class SettingsHolder {
     public abstract JsonObject getData();
 
     public abstract void onLoad(@NotNull JsonObject object);
+
+    public String getName() {
+        return name;
+    }
 }

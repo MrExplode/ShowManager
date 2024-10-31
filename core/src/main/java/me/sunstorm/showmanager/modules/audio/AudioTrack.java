@@ -1,9 +1,6 @@
 package me.sunstorm.showmanager.modules.audio;
 
 import com.google.common.base.Stopwatch;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -12,6 +9,8 @@ import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.*;
 import java.io.*;
@@ -21,9 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import static me.sunstorm.showmanager.util.SilentClose.close;
 
-@Slf4j
-@Getter
 public class AudioTrack implements InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(AudioTrack.class);
+
     @Inject
     private transient EventBus eventBus;
     @Inject
@@ -65,7 +64,7 @@ public class AudioTrack implements InjectRecipient {
                 stream = AudioSystem.getAudioInputStream(format, stream);
             }
             //samples = Sampler.sample(stream);
-            val sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
+            var sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();
             clip.open(stream);
@@ -151,7 +150,7 @@ public class AudioTrack implements InjectRecipient {
 
     public void setVolume(int volume) {
         this.volume = volume / 100f;
-        if (isLoaded()) {
+        if (loaded) {
             log.info("Set volume on track {} to {}%", getName(), volume);
             AudioVolumeChangeEvent event = new AudioVolumeChangeEvent(volume);
             event.call(eventBus);
@@ -162,5 +161,37 @@ public class AudioTrack implements InjectRecipient {
 
     public String getName() {
         return file.getName().substring(0, file.getName().lastIndexOf('.'));
+    }
+
+    // generated
+
+    @Nullable
+    public Timecode getEndTime() {
+        return endTime;
+    }
+
+    public Timecode getStartTime() {
+        return startTime;
+    }
+
+    @Nullable
+    public Clip getClip() {
+        return clip;
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
+    public List<Marker> getMarkers() {
+        return markers;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
     }
 }

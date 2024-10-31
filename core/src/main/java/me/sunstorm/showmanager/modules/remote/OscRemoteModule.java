@@ -1,7 +1,6 @@
 package me.sunstorm.showmanager.modules.remote;
 
 import com.illposed.osc.OSCMessage;
-import lombok.Data;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
@@ -13,7 +12,6 @@ import me.sunstorm.showmanager.injection.InjectRecipient;
 /**
  * This class handles the OSC remote capabilities.
  */
-@Data
 public class OscRemoteModule implements Listener, InjectRecipient {
     /**
      * OSC packets coming on this address will be considered as PLAY triggers

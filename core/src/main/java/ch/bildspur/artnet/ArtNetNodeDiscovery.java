@@ -22,15 +22,16 @@ package ch.bildspur.artnet;
 import ch.bildspur.artnet.events.ArtNetDiscoveryListener;
 import ch.bildspur.artnet.packets.ArtPollPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 public class ArtNetNodeDiscovery implements Runnable {
+	private static final Logger log = LoggerFactory.getLogger(ArtNetNodeDiscovery.class);
 
 	public static final int POLL_INTERVAL = 10000;
 

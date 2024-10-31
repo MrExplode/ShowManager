@@ -24,14 +24,15 @@ import ch.bildspur.artnet.events.ArtNetServerListener;
 import ch.bildspur.artnet.packets.ArtNetPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.PacketType;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-@Slf4j
 public class ArtNet {
+    private static final Logger log = LoggerFactory.getLogger(ArtNet.class);
 
     protected static final long ARTPOLL_REPLY_TIMEOUT = 3000;
 

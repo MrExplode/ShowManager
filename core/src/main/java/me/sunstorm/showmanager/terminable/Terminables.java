@@ -1,10 +1,10 @@
 package me.sunstorm.showmanager.terminable;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.terminable.statics.StaticTerminable;
 import me.sunstorm.showmanager.terminable.statics.Termination;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -13,10 +13,10 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-@Slf4j
 public class Terminables {
+    private static final Logger log = LoggerFactory.getLogger(Terminables.class);
+
     private static final Set<TerminateAction> terminations = ConcurrentHashMap.newKeySet();
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
@@ -25,7 +25,7 @@ public class Terminables {
     }
 
     public static void addTerminable(@NotNull Class<? extends StaticTerminable> staticTerminable) {
-        val list = Arrays.stream(staticTerminable.getDeclaredMethods())
+        var list = Arrays.stream(staticTerminable.getDeclaredMethods())
                 .filter(m -> Modifier.isStatic(m.getModifiers()) && m.isAnnotationPresent(Termination.class))
                 .map(m -> {
                     try {

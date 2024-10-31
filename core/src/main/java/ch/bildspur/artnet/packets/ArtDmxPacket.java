@@ -1,11 +1,12 @@
 package ch.bildspur.artnet.packets;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-@Slf4j
 public class ArtDmxPacket extends ArtNetPacket {
+    private static final Logger log = LoggerFactory.getLogger(ArtDmxPacket.class);
 
     private int numChannels;
     private int sequenceID;

@@ -5,8 +5,6 @@ import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.NaiveRateLimit;
 import io.javalin.json.JsonMapper;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
@@ -17,6 +15,8 @@ import me.sunstorm.showmanager.modules.http.controller.ControlController;
 import me.sunstorm.showmanager.modules.http.controller.OutputController;
 import me.sunstorm.showmanager.modules.http.controller.SchedulerController;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -24,14 +24,13 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
 public class HttpModule extends Module {
+    private static final Logger log = LoggerFactory.getLogger(HttpModule.class);
+
     private final Javalin javalin;
     private String host = "127.0.0.1";
     private int port = 7000;
-    @Getter
     private String header = "secret";
-    @Getter
     private String secret = "XXXXXXXXXX";
     @Inject
     private Worker worker;
@@ -109,5 +108,15 @@ public class HttpModule extends Module {
         port = object.get("port").getAsInt();
         header = object.get("header").getAsString();
         secret = object.get("secret").getAsString();
+    }
+
+    // generated
+
+    public String getHeader() {
+        return header;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 }

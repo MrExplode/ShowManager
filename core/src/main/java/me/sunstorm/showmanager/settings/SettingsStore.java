@@ -1,9 +1,8 @@
 package me.sunstorm.showmanager.settings;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
@@ -12,9 +11,9 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Getter
 public class SettingsStore {
+    private static final Logger log = LoggerFactory.getLogger(SettingsStore.class);
+
     private final List<Mixer.Info> audioOutputs = new ArrayList<>();
     private final List<InetData> networkInterfaces = new ArrayList<>();
 
@@ -27,11 +26,11 @@ public class SettingsStore {
         }
 
         try {
-            val interfaces = NetworkInterface.getNetworkInterfaces();
+            var interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
-                val netInterface = interfaces.nextElement();
+                var netInterface = interfaces.nextElement();
                 if (netInterface.isUp()) {
-                    val address = netInterface.getInetAddresses().nextElement();
+                    var address = netInterface.getInetAddresses().nextElement();
                     networkInterfaces.add(new InetData(address.getHostAddress(), address));
                 }
             }
@@ -46,5 +45,15 @@ public class SettingsStore {
                 return AudioSystem.getMixer(output);
         }
         return AudioSystem.getMixer(audioOutputs.get(0));
+    }
+
+    // generated
+
+    public List<Mixer.Info> getAudioOutputs() {
+        return audioOutputs;
+    }
+
+    public List<InetData> getNetworkInterfaces() {
+        return networkInterfaces;
     }
 }

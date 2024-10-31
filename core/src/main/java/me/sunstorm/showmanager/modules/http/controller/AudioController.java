@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -22,10 +20,13 @@ import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 @PathPrefix("/audio")
 public class AudioController implements InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(AudioController.class);
+
     @Inject
     private AudioModule player;
     @Inject
@@ -74,7 +75,7 @@ public class AudioController implements InjectRecipient {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null || !data.has("name"))
             throw new BadRequestResponse();
-        val marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().orElse(null);
+        var marker = player.getCurrent().getMarkers().stream().filter(m -> m.getLabel().equals(data.get("name").getAsString())).findFirst().orElse(null);
         if (marker != null) {
             log.info("Jumping to marker {} - {}", marker.getLabel(), marker.getTime().guiFormatted(false));
             new MarkerJumpEvent(marker).call(eventBus);
@@ -87,7 +88,7 @@ public class AudioController implements InjectRecipient {
         JsonObject data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (player.getCurrent() == null)
             throw new BadRequestResponse();
-        val marker = new Marker(data.get("name").getAsString(), new Timecode(
+        var marker = new Marker(data.get("name").getAsString(), new Timecode(
                 data.get("hour").getAsInt(),
                 data.get("min").getAsInt(),
                 data.get("sec").getAsInt(),

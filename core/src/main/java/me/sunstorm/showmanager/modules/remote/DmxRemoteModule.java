@@ -1,8 +1,6 @@
 package me.sunstorm.showmanager.modules.remote;
 
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.Setter;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
@@ -21,13 +19,12 @@ import org.jetbrains.annotations.NotNull;
  * 40% - Stop <br>
  * Any other value: idle
  */
-@Getter
 public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
     private static final int TOLERANCE = 5;
     @Inject private EventBus eventBus;
     @Inject private Worker worker;
-    @Setter private DmxAddress address = new DmxAddress(0, 0, 0);
-    @Setter private boolean enabled = false;
+    private DmxAddress address = new DmxAddress(0, 0, 0);
+    private boolean enabled = false;
     private DmxRemoteState state = DmxRemoteState.DISABLED;
     private DmxRemoteState previousState = DmxRemoteState.DISABLED;
 
@@ -103,5 +100,11 @@ public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
     public void onLoad(@NotNull JsonObject object) {
         enabled = object.get("enabled").getAsBoolean();
         address = new DmxAddress(object.get("address").getAsInt(), object.get("universe").getAsInt(), object.get("subnet").getAsInt());
+    }
+
+    // generated
+
+    public DmxAddress getAddress() {
+        return address;
     }
 }

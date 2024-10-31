@@ -1,8 +1,5 @@
 package me.sunstorm.showmanager;
 
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
@@ -12,13 +9,16 @@ import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.ltc.LtcModule;
 import me.sunstorm.showmanager.modules.remote.DmxRemoteModule;
 import me.sunstorm.showmanager.terminable.Terminable;
+import me.sunstorm.showmanager.util.Exceptions;
 import me.sunstorm.showmanager.util.Timecode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
-@Getter
 public class Worker implements Runnable, Terminable, InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(Worker.class);
+
     @Inject
     private EventBus eventBus;
     @Inject
@@ -42,7 +42,6 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
     }
 
     @Override
-    @SneakyThrows(value = {InterruptedException.class})
     public void run() {
         log.info("Starting...");
         running = true;
@@ -68,10 +67,14 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
             }
 
             //slowing down the loop
-            if (playing)
-                TimeUnit.MILLISECONDS.sleep(1);
-            else
-                TimeUnit.MILLISECONDS.sleep(10);
+            try {
+                if (playing)
+                    TimeUnit.MILLISECONDS.sleep(1);
+                else
+                    TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                Exceptions.sneaky(e);
+            }
         }
     }
     
@@ -130,4 +133,15 @@ public class Worker implements Runnable, Terminable, InjectRecipient {
     public void shutdown() {
         running = false;
     }
+
+    // generated
+
+    public Timecode getCurrentTime() {
+        return currentTime;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
 }

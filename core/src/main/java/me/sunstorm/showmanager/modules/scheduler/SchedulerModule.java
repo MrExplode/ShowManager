@@ -2,25 +2,20 @@ package me.sunstorm.showmanager.modules.scheduler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;
-import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.SchedulerExecuteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.Module;
-import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,11 +26,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *  - OSC packet dispatch<br>
  *  - Internal actions (jump, pause, stop)
  */
-@Slf4j
-@Getter
 public class SchedulerModule extends Module {
+    private static final Logger log = LoggerFactory.getLogger(SchedulerModule.class);
+
     private final List<ScheduledEvent> scheduledEvents = new CopyOnWriteArrayList<>();
-    @Setter private boolean enabled = false;
+    private boolean enabled = false;
     private int lastIndex = -1;
     private Timecode lastTime = new Timecode(-1);
 
@@ -133,5 +128,19 @@ public class SchedulerModule extends Module {
     @Override
     public void shutdown() {
         // unused
+    }
+
+    // generated
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<ScheduledEvent> getScheduledEvents() {
+        return scheduledEvents;
     }
 }

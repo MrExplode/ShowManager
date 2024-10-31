@@ -24,7 +24,7 @@ public class EventConverter implements Converter<EventWrapper> {
         JsonObject object = JsonParser.parseString(new String(message, StandardCharsets.UTF_8)).getAsJsonObject();
         int id = object.get("id").getAsInt();
         boolean async = object.get("async").getAsBoolean();
-        Event event = Constants.GSON.fromJson(object.get("event").getAsJsonObject(), EventRegistry.getRegistry().get(id));
+        Event event = Constants.GSON.fromJson(object.get("event").getAsJsonObject(), EventRegistry.REGISTRY.get(id));
         return new EventWrapper(id, async, event);
     }
 }

@@ -3,7 +3,6 @@ package me.sunstorm.showmanager.modules.http;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -24,13 +23,16 @@ import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener, InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(WebSocketHandler.class);
+
     public static WebSocketHandler INSTANCE;
     private final Set<WsContext> wsClients = ConcurrentHashMap.newKeySet();
     private Timecode lastDispatchedTime = null;

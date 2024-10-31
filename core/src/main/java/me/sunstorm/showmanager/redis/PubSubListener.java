@@ -1,19 +1,23 @@
 package me.sunstorm.showmanager.redis;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.redis.impl.RedisImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
-@RequiredArgsConstructor
 public class PubSubListener extends BinaryJedisPubSub {
+    private static final Logger log = LoggerFactory.getLogger(PubSubListener.class);
+
     private final Set<String> subscribed = ConcurrentHashMap.newKeySet();
     private final RedisImpl redis;
+
+    public PubSubListener(RedisImpl redis) {
+        this.redis = redis;
+    }
 
     // why did they make this final?
 //    @Override

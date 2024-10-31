@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
@@ -18,11 +17,15 @@ import me.sunstorm.showmanager.modules.ltc.LtcModule;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
+
 @Inject
 @PathPrefix("/output")
 public class OutputController implements InjectRecipient {
+    private static final Logger log = LoggerFactory.getLogger(OutputController.class);
+
     private Worker worker;
     private LtcModule ltcModule;
     private ArtNetModule artNetModule;

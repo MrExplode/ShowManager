@@ -2,31 +2,26 @@ package me.sunstorm.showmanager.modules.audio;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
-import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.Module;
-import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.settings.SettingsStore;
-import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.Mixer;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Getter
 public class AudioModule extends Module {
+    private static final Logger log = LoggerFactory.getLogger(AudioModule.class);
+
     private final List<AudioTrack> tracks = new ArrayList<>();
     @Inject private SettingsStore store;
     private Mixer mixer;
@@ -141,5 +136,32 @@ public class AudioModule extends Module {
         enabled = object.get("enabled").getAsBoolean();
         mixer = store.getMixerByName(object.get("mixer").getAsString());
         object.get("tracks").getAsJsonArray().forEach(e -> tracks.add(Constants.GSON.fromJson(e, AudioTrack.class)));
+    }
+
+    // generated
+
+    public List<AudioTrack> getTracks() {
+        return tracks;
+    }
+
+    public SettingsStore getStore() {
+        return store;
+    }
+
+    public Mixer getMixer() {
+        return mixer;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    @Nullable
+    public AudioTrack getCurrent() {
+        return current;
     }
 }

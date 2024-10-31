@@ -3,7 +3,6 @@ package me.sunstorm.showmanager.modules.http.controller;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import lombok.val;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
@@ -44,7 +43,7 @@ public class ControlController implements InjectRecipient {
 
     @Post("/set")
     public void postSet(Context ctx) {
-        val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
+        var data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("hour") || !data.has("min") || !data.has("sec") || !data.has("frame"))
             throw new BadRequestResponse();
         worker.setTime(new Timecode(data.get("hour").getAsInt(), data.get("min").getAsInt(), data.get("sec").getAsInt(), data.get("frame").getAsInt()));
@@ -52,7 +51,7 @@ public class ControlController implements InjectRecipient {
 
     @Post("/quickjump")
     public void quickJump(Context ctx) {
-        val data = JsonParser.parseString(ctx.body()).getAsJsonObject();
+        var data = JsonParser.parseString(ctx.body()).getAsJsonObject();
         if (!data.has("amount"))
             throw new BadRequestResponse();
         int amount = data.get("amount").getAsInt();

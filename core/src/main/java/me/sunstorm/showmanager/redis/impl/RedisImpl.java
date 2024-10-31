@@ -1,6 +1,5 @@
 package me.sunstorm.showmanager.redis.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.redis.converter.Converter;
 import me.sunstorm.showmanager.redis.converter.GzipConverter;
 import me.sunstorm.showmanager.redis.MessageHandler;
@@ -10,6 +9,8 @@ import me.sunstorm.showmanager.redis.RedisCredentials;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Tuple;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -20,8 +21,9 @@ import java.util.concurrent.*;
 
 // the redis handling design is loosely based on lucko helper-redis
 // https://github.com/lucko/helper/tree/master/helper-redis
-@Slf4j
 public class RedisImpl implements Redis, Terminable {
+    private static final Logger log = LoggerFactory.getLogger(RedisImpl.class);
+
     private final JedisPool jedisPool;
     private PubSubListener listener = null;
     private final Map<String, MessageHandler<?>> handlers = new ConcurrentHashMap<>();
@@ -33,7 +35,7 @@ public class RedisImpl implements Redis, Terminable {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(16);
 
-        jedisPool = new JedisPool(config, credentials.getAddress(), credentials.getPort(), 2000, credentials.getPassword());
+        jedisPool = new JedisPool(config, credentials.address(), credentials.port(), 2000, credentials.password());
 
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.ping();

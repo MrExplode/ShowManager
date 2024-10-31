@@ -19,12 +19,13 @@
 
 package ch.bildspur.artnet.packets;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.DatagramPacket;
 
-@Slf4j
 public class ArtNetPacketParser {
+    private static final Logger log = LoggerFactory.getLogger(ArtNetPacketParser.class);
 
     public static ArtNetPacket createPacketForOpCode(int opCode, byte[] data) {
         log.debug("creating packet instance for opcode: 0x"

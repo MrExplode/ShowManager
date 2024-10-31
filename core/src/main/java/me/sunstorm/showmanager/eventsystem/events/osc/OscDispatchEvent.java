@@ -1,12 +1,16 @@
 package me.sunstorm.showmanager.eventsystem.events.osc;
 
 import com.illposed.osc.OSCPacket;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 
-@Getter
-@AllArgsConstructor
 public class OscDispatchEvent extends CancellableEvent {
     private final OSCPacket oscPacket;
+
+    public OscDispatchEvent(OSCPacket oscPacket) {
+        this.oscPacket = oscPacket;
+    }
+
+    public OSCPacket getOscPacket() {
+        return oscPacket;
+    }
 }

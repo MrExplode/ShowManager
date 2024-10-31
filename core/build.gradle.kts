@@ -1,7 +1,6 @@
 plugins {
     java
     jacoco
-    id("io.freefair.lombok") version "8.10.2"
 }
 
 group = "me.sunstorm"

@@ -1,8 +1,5 @@
 package me.sunstorm.showmanager;
 
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -21,20 +18,20 @@ import me.sunstorm.showmanager.settings.project.Project;
 import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
-@Getter
+
 public class ShowManager {
-    @Deprecated
-    @Getter private static ShowManager instance;
+    private static final Logger log = LoggerFactory.getLogger(ShowManager.class);
+
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final Config config;
     private final SettingsStore settingsStore;
@@ -49,9 +46,7 @@ public class ShowManager {
     private final SchedulerModule schedulerModule;
     private final Worker worker;
 
-    @SneakyThrows({UnknownHostException.class, IOException.class})
-    public ShowManager() {
-        instance = this;
+    public ShowManager() throws IOException {
         DependencyInjection.registerProvider(ShowManager.class, () -> this);
         DependencyInjection.registerProvider(Worker.class, () -> null);
         if (!Constants.BASE_DIRECTORY.exists())
@@ -110,5 +105,59 @@ public class ShowManager {
         } catch (ReflectiveOperationException e) {
             log.error("Failed to invoke Bootstrap", e);
         }
+    }
+
+    // generated
+
+    public ScheduledExecutorService getScheduler() {
+        return scheduler;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public SettingsStore getSettingsStore() {
+        return settingsStore;
+    }
+
+    public ProjectManager getProjectManager() {
+        return projectManager;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public OscModule getOscModule() {
+        return oscModule;
+    }
+
+    public LtcModule getLtcModule() {
+        return ltcModule;
+    }
+
+    public OscRemoteModule getOscRemoteModule() {
+        return oscRemoteModule;
+    }
+
+    public AudioModule getAudioModule() {
+        return audioModule;
+    }
+
+    public HttpModule getHttpModule() {
+        return httpModule;
+    }
+
+    public Redis getRedis() {
+        return redis;
+    }
+
+    public SchedulerModule getSchedulerModule() {
+        return schedulerModule;
+    }
+
+    public Worker getWorker() {
+        return worker;
     }
 }

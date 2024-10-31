@@ -1,10 +1,10 @@
 package me.sunstorm.showmanager.settings.project;
 
 import com.google.gson.JsonParseException;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.terminable.Terminable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,9 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
-@Getter
 public class ProjectManager implements Terminable {
+    private static final Logger log = LoggerFactory.getLogger(ProjectManager.class);
+
     private final File PROJECTS_DIR = new File(Constants.BASE_DIRECTORY, "projects");
     private final File LAST_PROJECT = new File(PROJECTS_DIR, "lastProject");
     private final List<Project> projects = new ArrayList<>();

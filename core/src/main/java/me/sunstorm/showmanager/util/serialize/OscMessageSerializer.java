@@ -2,7 +2,6 @@ package me.sunstorm.showmanager.util.serialize;
 
 import com.google.gson.*;
 import com.illposed.osc.OSCMessage;
-import lombok.val;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -28,7 +27,7 @@ public class OscMessageSerializer implements JsonSerializer<OSCMessage>, JsonDes
             data.addProperty("parameter", "");
         } else {
             Object parameter = params.get(0);
-            val type = OscParameterType.find(parameter);
+            var type = OscParameterType.find(parameter);
             data.addProperty("parameterType", type.toString());
             data.addProperty("parameter", type.getSerializer().apply(parameter));
         }

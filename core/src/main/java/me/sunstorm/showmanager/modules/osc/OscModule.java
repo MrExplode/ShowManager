@@ -4,10 +4,7 @@ import com.google.gson.JsonObject;
 import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import me.sunstorm.showmanager.Worker;
-import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
@@ -17,6 +14,8 @@ import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -24,9 +23,9 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
-@Getter
 public class OscModule extends Module {
+    private static final Logger log = LoggerFactory.getLogger(OscModule.class);
+
     @Inject private Worker worker;
     @Inject private SchedulerModule scheduler;
     private InetAddress address;
@@ -124,5 +123,11 @@ public class OscModule extends Module {
         } catch (UnknownHostException e) {
             log.error("Failed to find OSC target address", e);
         }
+    }
+
+    // generated
+
+    public boolean isRecording() {
+        return recording;
     }
 }

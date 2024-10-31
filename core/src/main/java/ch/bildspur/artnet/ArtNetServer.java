@@ -25,7 +25,8 @@ import ch.bildspur.artnet.packets.ArtNetPacketParser;
 import ch.bildspur.artnet.packets.ArtPollPacket;
 import ch.bildspur.artnet.packets.ArtPollReplyPacket;
 import ch.bildspur.artnet.packets.PacketType;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -37,8 +38,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 public class ArtNetServer extends ArtNetNode implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(ArtNetServer.class);
 
     public static final int DEFAULT_PORT = 0x1936;
 

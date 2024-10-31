@@ -1,8 +1,8 @@
 package me.sunstorm.showmanager.redis.converter;
 
 import com.google.common.io.ByteStreams;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,10 +10,14 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-@Slf4j
-@AllArgsConstructor
 public class GzipConverter<T> implements Converter<T> {
+    private static final Logger log = LoggerFactory.getLogger(GzipConverter.class);
+
     private final Converter<T> parent;
+
+    public GzipConverter(Converter<T> parent) {
+        this.parent = parent;
+    }
 
     @Override
     public byte[] encode(T message) {

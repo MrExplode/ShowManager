@@ -1,31 +1,26 @@
 package me.sunstorm.showmanager.modules.ltc;
 
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.Module;
-import me.sunstorm.showmanager.settings.SettingsHolder;
 import me.sunstorm.showmanager.settings.SettingsStore;
-import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.*;
 import java.io.*;
 
-@Slf4j
-@Getter
 public class LtcModule extends Module {
+    private static final Logger log = LoggerFactory.getLogger(LtcModule.class);
+
     private final File ltcFile = new File(Constants.BASE_DIRECTORY, "LTC_00000000_10mins_25fps_48000x8.wav");
     private Mixer mixer;
     private AudioInputStream stream;
     private Clip clip;
     @Inject private SettingsStore store;
-    @Getter
     private boolean enabled = false;
     private boolean playing = false;
     private int offset = 0;
@@ -51,7 +46,7 @@ public class LtcModule extends Module {
                 format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true);
                 stream = AudioSystem.getAudioInputStream(format, stream);
             }
-            val sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
+            var sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();
             clip.open(stream);
@@ -104,5 +99,11 @@ public class LtcModule extends Module {
         enabled = object.get("enabled").getAsBoolean();
         offset = object.get("offset").getAsInt();
         mixer = store.getMixerByName(object.get("mixer").getAsString());
+    }
+
+    // generated
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }
