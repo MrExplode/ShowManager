@@ -15,8 +15,8 @@ dependencies {
     }
     implementation(group = "com.lmax",                 name = "disruptor",               version = "4.0.0")
     implementation(group = "io.javalin",               name = "javalin",                 version = "6.1.6")
+    implementation(group = "jakarta.inject",           name = "jakarta.inject-api",      version = "2.0.1")
     implementation(group = "javax.xml.bind",           name = "jaxb-api",                version = "2.3.1")
-    implementation(group = "net.minecrell",            name = "terminalconsoleappender", version = "1.3.0")
     implementation(group = "org.apache.logging.log4j", name = "log4j-core",              version = "2.24.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-api",               version = "2.24.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl",        version = "2.24.1")
