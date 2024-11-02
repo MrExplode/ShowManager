@@ -7,18 +7,18 @@ import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 
-@PathPrefix("/control")
-public class ControlController implements InjectRecipient {
-    @Inject
-    private Worker worker;
+import javax.inject.Inject;
 
-    public ControlController() {
-        inject();
+@PathPrefix("/control")
+public class ControlController {
+    private final Worker worker;
+
+    @Inject
+    public ControlController(Worker worker) {
+        this.worker = worker;
     }
 
     @Get("/play")

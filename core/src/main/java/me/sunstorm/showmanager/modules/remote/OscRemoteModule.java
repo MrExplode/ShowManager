@@ -1,18 +1,23 @@
 package me.sunstorm.showmanager.modules.remote;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.illposed.osc.OSCMessage;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
-import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
+import me.sunstorm.showmanager.modules.ToggleableModule;
+import org.jetbrains.annotations.NotNull;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * This class handles the OSC remote capabilities.
  */
-public class OscRemoteModule implements Listener, InjectRecipient {
+@Singleton
+public class OscRemoteModule extends ToggleableModule {
     /**
      * OSC packets coming on this address will be considered as PLAY triggers
      */
@@ -26,21 +31,18 @@ public class OscRemoteModule implements Listener, InjectRecipient {
      */
     public static final String OSC_STOP = "/showmanager/remote/stop";
 
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private Worker worker;
+    private final Worker worker;
 
-    private boolean enabled = false;
-
-    public OscRemoteModule() {
-        inject();
+    @Inject
+    public OscRemoteModule(EventBus bus, Worker worker) {
+        super(bus);
+        this.worker = worker;
         eventBus.register(this);
     }
 
     @EventCall
     public void onOscReceive(OscReceiveEvent e) {
-        if (!enabled)
+        if (!isEnabled())
             return;
         if (e.getOscPacket() instanceof OSCMessage message) {
             switch (message.getAddress()) {
@@ -51,5 +53,21 @@ public class OscRemoteModule implements Listener, InjectRecipient {
                 }
             }
         }
+    }
+
+    @NotNull
+    @Override
+    public JsonElement getData() {
+        return JsonNull.INSTANCE;
+    }
+
+    @Override
+    public void onLoad(@NotNull JsonElement element) {
+        // unused
+    }
+
+    @Override
+    public String getName() {
+        return "osc-remote";
     }
 }

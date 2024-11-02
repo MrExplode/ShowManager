@@ -11,8 +11,6 @@ import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.osc.OscModule;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.modules.scheduler.ScheduledEvent;
@@ -20,19 +18,21 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 @PathPrefix("/scheduler")
-public class SchedulerController implements InjectRecipient {
+public class SchedulerController {
     private static final Logger log = LoggerFactory.getLogger(SchedulerController.class);
 
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private SchedulerModule scheduler;
-    @Inject
-    private OscModule oscModule;
+    private final EventBus eventBus;
+    private final SchedulerModule scheduler;
+    private final OscModule oscModule;
 
-    public SchedulerController() {
-        inject();
+    @Inject
+    public SchedulerController(EventBus eventBus, SchedulerModule scheduler, OscModule oscModule) {
+        this.eventBus = eventBus;
+        this.scheduler = scheduler;
+        this.oscModule = oscModule;
     }
 
     @Get("/record")

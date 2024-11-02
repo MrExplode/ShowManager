@@ -15,27 +15,27 @@ import me.sunstorm.showmanager.modules.http.WebSocketHandler;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 @PathPrefix("/audio")
-public class AudioController implements InjectRecipient {
+public class AudioController {
     private static final Logger log = LoggerFactory.getLogger(AudioController.class);
 
-    @Inject
-    private AudioModule player;
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private WebSocketHandler wsHandler;
+    private final EventBus eventBus;
+    private final AudioModule player;
+    private final WebSocketHandler wsHandler;
 
-    public AudioController() {
-        inject();
+    @Inject
+    public AudioController(EventBus eventBus, AudioModule player, WebSocketHandler wsHandler) {
+        this.eventBus = eventBus;
+        this.player = player;
+        this.wsHandler = wsHandler;
     }
 
     @Post("/volume")

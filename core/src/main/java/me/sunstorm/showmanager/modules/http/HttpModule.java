@@ -1,23 +1,25 @@
 package me.sunstorm.showmanager.modules.http;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.NaiveRateLimit;
 import io.javalin.json.JsonMapper;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
 import me.sunstorm.showmanager.modules.http.routing.RoutingManager;
-import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.modules.http.controller.ControlController;
 import me.sunstorm.showmanager.modules.http.controller.OutputController;
 import me.sunstorm.showmanager.modules.http.controller.SchedulerController;
+import org.codejargon.feather.Feather;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,12 +34,15 @@ public class HttpModule extends Module {
     private int port = 7000;
     private String header = "secret";
     private String secret = "XXXXXXXXXX";
-    @Inject
-    private Worker worker;
 
-    public HttpModule() {
-        super("http-server");
+    private final Feather feather;
+
+    @Inject
+    public HttpModule(EventBus bus, Feather feather) {
+        super(bus);
+        this.feather = feather;
         init();
+
         javalin = Javalin.create(config -> {
             config.requestLogger.http((ctx, ms) -> log.debug("[H] Request from {} to {} took {} ms", ctx.ip(), ctx.path(), ms));
             config.jsonMapper(new JsonMapper() {
@@ -70,7 +75,7 @@ public class HttpModule extends Module {
 
     private void setupRouting() {
         javalin.ws("", ws -> {
-            WebSocketHandler wsHandler = new WebSocketHandler();
+            WebSocketHandler wsHandler = feather.instance(WebSocketHandler.class);
             ws.onConnect(wsHandler);
             ws.onClose(wsHandler);
             ws.onMessage(wsHandler);
@@ -78,6 +83,7 @@ public class HttpModule extends Module {
         });
         javalin.before(ctx -> NaiveRateLimit.requestPerTimeUnit(ctx, 100, TimeUnit.MINUTES));
         RoutingManager.create(javalin,
+                feather::instance,
                 AudioController.class,
                 ControlController.class,
                 OutputController.class,
@@ -103,11 +109,17 @@ public class HttpModule extends Module {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         host = object.get("host").getAsString();
         port = object.get("port").getAsInt();
         header = object.get("header").getAsString();
         secret = object.get("secret").getAsString();
+    }
+
+    @Override
+    public String getName() {
+        return "http-server";
     }
 
     // generated

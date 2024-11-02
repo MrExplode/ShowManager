@@ -1,12 +1,13 @@
 package me.sunstorm.showmanager.modules.audio;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.util.Timecode;
@@ -15,21 +16,26 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.sound.sampled.Mixer;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class AudioModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(AudioModule.class);
 
     private final List<AudioTrack> tracks = new ArrayList<>();
-    @Inject private SettingsStore store;
+    private final SettingsStore store;
     private Mixer mixer;
     private int index = 0;
     @Nullable private AudioTrack current;
 
-    public AudioModule() {
-        super("audio-player");
+    @Inject
+    public AudioModule(EventBus eventBus, SettingsStore store) {
+        super(eventBus);
+        this.store = store;
         init();
         if (!tracks.isEmpty()) {
             current = tracks.get(index).loadTrack(mixer);
@@ -132,20 +138,22 @@ public class AudioModule extends ToggleableModule {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         setEnabled(object.get("enabled").getAsBoolean());
         mixer = store.getMixerByName(object.get("mixer").getAsString());
         object.get("tracks").getAsJsonArray().forEach(e -> tracks.add(Constants.GSON.fromJson(e, AudioTrack.class)));
+    }
+
+    @Override
+    public String getName() {
+        return "audio-player";
     }
 
     // generated
 
     public List<AudioTrack> getTracks() {
         return tracks;
-    }
-
-    public SettingsStore getStore() {
-        return store;
     }
 
     public Mixer getMixer() {

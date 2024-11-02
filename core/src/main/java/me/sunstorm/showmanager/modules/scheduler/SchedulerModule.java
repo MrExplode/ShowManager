@@ -1,9 +1,11 @@
 package me.sunstorm.showmanager.modules.scheduler;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
@@ -17,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *  - OSC packet dispatch<br>
  *  - Internal actions (jump, pause, stop)
  */
+@Singleton
 public class SchedulerModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(SchedulerModule.class);
 
@@ -33,8 +38,9 @@ public class SchedulerModule extends ToggleableModule {
     private int lastIndex = -1;
     private Timecode lastTime = new Timecode(-1);
 
-    public SchedulerModule() {
-        super("scheduler");
+    @Inject
+    public SchedulerModule(EventBus bus) {
+        super(bus);
         init();
     }
 
@@ -42,7 +48,7 @@ public class SchedulerModule extends ToggleableModule {
         scheduledEvents.add(event);
         new EventAddEvent(event).call(eventBus);
         //only sort if the last event's time is bigger than the added event
-        if (scheduledEvents.size() != 0 && event.getExecuteTime().compareTo(scheduledEvents.get(scheduledEvents.size() - 1).getExecuteTime()) < 0)
+        if (!scheduledEvents.isEmpty() && event.getExecuteTime().compareTo(scheduledEvents.get(scheduledEvents.size() - 1).getExecuteTime()) < 0)
             scheduledEvents.sort(Comparator.comparing(ScheduledEvent::getExecuteTime));
     }
 
@@ -54,7 +60,7 @@ public class SchedulerModule extends ToggleableModule {
 
     @EventCall(EventPriority.LOWEST)
     public void onTimeChange(TimecodeChangeEvent e) {
-        if (!isEnabled() || scheduledEvents.size() == 0 || lastIndex + 1 == scheduledEvents.size()) return;
+        if (!isEnabled() || scheduledEvents.isEmpty() || lastIndex + 1 == scheduledEvents.size()) return;
         Timecode current = e.getTime();
         //no exec yet or time was reset
         //I don't have time to debug buggy behaviour rn
@@ -112,7 +118,8 @@ public class SchedulerModule extends ToggleableModule {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         setEnabled(object.get("enabled").getAsBoolean());
         JsonArray eventArray = object.get("events").getAsJsonArray();
         eventArray.forEach(e -> {
@@ -125,8 +132,8 @@ public class SchedulerModule extends ToggleableModule {
     }
 
     @Override
-    public void shutdown() {
-        // unused
+    public String getName() {
+        return "scheduler";
     }
 
     // generated

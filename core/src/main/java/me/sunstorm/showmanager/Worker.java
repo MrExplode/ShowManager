@@ -3,9 +3,6 @@ package me.sunstorm.showmanager;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.injection.DependencyInjection;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.ltc.LtcModule;
 import me.sunstorm.showmanager.modules.remote.DmxRemoteModule;
 import me.sunstorm.showmanager.terminable.Terminable;
@@ -14,31 +11,34 @@ import me.sunstorm.showmanager.util.Timecode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
-public class Worker implements Runnable, Terminable, InjectRecipient {
+@Singleton
+public class Worker implements Runnable, Terminable {
     private static final Logger log = LoggerFactory.getLogger(Worker.class);
 
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private LtcModule ltcModule;
+    private final EventBus eventBus;
+    private final LtcModule ltcModule;
     private final DmxRemoteModule dmxRemote;
     private final ArtNetModule artNetModule;
+    private final int framerate;
     private boolean running = true;
     private boolean playing = false;
     private long start = 0;
     private long elapsed = 0;
     private Timecode currentTime = new Timecode(0);
-    private final int framerate;
-    
-    public Worker(int framerate) {
-        register();
-        inject();
+
+    @Inject
+    public Worker(EventBus bus, LtcModule ltcModule, ArtNetModule artNetModule, DmxRemoteModule dmxRemoteModule, @Named("framerate") int framerate) {
+        this.eventBus = bus;
+        this.ltcModule = ltcModule;
         this.framerate = framerate;
-        artNetModule = new ArtNetModule();
-        DependencyInjection.updateProvider(ArtNetModule.class, () -> artNetModule);
-        dmxRemote = new DmxRemoteModule();
+        this.artNetModule = artNetModule;
+        this.dmxRemote = dmxRemoteModule;
+        register();
     }
 
     @Override

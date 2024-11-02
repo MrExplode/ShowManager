@@ -6,6 +6,7 @@ import io.javalin.http.Handler;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
+import me.sunstorm.showmanager.util.Exceptions;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,8 @@ import java.lang.invoke.*;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Annotation based http routing system.
@@ -32,19 +33,39 @@ public class RoutingManager {
 
     /**
      * Creates the javalin routes.
+     *
      * @param javalin The javalin instance
      * @param handlers The handler classes
      */
     public static void create(@NotNull Javalin javalin, Class<?>... handlers) {
+        create(javalin, (c) -> {
+            try {
+                return c.getConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                Exceptions.sneaky(e);
+                return null;
+            }
+        }, handlers);
+    }
+
+    /**
+     * Creates the javalin routes. <br>
+     * The instance factory allows the customization of instance creation, e.g. using dependency injection.
+     *
+     * @param javalin The javalin instance
+     * @param instanceFactory The instance factory function
+     * @param handlers The handler classes
+     */
+    public static void create(@NotNull Javalin javalin, Function<Class<?>, Object> instanceFactory, Class<?>... handlers) {
         log.info("Starting route creation");
         for (Class<?> handlerClass : handlers) {
             try {
                 List<Method> methodCandidates = Arrays.stream(handlerClass.getDeclaredMethods()).filter(methodPredicate).toList();
-                if (methodCandidates.size() == 0) {
+                if (methodCandidates.isEmpty()) {
                     log.warn("Class {} does not contain eligible methods for routing", handlerClass.getName());
                     continue;
                 }
-                Object classInstance = handlerClass.getConstructor().newInstance();
+                Object classInstance = instanceFactory.apply(handlerClass);
                 String pathPrefix = "";
                 if (handlerClass.isAnnotationPresent(PathPrefix.class))
                     pathPrefix = handlerClass.getAnnotation(PathPrefix.class).value();
@@ -74,8 +95,8 @@ public class RoutingManager {
                         log.error("Failed to create routing for {}", method.getName(), e);
                     }
                 }
-            } catch (ReflectiveOperationException e) {
-                log.error("Couldn't access default constructor of class {}", handlerClass.getName(), e);
+            } catch (Exception e) {
+                log.error("Failed to instantiate handler: {}", handlerClass.getName(), e);
             }
         }
     }

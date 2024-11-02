@@ -17,39 +17,40 @@ import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.SchedulerExecuteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.injection.DependencyInjection;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener, InjectRecipient {
+@Singleton
+public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler, WsErrorHandler, Listener {
     private static final Logger log = LoggerFactory.getLogger(WebSocketHandler.class);
 
     public static WebSocketHandler INSTANCE;
     private final Set<WsContext> wsClients = ConcurrentHashMap.newKeySet();
     private Timecode lastDispatchedTime = null;
-    @Inject
-    private EventBus eventBus;
-    @Inject
-    private Worker worker;
-    @Inject
-    private AudioModule player;
-    @Inject
-    private SchedulerModule scheduler;
 
-    public WebSocketHandler() {
+    private final EventBus eventBus;
+    private final Worker worker;
+    private final AudioModule player;
+    private final SchedulerModule scheduler;
+
+    @Inject
+    public WebSocketHandler(EventBus eventBus, Worker worker, AudioModule player, SchedulerModule scheduler) {
         INSTANCE = this;
-        inject();
+        this.eventBus = eventBus;
+        this.worker = worker;
+        this.player = player;
+        this.scheduler = scheduler;
+
         eventBus.register(this);
-        DependencyInjection.registerProvider(WebSocketHandler.class, () -> this);
     }
 
     @Override

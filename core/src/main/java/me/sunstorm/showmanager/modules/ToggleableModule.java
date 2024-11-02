@@ -1,10 +1,15 @@
 package me.sunstorm.showmanager.modules;
 
+import me.sunstorm.showmanager.eventsystem.EventBus;
+
+import javax.inject.Inject;
+
 public abstract class ToggleableModule extends Module {
     private boolean enabled = false;
 
-    public ToggleableModule(String name) {
-        super(name);
+    @Inject
+    public ToggleableModule(EventBus eventBus) {
+        super(eventBus);
     }
 
     public boolean isEnabled() {

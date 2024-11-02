@@ -1,14 +1,18 @@
 package me.sunstorm.showmanager.modules.remote;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
-import me.sunstorm.showmanager.settings.SettingsHolder;
+import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.util.DmxAddress;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
 /**
  * It's possible to remote control ShowManager via dmx signal.
@@ -19,18 +23,21 @@ import org.jetbrains.annotations.NotNull;
  * 40% - Stop <br>
  * Any other value: idle
  */
-public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
+@Singleton
+public class DmxRemoteModule extends Module {
     private static final int TOLERANCE = 5;
-    @Inject private EventBus eventBus;
-    @Inject private Worker worker;
+    @Nullable
+    private Worker worker;
+    private final Provider<Worker> workerProvider;
     private DmxAddress address = new DmxAddress(0, 0, 0);
     private boolean enabled = false;
     private DmxRemoteState state = DmxRemoteState.DISABLED;
     private DmxRemoteState previousState = DmxRemoteState.DISABLED;
 
-    public DmxRemoteModule() {
-        super("dmx-remote");
-        inject();
+    @Inject
+    public DmxRemoteModule(EventBus bus, Provider<Worker> worker) {
+        super(bus);
+        this.workerProvider = worker;
         load();
     }
 
@@ -38,6 +45,9 @@ public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
         if (!enabled) {
             state = DmxRemoteState.DISABLED;
             return;
+        }
+        if (worker == null) {
+            worker = workerProvider.get();
         }
         byte value = dmxData[address.address() - 1];
         if (inToleratedRange(25, value)) {
@@ -97,9 +107,15 @@ public class DmxRemoteModule extends SettingsHolder implements InjectRecipient {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         enabled = object.get("enabled").getAsBoolean();
         address = new DmxAddress(object.get("address").getAsInt(), object.get("universe").getAsInt(), object.get("subnet").getAsInt());
+    }
+
+    @Override
+    public String getName() {
+        return "dmx-remote";
     }
 
     // generated

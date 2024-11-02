@@ -1,9 +1,10 @@
 package me.sunstorm.showmanager.modules.scheduler.impl;
 
 import me.sunstorm.showmanager.Worker;
-import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.modules.scheduler.AbstractScheduledEvent;
 import me.sunstorm.showmanager.util.Timecode;
+
+import javax.inject.Inject;
 
 public class ScheduledPauseEvent extends AbstractScheduledEvent {
     @Inject
@@ -11,7 +12,6 @@ public class ScheduledPauseEvent extends AbstractScheduledEvent {
 
     public ScheduledPauseEvent(Timecode executeTime) {
         super(executeTime, "pause");
-        inject(false);
     }
 
     @Override

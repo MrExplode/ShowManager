@@ -1,17 +1,15 @@
 package me.sunstorm.showmanager.modules.audio;
 
 import com.google.common.base.Stopwatch;
-import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.sound.sampled.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -20,13 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 import static me.sunstorm.showmanager.util.SilentClose.close;
 
-public class AudioTrack implements InjectRecipient {
+public class AudioTrack {
     private static final Logger log = LoggerFactory.getLogger(AudioTrack.class);
 
     @Inject
     private transient EventBus eventBus;
-    @Inject
-    private transient Worker worker;
     private Timecode startTime;
     private final File file;
     private transient boolean loaded = false;
@@ -41,7 +37,6 @@ public class AudioTrack implements InjectRecipient {
     public AudioTrack(Timecode startTime, File file) {
         this.startTime = startTime;
         this.file = file;
-        inject(false);
     }
 
     public AudioTrack(Timecode startTime, File file, List<Marker> markers) {
@@ -50,9 +45,6 @@ public class AudioTrack implements InjectRecipient {
     }
 
     public AudioTrack loadTrack(Mixer mixer) {
-        //bruh moment
-        if (eventBus == null)
-            inject(false);
         discard();
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.info("Loading track {}...", file.getName());

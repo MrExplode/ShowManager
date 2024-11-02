@@ -6,18 +6,22 @@ import ch.bildspur.artnet.ArtNetServer;
 import ch.bildspur.artnet.PortDescriptor;
 import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import me.sunstorm.showmanager.injection.DependencyInjection;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+@Singleton
 public class ArtNetModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(ArtNetModule.class);
 
@@ -27,10 +31,11 @@ public class ArtNetModule extends ToggleableModule {
     private final ArtTimePacket packet;
     private final ArtNetBuffer buffer;
 
-    public ArtNetModule() {
-        super("art-net");
+    @Inject
+    public ArtNetModule(EventBus eventBus) {
+        super(eventBus);
         init();
-        DependencyInjection.registerProvider(ArtNetModule.class, () -> this);
+
         server = new ArtNetServer();
         packet = new ArtTimePacket();
         buffer = new ArtNetBuffer();
@@ -103,13 +108,19 @@ public class ArtNetModule extends ToggleableModule {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         setEnabled(object.get("enabled").getAsBoolean());
         try {
             address = InetAddress.getByName(object.get("interface").getAsString());
         } catch (UnknownHostException e) {
             log.error("Failed to load ArtNet net interface", e);
         }
+    }
+
+    @Override
+    public String getName() {
+        return "art-net";
     }
 
     // generated

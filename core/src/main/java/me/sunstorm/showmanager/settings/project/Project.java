@@ -58,7 +58,7 @@ public class Project {
         String name = holder.getName();
         if (data.has(name)) {
             try {
-                holder.onLoad(data.get(name).getAsJsonObject());
+                holder.onLoad(data.get(name));
                 settings.add(holder);
                 return;
             } catch (Exception e) {

@@ -1,23 +1,17 @@
 package me.sunstorm.showmanager;
 
-import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
-import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
-import me.sunstorm.showmanager.modules.http.HttpModule;
-import me.sunstorm.showmanager.injection.DependencyInjection;
-import me.sunstorm.showmanager.modules.ltc.LtcModule;
-import me.sunstorm.showmanager.modules.osc.OscModule;
+import me.sunstorm.showmanager.modules.ModuleManager;
 import me.sunstorm.showmanager.redis.Redis;
 import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
 import me.sunstorm.showmanager.redis.impl.RedisImpl;
-import me.sunstorm.showmanager.modules.remote.OscRemoteModule;
-import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
 import me.sunstorm.showmanager.settings.project.Project;
 import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
 import me.sunstorm.showmanager.util.JsonLoader;
+import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,49 +31,29 @@ public class ShowManager {
     private final SettingsStore settingsStore;
     private final ProjectManager projectManager;
     private final EventBus eventBus;
-    private final OscModule oscModule;
-    private final LtcModule ltcModule;
-    private final OscRemoteModule oscRemoteModule;
-    private final AudioModule audioModule;
-    private final HttpModule httpModule;
     private final Redis redis;
-    private final SchedulerModule schedulerModule;
     private final Worker worker;
 
     public ShowManager() throws IOException {
-        DependencyInjection.registerProvider(ShowManager.class, () -> this);
-        DependencyInjection.registerProvider(Worker.class, () -> null);
         if (!Constants.BASE_DIRECTORY.exists())
             Constants.BASE_DIRECTORY.mkdirs();
         settingsStore = new SettingsStore();
-        DependencyInjection.registerProvider(SettingsStore.class, this::getSettingsStore);
         settingsStore.load();
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
-        DependencyInjection.registerProvider(EventBus.class, this::getEventBus);
-        //top tier sketchy
-        DependencyInjection.registerProvider(OscModule.class, () -> null);
         projectManager = new ProjectManager();
-        schedulerModule = new SchedulerModule();
-        DependencyInjection.registerProvider(SchedulerModule.class, this::getSchedulerModule);
-        oscModule = new OscModule();
-        DependencyInjection.updateProvider(OscModule.class, this::getOscModule);
-        ltcModule = new LtcModule();
-        ltcModule.init();
-        DependencyInjection.registerProvider(LtcModule.class, this::getLtcModule);
-        oscRemoteModule = new OscRemoteModule();
-        audioModule = new AudioModule();
-        DependencyInjection.registerProvider(AudioModule.class, this::getAudioModule);
-        DependencyInjection.registerProvider(ArtNetModule.class, () -> null);
-        httpModule = new HttpModule();
+
         if (config.getRedisConfig().isEnabled()) {
             redis = new RedisImpl(config.getRedisConfig().getCredentials());
         }
         else {
             redis = new DummyRedisImpl();
         }
-        worker = new Worker(config.getFramerate());
-        DependencyInjection.updateProvider(Worker.class, () -> worker);
+
+        var feather = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config));
+
+        this.worker = feather.instance(Worker.class);
+        new ModuleManager(feather);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
         Project.current().save();
@@ -105,59 +79,5 @@ public class ShowManager {
         } catch (ReflectiveOperationException e) {
             log.error("Failed to invoke Bootstrap", e);
         }
-    }
-
-    // generated
-
-    public ScheduledExecutorService getScheduler() {
-        return scheduler;
-    }
-
-    public Config getConfig() {
-        return config;
-    }
-
-    public SettingsStore getSettingsStore() {
-        return settingsStore;
-    }
-
-    public ProjectManager getProjectManager() {
-        return projectManager;
-    }
-
-    public EventBus getEventBus() {
-        return eventBus;
-    }
-
-    public OscModule getOscModule() {
-        return oscModule;
-    }
-
-    public LtcModule getLtcModule() {
-        return ltcModule;
-    }
-
-    public OscRemoteModule getOscRemoteModule() {
-        return oscRemoteModule;
-    }
-
-    public AudioModule getAudioModule() {
-        return audioModule;
-    }
-
-    public HttpModule getHttpModule() {
-        return httpModule;
-    }
-
-    public Redis getRedis() {
-        return redis;
-    }
-
-    public SchedulerModule getSchedulerModule() {
-        return schedulerModule;
-    }
-
-    public Worker getWorker() {
-        return worker;
     }
 }

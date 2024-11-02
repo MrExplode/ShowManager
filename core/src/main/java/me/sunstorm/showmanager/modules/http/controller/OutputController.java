@@ -4,15 +4,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.modules.http.WebSocketHandler;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
-import me.sunstorm.showmanager.injection.Inject;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.modules.ltc.LtcModule;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.util.JsonBuilder;
@@ -20,21 +17,26 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 
-@Inject
+
 @PathPrefix("/output")
-public class OutputController implements InjectRecipient {
+public class OutputController {
     private static final Logger log = LoggerFactory.getLogger(OutputController.class);
 
-    private Worker worker;
-    private LtcModule ltcModule;
-    private ArtNetModule artNetModule;
-    private AudioModule player;
-    private SchedulerModule scheduler;
-    private WebSocketHandler webSocketHandler;
+    private final LtcModule ltcModule;
+    private final ArtNetModule artNetModule;
+    private final AudioModule player;
+    private final SchedulerModule scheduler;
+    private final WebSocketHandler webSocketHandler;
 
-    public OutputController() {
-        inject();
+    @Inject
+    public OutputController(LtcModule ltcModule, ArtNetModule artNetModule, AudioModule player, SchedulerModule scheduler, WebSocketHandler webSocketHandler) {
+        this.ltcModule = ltcModule;
+        this.artNetModule = artNetModule;
+        this.player = player;
+        this.scheduler = scheduler;
+        this.webSocketHandler = webSocketHandler;
     }
 
     @Get("/artnet")

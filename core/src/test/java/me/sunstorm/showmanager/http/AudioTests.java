@@ -6,6 +6,7 @@ import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
 import me.sunstorm.showmanager.injection.DependencyInjection;
+import org.codejargon.feather.Feather;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -25,8 +26,7 @@ public class AudioTests {
         player = mock(AudioModule.class);
         eventBus = mock(EventBus.class);
         ctx = mock(Context.class);
-        DependencyInjection.registerProvider(AudioModule.class, () -> player);
-        DependencyInjection.registerProvider(EventBus.class, () -> eventBus);
+
     }
 
     @Test

@@ -1,8 +1,9 @@
 package me.sunstorm.showmanager.modules.ltc;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.injection.Inject;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.util.Timecode;
@@ -10,22 +11,28 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.sound.sampled.*;
 import java.io.*;
 
+@Singleton
 public class LtcModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(LtcModule.class);
 
     private final File ltcFile = new File(Constants.BASE_DIRECTORY, "LTC_00000000_10mins_25fps_48000x8.wav");
+    private final SettingsStore store;
+
     private Mixer mixer;
     private AudioInputStream stream;
     private Clip clip;
-    @Inject private SettingsStore store;
     private boolean playing = false;
     private int offset = 0;
 
-    public LtcModule() {
-        super("ltc-timecode");
+    @Inject
+    public LtcModule(EventBus bus, SettingsStore store) {
+        super(bus);
+        this.store = store;
         super.init();
         init();
     }
@@ -95,9 +102,15 @@ public class LtcModule extends ToggleableModule {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         setEnabled(object.get("enabled").getAsBoolean());
         offset = object.get("offset").getAsInt();
         mixer = store.getMixerByName(object.get("mixer").getAsString());
+    }
+
+    @Override
+    public String getName() {
+        return "ltc-timecode";
     }
 }

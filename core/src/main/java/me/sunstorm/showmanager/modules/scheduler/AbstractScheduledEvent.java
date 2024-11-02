@@ -2,10 +2,9 @@ package me.sunstorm.showmanager.modules.scheduler;
 
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Constants;
-import me.sunstorm.showmanager.injection.InjectRecipient;
 import me.sunstorm.showmanager.util.Timecode;
 
-public abstract class AbstractScheduledEvent implements ScheduledEvent, InjectRecipient {
+public abstract class AbstractScheduledEvent implements ScheduledEvent {
     private final Timecode executeTime;
     private final String type;
 

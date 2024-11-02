@@ -1,15 +1,16 @@
 package me.sunstorm.showmanager.modules.osc;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
-import me.sunstorm.showmanager.injection.Inject;
 import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
@@ -17,17 +18,20 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Singleton
 public class OscModule extends Module {
     private static final Logger log = LoggerFactory.getLogger(OscModule.class);
 
-    @Inject private Worker worker;
-    @Inject private SchedulerModule scheduler;
+    private final Worker worker;
+    private final SchedulerModule scheduler;
     private InetAddress address;
     private int outgoingPort = 8000;
     private int incomingPort = 8001;
@@ -38,8 +42,12 @@ public class OscModule extends Module {
     private boolean recording = false;
     private final Map<String, Object> recordCache = new HashMap<>();
 
-    public OscModule() {
-        super("osc-dispatcher");
+    @Inject
+    public OscModule(EventBus bus, Worker worker, SchedulerModule scheduler) {
+        super(bus);
+        this.worker = worker;
+        this.scheduler = scheduler;
+
         init();
         try {
             portOut = new OSCPortOut(address, outgoingPort);
@@ -115,7 +123,8 @@ public class OscModule extends Module {
     }
 
     @Override
-    public void onLoad(@NotNull JsonObject object) {
+    public void onLoad(@NotNull JsonElement element) {
+        var object = element.getAsJsonObject();
         incomingPort = object.get("port-in").getAsInt();
         outgoingPort = object.get("port-out").getAsInt();
         try {
@@ -123,6 +132,11 @@ public class OscModule extends Module {
         } catch (UnknownHostException e) {
             log.error("Failed to find OSC target address", e);
         }
+    }
+
+    @Override
+    public String getName() {
+        return "osc-dispatcher";
     }
 
     // generated

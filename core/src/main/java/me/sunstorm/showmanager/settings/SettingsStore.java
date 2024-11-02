@@ -26,14 +26,11 @@ public class SettingsStore {
         }
 
         try {
-            var interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                var netInterface = interfaces.nextElement();
-                if (netInterface.isUp()) {
-                    var address = netInterface.getInetAddresses().nextElement();
-                    networkInterfaces.add(new InetData(address.getHostAddress(), address));
-                }
-            }
+            networkInterfaces.addAll(NetworkInterface.networkInterfaces()
+                    .flatMap(NetworkInterface::inetAddresses)
+                    .map(addr -> new InetData(addr.getHostAddress(), addr))
+                    .toList()
+            );
         } catch (SocketException e) {
             log.error("Failed to load network interfaces", e);
         }
@@ -44,7 +41,7 @@ public class SettingsStore {
             if (output.getName().equals(name))
                 return AudioSystem.getMixer(output);
         }
-        return AudioSystem.getMixer(audioOutputs.get(0));
+        return AudioSystem.getMixer(audioOutputs.getFirst());
     }
 
     // generated
