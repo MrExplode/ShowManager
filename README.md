@@ -1,11 +1,8 @@
-# ![icon](https://cdn.sunstorm.rocks/files/showmanager/icon32.png)  ShowManager [![Build Status](https://github.com/MrExplode/ShowManager/actions/workflows/build.yml/badge.svg)](https://github.com/MrExplode/ShowManager/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/06b58e31d1834512bc7016d8240cb6f8)](https://www.codacy.com/gh/MrExplode/ShowManager/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrExplode/ShowManager&amp;utm_campaign=Badge_Grade) [![Codecov](https://img.shields.io/codecov/c/github/MrExplode/ShowManager)](https://app.codecov.io/gh/MrExplode/ShowManager)
+# ShowManager [![Build Status](https://github.com/MrExplode/ShowManager/actions/workflows/build.yml/badge.svg)](https://github.com/MrExplode/ShowManager/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/06b58e31d1834512bc7016d8240cb6f8)](https://www.codacy.com/gh/MrExplode/ShowManager/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrExplode/ShowManager&amp;utm_campaign=Badge_Grade) [![Codecov](https://img.shields.io/codecov/c/github/MrExplode/ShowManager)](https://app.codecov.io/gh/MrExplode/ShowManager)
 This project aims to be the "brain" of a prerecorded show by playing Art-Net timecode, sending scheduled OSC messages and playing audio tracks synced to timecode.
 
-![GUI](structure.png)
-
 ## About
-You can see the planned project layout above.  
-Please note that this is a hobby project of mine and it is WIP. Only `wav` files are supported. Some options can be only changed from the configuration file, notably
+Please note that this is a hobby project of mine, and it is WIP. Only `wav` files are supported. Some options can be only changed from the configuration file, notably
  - Audio output
  - Audio tracks
 
