@@ -22,11 +22,11 @@ public class OscMessageSerializer implements JsonSerializer<OSCMessage>, JsonDes
         JsonObject data = new JsonObject();
         data.addProperty("address", src.getAddress());
         List<Object> params = src.getArguments();
-        if (params == null || params.size() == 0) {
+        if (params == null || params.isEmpty()) {
             data.addProperty("parameterType", "EMPTY");
             data.addProperty("parameter", "");
         } else {
-            Object parameter = params.get(0);
+            Object parameter = params.getFirst();
             var type = OscParameterType.find(parameter);
             data.addProperty("parameterType", type.toString());
             data.addProperty("parameter", type.getSerializer().apply(parameter));

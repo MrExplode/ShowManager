@@ -23,16 +23,12 @@ public class ScheduledEventSerializer implements JsonSerializer<ScheduledEvent>,
         JsonObject data = json.getAsJsonObject();
         String type = data.get("type").getAsString();
         Timecode time = context.deserialize(data.get("time"), Timecode.class);
-        switch (type) {
-            case "jump":
-                return new ScheduledJumpEvent(time, context.deserialize(data.get("jumpTime"), Timecode.class));
-            case "osc":
-                return new ScheduledOscEvent(time, context.deserialize(data.get("packet"), OSCMessage.class));
-            case "pause":
-                return new ScheduledPauseEvent(time);
-            case "stop":
-                return new ScheduledStopEvent(time);
-        }
-        return null;
+        return switch (type) {
+            case "jump" -> new ScheduledJumpEvent(time, context.deserialize(data.get("jumpTime"), Timecode.class));
+            case "osc" -> new ScheduledOscEvent(time, context.deserialize(data.get("packet"), OSCMessage.class));
+            case "pause" -> new ScheduledPauseEvent(time);
+            case "stop" -> new ScheduledStopEvent(time);
+            default -> null;
+        };
     }
 }

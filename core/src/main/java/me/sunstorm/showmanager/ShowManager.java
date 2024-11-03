@@ -16,11 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 public class ShowManager {
@@ -58,26 +55,5 @@ public class ShowManager {
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
         Project.current().save();
         worker.run();
-    }
-
-    public void reload(boolean wait) {
-        Terminables.shutdownAll();
-        System.gc();
-        if (wait) {
-            try {
-                for (int i = 1; i <= 5; i++) {
-                    TimeUnit.SECONDS.sleep(1);
-                    log.info(". ".repeat(i));
-                }
-            } catch (InterruptedException ignored) { }
-        }
-        try {
-            Class<?> bClass = Class.forName("me.sunstorm.showmanager.Bootstrap");
-            Field lastArgField = bClass.getDeclaredField("lastArgs");
-            Method mainMethod = bClass.getDeclaredMethod("main", String[].class);
-            mainMethod.invoke(null, lastArgField.get(null));
-        } catch (ReflectiveOperationException e) {
-            log.error("Failed to invoke Bootstrap", e);
-        }
     }
 }

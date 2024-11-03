@@ -115,7 +115,12 @@ public class AudioController {
     @NotNull
     private JsonArray buildMarkers() {
         JsonArray array = new JsonArray();
-        player.getCurrent().getMarkers().forEach(m -> array.add(new JsonBuilder().addProperty("label", m.getLabel()).addProperty("time", m.getTime().guiFormatted(false)).build()));
+        player.getCurrent().getMarkers().forEach(m -> array.add(
+                new JsonBuilder()
+                .addProperty("label", m.getLabel())
+                .addProperty("time", m.getTime().guiFormatted(false))
+                .build()
+        ));
         return array;
     }
 }

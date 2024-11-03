@@ -62,7 +62,7 @@ public class OscModule extends Module {
 
                     if (recording && worker.isPlaying()) {
                         OSCMessage message = (OSCMessage) event.getPacket();
-                        Object property = message.getArguments() == null ? null : (!message.getArguments().isEmpty() ? message.getArguments().get(0) : null);
+                        Object property = message.getArguments() == null ? null : (!message.getArguments().isEmpty() ? message.getArguments().getFirst() : null);
                         if (!recordCache.containsKey(message.getAddress()) && recordCache.get(message.getAddress()) != property) {
                             System.out.println("adding: " + message.getAddress() + " stuff: " + message.getArguments().toString());
                             scheduler.addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments())));

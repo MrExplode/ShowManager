@@ -28,16 +28,12 @@ public class JsonBuilder {
     }
 
     public JsonBuilder add(String property, Object value) {
-        if (value instanceof String) {
-            addProperty(property, (String) value);
-        } else if (value instanceof Number) {
-            addProperty(property, (Number) value);
-        } else if (value instanceof Boolean) {
-            addProperty(property, (Boolean) value);
-        } else if (value instanceof Character) {
-            addProperty(property, (Character) value);
-        }else {
-            add(property, value.toString());
+        switch (value) {
+            case String s -> addProperty(property, s);
+            case Number number -> addProperty(property, number);
+            case Boolean b -> addProperty(property, b);
+            case Character c -> addProperty(property, c);
+            case null, default -> add(property, value.toString());
         }
 
         return this;

@@ -3,7 +3,6 @@ package me.sunstorm.showmanager;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
-import org.codejargon.feather.Feather;
 import org.codejargon.feather.Provides;
 
 import javax.inject.Named;

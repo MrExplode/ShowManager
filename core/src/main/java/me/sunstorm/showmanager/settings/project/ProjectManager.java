@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ProjectManager implements Terminable {
     private static final Logger log = LoggerFactory.getLogger(ProjectManager.class);

@@ -20,7 +20,7 @@ public enum OscParameterType {
 
     @Nullable
     public Object convert(String raw) {
-        if (raw.length() == 0) return null;
+        if (raw.isEmpty()) return null;
         return deserializer.apply(raw);
     }
 

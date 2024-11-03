@@ -48,7 +48,7 @@ public class SchedulerModule extends ToggleableModule {
         scheduledEvents.add(event);
         new EventAddEvent(event).call(eventBus);
         //only sort if the last event's time is bigger than the added event
-        if (!scheduledEvents.isEmpty() && event.getExecuteTime().compareTo(scheduledEvents.get(scheduledEvents.size() - 1).getExecuteTime()) < 0)
+        if (!scheduledEvents.isEmpty() && event.getExecuteTime().compareTo(scheduledEvents.getLast().getExecuteTime()) < 0)
             scheduledEvents.sort(Comparator.comparing(ScheduledEvent::getExecuteTime));
     }
 
