@@ -6,6 +6,7 @@ import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.NaiveRateLimit;
 import io.javalin.json.JsonMapper;
+import io.javalin.plugin.bundled.CorsPluginConfig;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
@@ -68,6 +69,8 @@ public class HttpModule extends Module {
             } else {
                 log.info("showmanager.debug environment value present, starting without serving frontend");
             }
+
+            config.bundledPlugins.enableCors(cors -> cors.addRule(CorsPluginConfig.CorsRule::anyHost));
         });
         javalin.start(host, port);
         setupRouting();

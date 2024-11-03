@@ -1,4 +1,4 @@
-const BASE = ''
+const BASE = 'http://localhost:7000'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const get = async (path: string): Promise<any> => {

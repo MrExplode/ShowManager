@@ -8,7 +8,7 @@ let pingTaskId = -1
 let retryTaskId = -1
 
 export const load = () => {
-    socket = new WebSocket('')
+    socket = new WebSocket('ws://localhost:7000')
     socket.onopen = open
     socket.onclose = close
     socket.onmessage = message
@@ -30,7 +30,7 @@ const close = (event: CloseEvent) => {
 const message = (event: MessageEvent) => {
     try {
         const payload = JSON.parse(event.data) as Message
-        handle(payload)
+        handle(payload).catch((e) => console.log('Failed to handle WS message', e))
     } catch (error: unknown) {
         console.log('Failed to handle WS message', error)
     }

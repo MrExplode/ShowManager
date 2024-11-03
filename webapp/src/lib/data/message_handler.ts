@@ -7,7 +7,13 @@ import type {
     SchedulerMessage,
     TimeMessage
 } from '$lib/data/types'
-import { playing as audioPlaying, syncAudio, syncMarkers, volume } from '$lib/data/audio'
+import {
+    playing as audioPlaying,
+    syncAudio,
+    syncMarkers,
+    volume,
+    setSyncing as audioSyncing
+} from '$lib/data/audio'
 import {
     connected,
     currentTime,
@@ -53,7 +59,6 @@ export const handle = async (msg: Message) => {
 const handleInit = async (msg: InitMessage) => {
     await syncPlaying()
     await syncAudio()
-    await syncMarkers()
     await syncOutputs()
     await syncRecording()
     await syncEvents()
@@ -77,7 +82,7 @@ const handleTime = async (msg: TimeMessage) => {
         case 'stop':
             controlPlaying.set(true)
             controlPaused.set(false)
-
+            await syncEvents()
             break
     }
 }
@@ -96,7 +101,9 @@ const handleAudio = async (msg: AudioMessage) => {
             audioPlaying.set(false)
             break
         case 'volume':
+            audioSyncing(true)
             volume.set(msg.volume as number)
+            audioSyncing(false)
             break
         case 'marker':
             await syncMarkers()

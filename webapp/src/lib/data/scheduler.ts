@@ -2,7 +2,7 @@ import { writable } from 'svelte/store'
 import type { ScheduledEvent } from '$lib/data/types'
 import { get, post, wait } from '$lib/data/api'
 
-let isSyncing = false
+let isSyncing = true
 export const events = writable<ScheduledEvent[]>([])
 export const recording = writable(false)
 
@@ -24,7 +24,7 @@ export const syncEvents = async () => {
 }
 
 export const syncRecording = async () => {
-    const data = await get('scheduler/record')
+    const data = await get('/scheduler/record')
     isSyncing = true
     recording.set(data.recording)
     isSyncing = false

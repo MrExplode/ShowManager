@@ -1,7 +1,7 @@
-import { writable } from 'svelte/store'
+import { writable, get as getValue } from 'svelte/store'
 import { get, post, wait } from './api'
 
-let isSyncing = false
+let isSyncing = true
 export const artNetOutput = writable(false)
 export const audioOutput = writable(false)
 export const ltcOutput = writable(false)
@@ -11,7 +11,7 @@ artNetOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/artnet', {
-                enabled: artNetOutput
+                enabled: getValue(artNetOutput)
             })
         )
     }
@@ -21,7 +21,7 @@ audioOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/audio', {
-                enabled: audioOutput
+                enabled: getValue(audioOutput)
             })
         )
     }
@@ -31,7 +31,7 @@ ltcOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/ltc', {
-                enabled: ltcOutput
+                enabled: getValue(ltcOutput)
             })
         )
     }
@@ -41,7 +41,7 @@ schedulerActive.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/scheduler', {
-                enabled: schedulerActive
+                enabled: getValue(schedulerActive)
             })
         )
     }
