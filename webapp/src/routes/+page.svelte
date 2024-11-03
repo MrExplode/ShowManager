@@ -1,2 +1,17 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+    import LoadingScreen from '@/LoadingScreen.svelte'
+    import Button from '$components/ui/button/button.svelte'
+    import { connected } from '$lib/data/control'
+</script>
+
+{#if $connected}
+    <div class="flex min-h-screen items-center justify-center">
+        <Button
+            onclick={() => {
+                $connected = false
+            }}>Disconnect</Button
+        >
+    </div>
+{:else}
+    <LoadingScreen />
+{/if}
