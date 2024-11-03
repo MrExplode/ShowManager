@@ -1,5 +1,7 @@
-import { connected, retryCountdown } from '$lib/data/control'
 import { get } from 'svelte/store'
+import type { Message } from '$lib/data/types'
+import { connected, retryCountdown } from '$lib/data/control'
+import { handle } from '$lib/data/message_handler'
 
 let socket: WebSocket | null = null
 let pingTaskId = -1
@@ -27,9 +29,8 @@ const close = (event: CloseEvent) => {
 
 const message = (event: MessageEvent) => {
     try {
-        const payload = JSON.parse(event.data)
-        // todo handling
-        console.log(payload)
+        const payload = JSON.parse(event.data) as Message
+        handle(payload)
     } catch (error: unknown) {
         console.log('Failed to handle WS message', error)
     }

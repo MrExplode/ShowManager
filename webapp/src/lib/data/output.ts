@@ -56,3 +56,7 @@ export const syncOutputs = async () => {
     schedulerActive.set(data.scheduler)
     isSyncing = false
 }
+
+export const setSyncing = (value: boolean) => {
+    isSyncing = value
+}
