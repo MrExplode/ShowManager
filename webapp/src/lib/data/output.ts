@@ -1,12 +1,13 @@
+import { writable } from 'svelte/store'
 import { get, post, wait } from './api'
 
 let isSyncing = false
-let artNetOutput = $state(false)
-let audioOutput = $state(false)
-let ltcOutput = $state(false)
-let schedulerActive = $state(false)
+export const artNetOutput = writable(false)
+export const audioOutput = writable(false)
+export const ltcOutput = writable(false)
+export const schedulerActive = writable(false)
 
-$effect(() => {
+artNetOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/artnet', {
@@ -16,7 +17,7 @@ $effect(() => {
     }
 })
 
-$effect(() => {
+audioOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/audio', {
@@ -26,7 +27,7 @@ $effect(() => {
     }
 })
 
-$effect(() => {
+ltcOutput.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/ltc', {
@@ -36,7 +37,7 @@ $effect(() => {
     }
 })
 
-$effect(() => {
+schedulerActive.subscribe(() => {
     if (!isSyncing) {
         wait(
             post('/output/scheduler', {
@@ -46,14 +47,12 @@ $effect(() => {
     }
 })
 
-const syncOutputs = async () => {
+export const syncOutputs = async () => {
     const data = await get('/output/all')
     isSyncing = true
-    artNetOutput = data.artnet
-    audioOutput = data.audio
-    ltcOutput = data.ltc
-    schedulerActive = data.scheduler
+    artNetOutput.set(data.artnet)
+    audioOutput.set(data.audio)
+    ltcOutput.set(data.ltc)
+    schedulerActive.set(data.scheduler)
     isSyncing = false
 }
-
-export default { artNetOutput, audioOutput, ltcOutput, schedulerActive, syncOutputs }
