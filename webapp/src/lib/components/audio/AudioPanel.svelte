@@ -13,7 +13,7 @@
     let loadedName = $derived($loadedAudio == '' ? 'No track loaded' : `Loaded: ${$loadedAudio}`)
 </script>
 
-<Card.Root>
+<Card.Root class="m-2">
     <Card.Header class="flex flex-row items-start justify-between">
         <div class="flex flex-col space-y-1.5">
             <Card.Title>Audio player</Card.Title>

@@ -4,7 +4,7 @@
     import AudioPanel from '@/audio/AudioPanel.svelte'
 </script>
 
-<div class="flex items-start justify-start gap-4">
+<div class="flex items-start justify-start gap-2">
     <TimePanel />
     <OutputPanel />
     <AudioPanel />
