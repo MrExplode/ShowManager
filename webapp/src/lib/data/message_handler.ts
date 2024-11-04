@@ -102,7 +102,7 @@ const handleAudio = async (msg: AudioMessage) => {
             break
         case 'volume':
             audioSyncing(true)
-            volume.set(msg.volume as number)
+            volume.set([msg.volume as number])
             audioSyncing(false)
             break
         case 'marker':

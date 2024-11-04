@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -60,6 +61,7 @@ public class AudioController {
             data.addProperty("playing", player.getCurrent().getClip().isRunning());
             data.add("markers", buildMarkers());
         }
+        data.add("availableTracks", Constants.GSON.toJsonTree(player.getTracks()));
         ctx.json(data);
     }
 
