@@ -5,7 +5,7 @@
     import OutputSwitch from '@/output/OutputSwitch.svelte'
 </script>
 
-<Card.Root class="m-5">
+<Card.Root class="m-2">
     <Card.Header>
         <Card.Title>Output</Card.Title>
         <Card.Description>Toggle available outputs</Card.Description>

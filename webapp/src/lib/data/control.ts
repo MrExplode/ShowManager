@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store'
-import { get } from '$lib/data/api'
+import { get, post } from '$lib/data/api'
 
 export const playing = writable(false)
 export const paused = writable(false)
@@ -20,4 +20,16 @@ export const loadLogs = (log: string[]) => {
 export const addLog = (log: string) => {
     // todo add & trunc
     console.log(log)
+}
+
+export const play = async () => {
+    await post('/control/play')
+}
+
+export const pause = async () => {
+    await post('/control/pause')
+}
+
+export const stop = async () => {
+    await post('/control/stop')
 }

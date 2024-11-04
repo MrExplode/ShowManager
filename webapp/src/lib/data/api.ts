@@ -8,10 +8,10 @@ export const get = async (path: string): Promise<any> => {
     return await response.json()
 }
 
-export const post = async (path: string, body: unknown) => {
+export const post = async (path: string, body: unknown | undefined = undefined) => {
     await fetch(BASE + path, {
         method: 'post',
-        body: JSON.stringify(body)
+        body: body == undefined ? undefined : JSON.stringify(body)
     })
 }
 

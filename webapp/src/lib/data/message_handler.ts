@@ -80,7 +80,7 @@ const handleTime = async (msg: TimeMessage) => {
             controlPaused.set(true)
             break
         case 'stop':
-            controlPlaying.set(true)
+            controlPlaying.set(false)
             controlPaused.set(false)
             await syncEvents()
             break
