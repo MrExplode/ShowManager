@@ -62,7 +62,7 @@ public class Project {
                 settings.add(holder);
                 return;
             } catch (Exception e) {
-                log.error("Failed to load settings for {}, falling back to default", holder.getClass().getSimpleName());
+                log.error("Failed to load settings for {}, falling back to default", holder.getClass().getSimpleName(), e);
             }
         }
         var settingsData = holder.getData();

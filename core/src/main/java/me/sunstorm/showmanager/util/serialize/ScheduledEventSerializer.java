@@ -2,6 +2,7 @@ package me.sunstorm.showmanager.util.serialize;
 
 import com.google.gson.*;
 import com.illposed.osc.OSCMessage;
+import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.modules.scheduler.ScheduledEvent;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledJumpEvent;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
@@ -23,12 +24,16 @@ public class ScheduledEventSerializer implements JsonSerializer<ScheduledEvent>,
         JsonObject data = json.getAsJsonObject();
         String type = data.get("type").getAsString();
         Timecode time = context.deserialize(data.get("time"), Timecode.class);
-        return switch (type) {
+        var instance =  switch (type) {
             case "jump" -> new ScheduledJumpEvent(time, context.deserialize(data.get("jumpTime"), Timecode.class));
             case "osc" -> new ScheduledOscEvent(time, context.deserialize(data.get("packet"), OSCMessage.class));
             case "pause" -> new ScheduledPauseEvent(time);
             case "stop" -> new ScheduledStopEvent(time);
             default -> null;
         };
+        if (ShowManager.FEATHER != null && instance != null) {
+            ShowManager.FEATHER.injectFields(instance);
+        }
+        return instance;
     }
 }

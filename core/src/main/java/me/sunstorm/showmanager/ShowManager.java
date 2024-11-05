@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class ShowManager {
     private static final Logger log = LoggerFactory.getLogger(ShowManager.class);
+    public static Feather FEATHER;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final Config config;
@@ -47,10 +48,10 @@ public class ShowManager {
             redis = new DummyRedisImpl();
         }
 
-        var feather = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config));
+        FEATHER = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config));
 
-        this.worker = feather.instance(Worker.class);
-        new ModuleManager(feather);
+        this.worker = FEATHER.instance(Worker.class);
+        new ModuleManager(FEATHER);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
         Project.current().save();

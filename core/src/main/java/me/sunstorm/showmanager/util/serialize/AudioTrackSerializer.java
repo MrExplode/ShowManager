@@ -1,6 +1,7 @@
 package me.sunstorm.showmanager.util.serialize;
 
 import com.google.gson.*;
+import me.sunstorm.showmanager.ShowManager;
 import me.sunstorm.showmanager.modules.audio.AudioTrack;
 import me.sunstorm.showmanager.modules.audio.marker.Marker;
 import me.sunstorm.showmanager.util.Timecode;
@@ -15,7 +16,11 @@ public class AudioTrackSerializer implements JsonSerializer<AudioTrack>, JsonDes
         JsonObject data = json.getAsJsonObject();
         Timecode start = context.deserialize(data.get("start"), Timecode.class);
         List<Marker> markers = context.deserialize(data.get("markers"), List.class);
-        return new AudioTrack(start, new File(data.get("path").getAsString()), markers);
+        var instance = new AudioTrack(start, new File(data.get("path").getAsString()), markers);
+        if (ShowManager.FEATHER != null) {
+            ShowManager.FEATHER.injectFields(instance);
+        }
+        return instance;
     }
 
     @Override
