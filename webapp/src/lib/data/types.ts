@@ -40,10 +40,10 @@ export interface AudioMarker {
 }
 
 export interface AudioTrack {
-    startTime: Timecode
+    start: Timecode
     volume: number
     markers: AudioMarker[]
-    file: { path: string }
+    path: string
 }
 
 export interface Message {
