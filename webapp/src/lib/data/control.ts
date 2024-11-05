@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store'
 import { get, post } from '$lib/data/api'
+import type { Timecode } from '$lib/data/types'
 
 export const playing = writable(false)
 export const paused = writable(false)
@@ -32,4 +33,8 @@ export const pause = async () => {
 
 export const stop = async () => {
     await post('/control/stop')
+}
+
+export const setTime = async (t: Timecode) => {
+    await post('/control/set', t)
 }

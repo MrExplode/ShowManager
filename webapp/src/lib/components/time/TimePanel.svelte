@@ -4,6 +4,7 @@
     import Disc3 from 'lucide-svelte/icons/disc-3'
     import { Button } from '@/ui/button'
     import * as Card from '@/ui/card'
+    import SetTimeDialog from './SetTimeDialog.svelte'
 </script>
 
 <Card.Root class="m-2">
@@ -20,6 +21,6 @@
         <Button disabled={$playing} onclick={play}>Play</Button>
         <Button disabled={$paused} onclick={pause}>Pause</Button>
         <Button onclick={stop}>Stop</Button>
-        <Button disabled={$playing} class="ml-4" variant="outline">Set</Button>
+        <SetTimeDialog disabled={$playing} class="ml-4" />
     </Card.Footer>
 </Card.Root>
