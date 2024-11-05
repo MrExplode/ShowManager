@@ -16,17 +16,24 @@ import me.sunstorm.showmanager.modules.http.WebSocketHandler;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Get;
 import me.sunstorm.showmanager.modules.http.routing.annotate.PathPrefix;
 import me.sunstorm.showmanager.modules.http.routing.annotate.Post;
+import me.sunstorm.showmanager.util.Exceptions;
 import me.sunstorm.showmanager.util.JsonBuilder;
 import me.sunstorm.showmanager.util.Timecode;
+import me.sunstorm.showmanager.util.WaveformRunner;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @PathPrefix("/audio")
 public class AudioController {
     private static final Logger log = LoggerFactory.getLogger(AudioController.class);
+
+    private final WaveformRunner waveformRunner;
 
     private final EventBus eventBus;
     private final AudioModule player;
@@ -37,6 +44,8 @@ public class AudioController {
         this.eventBus = eventBus;
         this.player = player;
         this.wsHandler = wsHandler;
+
+        this.waveformRunner = new WaveformRunner(Path.of(System.getenv("showmanager.audiowaveform")));
     }
 
     @Post("/volume")
@@ -112,6 +121,31 @@ public class AudioController {
         else
             log.warn("Attempted to delete non-existing marker: {}", data.get("name").getAsString());
         new MarkerDeleteEvent().call(eventBus);
+    }
+
+    @Get("/samples")
+    public void getSamples(@NotNull Context ctx) {
+        if (player.getCurrent() == null) throw new BadRequestResponse("No tracks are loaded");
+        try (var out = ctx.outputStream()) {
+            out.write(waveformRunner.sample(player.getCurrent().getFile().toPath()));
+        } catch (IOException e) {
+            Exceptions.sneaky(e);
+        }
+    }
+
+    // actually not needed for peaks.js, HOWEVER I might do something later on the ui with the sound
+    // maybe a sound preview?
+    @Get("/raw")
+    public void getAudio(@NotNull Context ctx) {
+        if (player.getCurrent() == null) throw new BadRequestResponse("No tracks are loaded");
+        try (var out = ctx.outputStream()) {
+            var data = Files.readAllBytes(player.getCurrent().getFile().toPath());
+            ctx.header("Content-Type", "audio/wav");
+            ctx.header("Content-Length", data.length + "");
+            out.write(data);
+        } catch (IOException e) {
+            Exceptions.sneaky(e);
+        }
     }
 
     @NotNull

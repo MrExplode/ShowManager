@@ -28,7 +28,9 @@
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-svelte": "^2.36.0",
         "globals": "^15.0.0",
+        "konva": "^9.3.16",
         "lucide-svelte": "^0.454.0",
+        "peaks.js": "^3.4.2",
         "prettier": "^3.3.2",
         "prettier-plugin-svelte": "^3.2.6",
         "prettier-plugin-tailwindcss": "^0.6.5",
@@ -41,6 +43,7 @@
         "typescript": "^5.0.0",
         "typescript-eslint": "^8.0.0",
         "vite": "^5.0.3",
-        "vitest": "^2.0.4"
+        "vitest": "^2.0.4",
+        "waveform-data": "^4.5.0"
     }
 }

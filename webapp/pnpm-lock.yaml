@@ -47,9 +47,15 @@ importers:
       globals:
         specifier: ^15.0.0
         version: 15.11.0
+      konva:
+        specifier: ^9.3.16
+        version: 9.3.16
       lucide-svelte:
         specifier: ^0.454.0
         version: 0.454.0(svelte@5.1.9)
+      peaks.js:
+        specifier: ^3.4.2
+        version: 3.4.2(konva@9.3.16)(waveform-data@4.5.0)
       prettier:
         specifier: ^3.3.2
         version: 3.3.3
@@ -89,6 +95,9 @@ importers:
       vitest:
         specifier: ^2.0.4
         version: 2.1.4
+      waveform-data:
+        specifier: ^4.5.0
+        version: 4.5.0
 
 packages:
 
@@ -869,6 +878,9 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+
   expect-type@1.1.0:
     resolution: {integrity: sha512-bFi65yM+xZgk+u/KRIpekdSYkTB5W1pEf0Lt8Q8Msh7b+eQ7LXVtIB1Bkm4fvclDEL1b2CZkMhv2mOeF8tMdkA==}
     engines: {node: '>=12.0.0'}
@@ -1051,6 +1063,9 @@ packages:
   known-css-properties@0.35.0:
     resolution: {integrity: sha512-a/RAk2BfKk+WFGhhOCAYqSiFLc34k8Mt/6NWRI4joER0EYUzXIcFivjjnoD3+XU1DggLn/tZc3DOAgke7l8a4A==}
 
+  konva@9.3.16:
+    resolution: {integrity: sha512-qa47cefGDDHzkToGRGDsy24f/Njrz7EHP56jQ8mlDcjAPO7vkfTDeoBDIfmF7PZtpfzDdooafQmEUJMDU2F7FQ==}
+
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -1190,6 +1205,13 @@ packages:
   pathval@2.0.0:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
+
+  peaks.js@3.4.2:
+    resolution: {integrity: sha512-cgKooOBIBwIiLBCIOYbrFH4+8TmeDMV9KbqR31cFRlvWwBVOgEuDdNgX0szmOw4F4cjSM5IjqovfrUYKlDl/JA==}
+    engines: {node: '>= 8.11.2'}
+    peerDependencies:
+      konva: '>= 8.3.14 < 10'
+      waveform-data: '>= 4.3.0 < 5'
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -1666,6 +1688,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  waveform-data@4.5.0:
+    resolution: {integrity: sha512-fLT8yLGUuVhDBMVVOD2AGqHlLLVT/zfGlSIKgfqMCwFJGtkvY9eEhu0EL9W55lFJQt4r53X5Ncj86ymTGJlJTA==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -2455,6 +2480,8 @@ snapshots:
 
   esutils@2.0.3: {}
 
+  eventemitter3@5.0.1: {}
+
   expect-type@1.1.0: {}
 
   fast-deep-equal@3.1.3: {}
@@ -2608,6 +2635,8 @@ snapshots:
 
   known-css-properties@0.35.0: {}
 
+  konva@9.3.16: {}
+
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -2719,6 +2748,12 @@ snapshots:
   pathe@1.1.2: {}
 
   pathval@2.0.0: {}
+
+  peaks.js@3.4.2(konva@9.3.16)(waveform-data@4.5.0):
+    dependencies:
+      eventemitter3: 5.0.1
+      konva: 9.3.16
+      waveform-data: 4.5.0
 
   picocolors@1.1.1: {}
 
@@ -3143,6 +3178,8 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  waveform-data@4.5.0: {}
 
   which@2.0.2:
     dependencies:

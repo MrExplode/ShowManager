@@ -8,7 +8,8 @@
 
     import { loadedAudio, playing, volume, availableTracks } from '$lib/data/audio'
     import DataTable from '@/DataTable.svelte'
-    import { columns } from './track_columns'
+    import { columns } from '@/audio/track_columns'
+    import AudioWaveform from '@/audio/AudioWaveform.svelte'
 
     let loadedName = $derived($loadedAudio == '' ? 'No track loaded' : `Loaded: ${$loadedAudio}`)
 </script>
@@ -23,7 +24,7 @@
             <Disc3 class="h-7 animate-spin text-muted-foreground" />
         {/if}
     </Card.Header>
-    <Card.Content class="space-y-4">
+    <Card.Content class="flex-1 flex-col items-center space-y-4 text-center">
         <div class="flex items-center space-x-6">
             {#if $volume[0] < 25}
                 <Volume class="w-10" />
@@ -43,6 +44,7 @@
             />
             <p class="text-bold text-xl">{$volume}</p>
         </div>
+        <AudioWaveform />
         <DataTable data={$availableTracks} {columns} />
     </Card.Content>
 </Card.Root>
