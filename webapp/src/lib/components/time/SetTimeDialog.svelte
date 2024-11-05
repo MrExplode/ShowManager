@@ -4,7 +4,7 @@
     import { Input } from '@/ui/input'
     import { toast } from 'svelte-sonner'
     import type { Timecode } from '$lib/data/types'
-    import { setTime } from '$lib/data/control'
+    import { playing, setTime } from '$lib/data/control'
     import { cn } from '$utils'
 
     const format = /(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})\/(?<frame>\d{2})/
@@ -35,8 +35,9 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-    <Dialog.Trigger class={cn(buttonVariants({ variant: 'outline' }), classNames)}
-        >Set</Dialog.Trigger
+    <Dialog.Trigger
+        disabled={$playing}
+        class={cn(buttonVariants({ variant: 'outline' }), classNames)}>Set</Dialog.Trigger
     >
     <Dialog.Content>
         <Dialog.Header>

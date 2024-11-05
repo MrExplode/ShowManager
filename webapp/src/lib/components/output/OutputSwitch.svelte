@@ -7,14 +7,16 @@
     let {
         outputName,
         description,
-        store
-    }: { outputName: string; description: string; store: Writable<boolean> } = $props()
+        store,
+        disabled
+    }: { outputName: string; description: string; store: Writable<boolean>; disabled: boolean } =
+        $props()
 </script>
 
 <Tooltip.Provider>
     <Tooltip.Root>
         <Tooltip.Trigger class="flex items-center space-x-2">
-            <Switch bind:checked={$store} />
+            <Switch bind:checked={$store} {disabled} />
             <Label>{outputName}</Label>
         </Tooltip.Trigger>
         <Tooltip.Content>
