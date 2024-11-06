@@ -1,3 +1,4 @@
+import { dev } from '$app/environment'
 import { get } from 'svelte/store'
 import type { Message } from '$lib/data/types'
 import { connected, retryCountdown } from '$lib/data/control'
@@ -8,7 +9,7 @@ let pingTaskId = -1
 let retryTaskId = -1
 
 export const load = () => {
-    socket = new WebSocket('ws://localhost:7000')
+    socket = new WebSocket(dev ? 'ws://localhost:7000' : '/')
     socket.onopen = open
     socket.onclose = close
     socket.onmessage = message
