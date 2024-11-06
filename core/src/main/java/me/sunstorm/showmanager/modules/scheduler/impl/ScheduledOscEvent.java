@@ -8,13 +8,14 @@ import me.sunstorm.showmanager.modules.scheduler.AbstractScheduledEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class ScheduledOscEvent extends AbstractScheduledEvent {
     private final OSCMessage packet;
     @Inject private OscModule oscModule;
 
-    public ScheduledOscEvent(Timecode executeTime, OSCMessage packet) {
-        super(executeTime, "osc");
+    public ScheduledOscEvent(Timecode executeTime, OSCMessage packet, UUID id) {
+        super(executeTime, "osc", id);
         this.packet = packet;
     }
 

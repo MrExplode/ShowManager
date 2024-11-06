@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @PathPrefix("/scheduler")
 public class SchedulerController {
@@ -70,8 +72,14 @@ public class SchedulerController {
 
     @Post("/events/delete")
     public void deleteEvents(@NotNull Context ctx) {
-        JsonArray data = JsonParser.parseString(ctx.body()).getAsJsonArray();
-        boolean success = scheduler.getScheduledEvents().removeIf(e -> data.contains(e.getData()));
+        var data = JsonParser.parseString(ctx.body()).getAsJsonObject();
+        if (!data.has("events"))
+            throw new BadRequestResponse();
+        var ids = StreamSupport
+                .stream(data.get("events").getAsJsonArray().spliterator(), true)
+                .map(e -> UUID.fromString(e.getAsString()))
+                .toList();
+        boolean success = scheduler.getScheduledEvents().removeIf(e -> ids.contains(e.getId()));
         if (success)
             log.info("Deleted some events duh");
         else

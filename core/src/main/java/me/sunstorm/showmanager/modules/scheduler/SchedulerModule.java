@@ -36,7 +36,6 @@ public class SchedulerModule extends ToggleableModule {
 
     private final List<ScheduledEvent> scheduledEvents = new CopyOnWriteArrayList<>();
     private int lastIndex = -1;
-    private Timecode lastTime = new Timecode(-1);
 
     @Inject
     public SchedulerModule(EventBus bus) {
@@ -62,8 +61,7 @@ public class SchedulerModule extends ToggleableModule {
     public void onTimeChange(TimecodeChangeEvent e) {
         if (!isEnabled() || scheduledEvents.isEmpty() || lastIndex + 1 == scheduledEvents.size()) return;
         Timecode current = e.getTime();
-        //no exec yet or time was reset
-        //I don't have time to debug buggy behaviour rn
+
         for (ScheduledEvent event : scheduledEvents) {
             if (event.getExecuteTime().equals(current)) {
                 log.info("Executing scheduled event: {}", event.getType());
@@ -71,28 +69,6 @@ public class SchedulerModule extends ToggleableModule {
                 event.execute();
             }
         }
-//        int i = 0;
-//        if (lastIndex != -1 || current.compareTo(lastTime) >= 0) {
-//            //iterating from the last executed index
-//            i = lastIndex + 1;
-//        }
-//        for (; i < scheduledEvents.size(); i++) {
-//            val event = scheduledEvents.get(i);
-//            //not there yet, break
-//            if (current.compareTo(event.getExecuteTime()) < 0) {
-//                break;
-//            //we are there, exec and update indexes
-//            } else if (current.equals(event.getExecuteTime())) {
-//                log.info("Executing scheduled event: {}", event.getType());
-//                new SchedulerExecuteEvent(event).call(eventBus);
-//                event.execute();
-//                lastIndex = i;
-//                lastTime = current;
-//            //already past the relevant things, break
-//            } else if (current.compareTo(event.getExecuteTime()) > 0) {
-//                break;
-//            }
-//        }
     }
 
     @EventCall

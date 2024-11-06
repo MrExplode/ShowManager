@@ -5,13 +5,14 @@ import me.sunstorm.showmanager.modules.scheduler.AbstractScheduledEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class ScheduledPauseEvent extends AbstractScheduledEvent {
     @Inject
     private Worker worker;
 
-    public ScheduledPauseEvent(Timecode executeTime) {
-        super(executeTime, "pause");
+    public ScheduledPauseEvent(Timecode executeTime, UUID id) {
+        super(executeTime, "pause", id);
     }
 
     @Override

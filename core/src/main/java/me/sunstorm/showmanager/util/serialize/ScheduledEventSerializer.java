@@ -11,6 +11,7 @@ import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledStopEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 import java.lang.reflect.Type;
+import java.util.UUID;
 
 public class ScheduledEventSerializer implements JsonSerializer<ScheduledEvent>, JsonDeserializer<ScheduledEvent> {
 
@@ -24,11 +25,12 @@ public class ScheduledEventSerializer implements JsonSerializer<ScheduledEvent>,
         JsonObject data = json.getAsJsonObject();
         String type = data.get("type").getAsString();
         Timecode time = context.deserialize(data.get("time"), Timecode.class);
+        var id = data.get("id") == null ? null : UUID.fromString(data.get("id").getAsString());
         var instance =  switch (type) {
-            case "jump" -> new ScheduledJumpEvent(time, context.deserialize(data.get("jumpTime"), Timecode.class));
-            case "osc" -> new ScheduledOscEvent(time, context.deserialize(data.get("packet"), OSCMessage.class));
-            case "pause" -> new ScheduledPauseEvent(time);
-            case "stop" -> new ScheduledStopEvent(time);
+            case "jump" -> new ScheduledJumpEvent(time, context.deserialize(data.get("jumpTime"), Timecode.class), id);
+            case "osc" -> new ScheduledOscEvent(time, context.deserialize(data.get("packet"), OSCMessage.class), id);
+            case "pause" -> new ScheduledPauseEvent(time, id);
+            case "stop" -> new ScheduledStopEvent(time, id);
             default -> null;
         };
         if (ShowManager.FEATHER != null && instance != null) {

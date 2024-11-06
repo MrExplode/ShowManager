@@ -7,13 +7,14 @@ import me.sunstorm.showmanager.modules.scheduler.AbstractScheduledEvent;
 import me.sunstorm.showmanager.util.Timecode;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class ScheduledJumpEvent extends AbstractScheduledEvent {
     @Inject private Worker worker;
     private final Timecode jumpTo;
 
-    public ScheduledJumpEvent(Timecode executeTime, Timecode jumpTo) {
-        super(executeTime, "jump");
+    public ScheduledJumpEvent(Timecode executeTime, Timecode jumpTo, UUID id) {
+        super(executeTime, "jump", id);
         this.jumpTo = jumpTo;
     }
 

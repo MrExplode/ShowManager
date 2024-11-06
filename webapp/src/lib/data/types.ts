@@ -106,6 +106,7 @@ export interface OutputMessage {
 export interface ScheduledEvent {
     type: ScheduledEventType
     time: Timecode
+    id?: string
 }
 
 export interface ScheduledJumpEvent extends ScheduledEvent {

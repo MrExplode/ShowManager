@@ -20,7 +20,7 @@ public class Marker {
     public void jump() {
         //starting to hate gson more and more.
         if (wrappedEvent == null)
-            wrappedEvent = new ScheduledJumpEvent(Timecode.ZERO, time);
+            wrappedEvent = new ScheduledJumpEvent(Timecode.ZERO, time, null);
         wrappedEvent.execute();
     }
 
