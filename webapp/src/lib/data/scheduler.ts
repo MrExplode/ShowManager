@@ -35,3 +35,9 @@ export const addEvent = async (e: ScheduledEvent) => {
         event: e
     })
 }
+
+export const deleteEvents = async (events: ScheduledEvent[]) => {
+    await post('/scheduler/events/delete', {
+        events: events.map((e) => e.id)
+    })
+}
