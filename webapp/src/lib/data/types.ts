@@ -11,6 +11,21 @@ export interface Timecode {
     millisecLength: number
 }
 
+const timecodeRegex = /(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})\/(?<frame>\d{2})/
+
+export const fromString = (raw: string): Timecode | null => {
+    const res = raw.match(timecodeRegex)
+    if (!res) return null
+
+    return {
+        hour: parseInt(res!.groups['hour']),
+        min: parseInt(res!.groups['min']),
+        sec: parseInt(res!.groups['sec']),
+        frame: parseInt(res!.groups['frame']),
+        millisecLength: 0
+    }
+}
+
 export const formatTime = (
     t: Timecode,
     pad: boolean = true,
@@ -89,7 +104,7 @@ export interface OutputMessage {
 }
 
 export interface ScheduledEvent {
-    type: string
+    type: ScheduledEventType
     time: Timecode
 }
 
@@ -104,3 +119,7 @@ export interface ScheduledOscEvent extends ScheduledEvent {
         parameter: string
     }
 }
+
+export type ScheduledEventType = 'osc' | 'jump' | 'start' | 'stop'
+
+export const eventTypes: ScheduledEventType[] = ['osc', 'jump', 'start', 'stop']

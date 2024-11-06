@@ -29,3 +29,9 @@ export const syncRecording = async () => {
     recording.set(data.recording)
     isSyncing = false
 }
+
+export const addEvent = async (e: ScheduledEvent) => {
+    await post('/scheduler/events/add', {
+        event: e
+    })
+}

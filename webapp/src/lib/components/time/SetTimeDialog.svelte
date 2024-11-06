@@ -3,31 +3,22 @@
     import * as Dialog from '@/ui/dialog'
     import { Input } from '@/ui/input'
     import { toast } from 'svelte-sonner'
-    import type { Timecode } from '$lib/data/types'
+    import { fromString } from '$lib/data/types'
     import { playing, setTime } from '$lib/data/control'
     import { cn } from '$utils'
 
-    const format = /(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})\/(?<frame>\d{2})/
-
-    let { disabled, class: classNames }: { disabled: boolean; class: string } = $props()
+    let { disabled, class: classNames = '' }: { disabled: boolean; class: string } = $props()
 
     let time = $state('')
     let isOpen = $state(false)
 
     const onSet = () => {
-        const res = time.match(format)
-        if (res == null) {
+        const timecode = fromString(time)
+        if (timecode == null) {
             toast.error('Invalid time format!', {
                 description: 'Valid example: 00:00:00/00'
             })
-        }
-
-        const timecode: Timecode = {
-            hour: parseInt(res!.groups['hour']),
-            min: parseInt(res!.groups['min']),
-            sec: parseInt(res!.groups['sec']),
-            frame: parseInt(res!.groups['frame']),
-            millisecLength: 0
+            return
         }
 
         setTime(timecode).then(() => (isOpen = false))

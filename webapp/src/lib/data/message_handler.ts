@@ -45,7 +45,7 @@ export const handle = async (msg: Message) => {
             await handleAudio(msg as AudioMessage)
             break
         case 'scheduler':
-            handleScheduler(msg as SchedulerMessage)
+            await handleScheduler(msg as SchedulerMessage)
             break
         case 'log':
             handleLog(msg as LogMessage)
@@ -111,7 +111,24 @@ const handleAudio = async (msg: AudioMessage) => {
     }
 }
 
-const handleScheduler = (msg: SchedulerMessage) => {}
+const handleScheduler = async (msg: SchedulerMessage) => {
+    switch (msg.action) {
+        case 'record':
+            // deprecated feature anyway
+            break
+        case 'eventAdd':
+            // could add directly, but I don't wanna do array ops on svelte stores
+            await syncEvents()
+            break
+        case 'eventExecuted':
+            // todo
+            console.log(msg.event)
+            break
+        case 'syncEvents':
+            await syncEvents()
+            break
+    }
+}
 
 const handleLog = (msg: LogMessage) => {
     addLog(msg.log)
