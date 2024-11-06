@@ -5,7 +5,7 @@ export const columns: ColumnDef<AudioTrack>[] = [
     {
         accessorKey: 'startTime',
         header: 'Start',
-        accessorFn: (track) => formatTime(track.start)
+        accessorFn: (track) => formatTime(track.start, { pad: true, frames: true })
     },
     {
         accessorKey: 'file',

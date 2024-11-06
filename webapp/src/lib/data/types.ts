@@ -28,23 +28,33 @@ export const fromString = (raw: string): Timecode | null => {
 
 export const formatTime = (
     t: Timecode,
-    pad: boolean = true,
-    spaces: boolean = false,
-    frames: boolean = false
+    config: { pad?: boolean; spaces?: boolean; frames?: boolean }
 ): string => {
-    const h = pad ? (t.hour < 10 ? '0' + t.hour.toString() : t.hour.toString()) : t.hour.toString()
-    const m = pad ? (t.min < 10 ? '0' + t.min.toString() : t.min.toString()) : t.min.toString()
-    const s = pad ? (t.sec < 10 ? '0' + t.sec.toString() : t.sec.toString()) : t.sec.toString()
-    const f = pad
+    const h = config.pad
+        ? t.hour < 10
+            ? '0' + t.hour.toString()
+            : t.hour.toString()
+        : t.hour.toString()
+    const m = config.pad
+        ? t.min < 10
+            ? '0' + t.min.toString()
+            : t.min.toString()
+        : t.min.toString()
+    const s = config.pad
+        ? t.sec < 10
+            ? '0' + t.sec.toString()
+            : t.sec.toString()
+        : t.sec.toString()
+    const f = config.pad
         ? t.frame < 10
             ? '0' + t.frame.toString()
             : t.frame.toString()
         : t.frame.toString()
-    if (spaces) {
-        if (frames) return `${h} : ${m} : ${s} / ${f}`
+    if (config.spaces) {
+        if (config.frames) return `${h} : ${m} : ${s} / ${f}`
         else return `${h} : ${m} : ${s}`
     } else {
-        if (frames) return `${h}:${m}:${s}/${f}`
+        if (config.frames) return `${h}:${m}:${s}/${f}`
         else return `${h}:${m}:${s}`
     }
 }
@@ -73,10 +83,7 @@ export interface InitMessage {
 export interface TimeMessage {
     type: 'time'
     action: 'change' | 'start' | 'pause' | 'stop'
-    hour: string | undefined
-    min: string | undefined
-    sec: string | undefined
-    frame: string | undefined
+    time: Timecode
 }
 
 export interface AudioMessage {

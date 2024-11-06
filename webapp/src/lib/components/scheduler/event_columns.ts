@@ -9,7 +9,7 @@ import ExecutionStatus from './ExecutionStatus.svelte'
 export const columns: ColumnDef<ScheduledEvent>[] = [
     {
         accessorKey: 'time',
-        accessorFn: (event) => formatTime(event.time),
+        accessorFn: (event) => formatTime(event.time, { pad: true }),
         header: () => {
             const amountHeaderSnippet = createRawSnippet(() => ({
                 render: () => `<div class="text-right">Time</div>`

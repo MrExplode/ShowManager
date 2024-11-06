@@ -4,7 +4,13 @@ import type { Timecode } from '$lib/data/types'
 
 export const playing = writable(false)
 export const paused = writable(false)
-export const currentTime = writable('00 : 00 : 00 / 00')
+export const currentTime = writable<Timecode>({
+    hour: 0,
+    min: 0,
+    sec: 0,
+    frame: 0,
+    millisecLength: 0
+})
 export const logs = writable<string[]>([])
 export const connected = writable(false)
 export const retryCountdown = writable(5)

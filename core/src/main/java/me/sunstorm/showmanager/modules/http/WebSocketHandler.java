@@ -3,6 +3,7 @@ package me.sunstorm.showmanager.modules.http;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
+import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
@@ -98,14 +99,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         Timecode time = e.getTime();
         data.addProperty("type", "time");
         data.addProperty("action", "change");
-        String hour = time.getHour() < 10 ? "0" + time.getHour() : String.valueOf(time.getHour());
-        String min = time.getMin() < 10 ? "0" + time.getMin() : String.valueOf(time.getMin());
-        String sec = time.getSec() < 10 ? "0" + time.getSec() : String.valueOf(time.getSec());
-        String frame = time.getFrame() < 10 ? "0" + time.getFrame() : String.valueOf(time.getFrame());
-        data.addProperty("hour", hour);
-        data.addProperty("min", min);
-        data.addProperty("sec", sec);
-        data.addProperty("frame", frame);
+        data.add("time", Constants.GSON.toJsonTree(time));
         broadcast(data);
     }
 

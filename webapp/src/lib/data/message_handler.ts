@@ -70,7 +70,7 @@ const handleInit = async (msg: InitMessage) => {
 const handleTime = async (msg: TimeMessage) => {
     switch (msg.action) {
         case 'change':
-            currentTime.set(`${msg.hour} : ${msg.min} : ${msg.sec} / ${msg.frame}`)
+            currentTime.set(msg.time)
             break
         case 'start':
             controlPlaying.set(true)

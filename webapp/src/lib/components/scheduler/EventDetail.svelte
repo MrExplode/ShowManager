@@ -22,9 +22,7 @@
     <Tooltip.Provider>
         <Tooltip.Root>
             <Tooltip.Trigger>
-                <Badge
-                    >{formatTime((event as ScheduledJumpEvent).jumpTime, true, false, false)}</Badge
-                >
+                <Badge>{formatTime((event as ScheduledJumpEvent).jumpTime, { pad: true })}</Badge>
             </Tooltip.Trigger>
             <Tooltip.Content>
                 <p>here</p>

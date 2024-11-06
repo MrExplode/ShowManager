@@ -5,13 +5,20 @@
     import { Button } from '@/ui/button'
     import * as Card from '@/ui/card'
     import SetTimeDialog from './SetTimeDialog.svelte'
+    import { formatTime } from '$lib/data/types'
 </script>
 
 <Card.Root class="m-2">
     <Card.Header class="flex flex-row items-start justify-between">
         <div class="flex flex-col space-y-1.5">
             <Card.Title>Current time</Card.Title>
-            <Card.Description>{$currentTime}</Card.Description>
+            <Card.Description
+                >{formatTime($currentTime, {
+                    pad: true,
+                    spaces: true,
+                    frames: true
+                })}</Card.Description
+            >
         </div>
         {#if $playing}
             <Disc3 class="h-7 animate-spin text-muted-foreground" />
