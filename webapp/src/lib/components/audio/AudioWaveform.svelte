@@ -8,6 +8,9 @@
     import Shrink from 'lucide-svelte/icons/shrink'
     import { player } from '@/audio/waveform'
     import { Button } from '@/ui/button'
+    import { dev } from '$app/environment'
+
+    const URL = dev ? 'http://localhost:7000/audio/samples' : '/audio/samples'
 
     let zoomview: HTMLElement | null = null
     let scrollbar: HTMLElement | null = null
@@ -19,7 +22,7 @@
     let amplitudes = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]
 
     const loadWaveData = async (): Promise<void> => {
-        const res = await fetch('http://localhost:7000/audio/samples')
+        const res = await fetch(URL)
         if (res.status != 200) throw new Error('Request failed')
         const data = await res.json()
 
