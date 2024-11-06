@@ -55,7 +55,7 @@ public class AudioTrack {
                 format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true);
                 stream = AudioSystem.getAudioInputStream(format, stream);
             }
-            //samples = Sampler.sample(stream);
+
             var sourceInfo = new DataLine.Info(Clip.class, format, ((int) stream.getFrameLength() * format.getFrameSize()));
             clip = (Clip) mixer.getLine(sourceInfo);
             clip.flush();

@@ -1,6 +1,7 @@
 package me.sunstorm.showmanager.modules.http.controller;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.javalin.http.BadRequestResponse;
@@ -60,12 +61,12 @@ public class AudioController {
     public void getInfo(Context ctx) {
         JsonObject data = new JsonObject();
         if (player.getCurrent() == null) {
-            data.addProperty("loaded", "");
+            data.add("loaded", JsonNull.INSTANCE);
             data.addProperty("volume", 100);
             data.addProperty("playing", false);
             data.add("markers", new JsonArray());
         } else {
-            data.addProperty("loaded", player.getCurrent().getName());
+            data.add("loaded", Constants.GSON.toJsonTree(player.getCurrent()));
             data.addProperty("volume", (int) (player.getCurrent().getVolume() * 100));
             data.addProperty("playing", player.getCurrent().getClip().isRunning());
             data.add("markers", buildMarkers());

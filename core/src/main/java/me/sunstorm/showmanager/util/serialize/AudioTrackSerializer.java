@@ -30,6 +30,9 @@ public class AudioTrackSerializer implements JsonSerializer<AudioTrack>, JsonDes
         data.addProperty("volume", track.getVolume());
         data.addProperty("path", track.getFile().getAbsolutePath());
         data.add("markers", context.serialize(track.getMarkers()));
+        if (track.getEndTime() != null) {
+            data.add("end", context.serialize(track.getEndTime()));
+        }
         return data;
     }
 }

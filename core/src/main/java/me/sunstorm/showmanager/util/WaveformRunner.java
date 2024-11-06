@@ -4,7 +4,14 @@ import com.google.common.hash.Hashing;
 import me.sunstorm.showmanager.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class WaveformRunner {
+    private static final Logger log = LoggerFactory.getLogger(WaveformRunner.class);
     private static final File CACHE = new File(Constants.BASE_DIRECTORY, "wavecache");
     private final Path executablePath;
 
@@ -21,11 +29,15 @@ public class WaveformRunner {
     }
 
     public byte[] sample(@NotNull Path wav) throws IOException {
+        log.info("Sampling {}...", wav);
         var cached = tryCaching(wav);
-        if (cached != null) return cached;
+        if (cached != null) {
+            log.info("Cached samples found.");
+            return cached;
+        }
 
         var process = new ProcessBuilder()
-                .command(executablePath.toString(), "-i", wav.toString(), "--output-format", "dat", "-q", "-b", "8")
+                .command(executablePath.toString(), "-i", wav.toString(), "--output-format", "json", "-q", "-b", "8")
                 .redirectOutput(ProcessBuilder.Redirect.PIPE)
                 .start();
         var buf = new ByteArrayOutputStream();

@@ -66,6 +66,7 @@ export interface AudioMarker {
 
 export interface AudioTrack {
     start: Timecode
+    end?: Timecode
     volume: number
     markers: AudioMarker[]
     path: string

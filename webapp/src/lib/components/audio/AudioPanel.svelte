@@ -11,7 +11,9 @@
     import { columns } from '@/audio/track_columns'
     import AudioWaveform from '@/audio/AudioWaveform.svelte'
 
-    let loadedName = $derived($loadedAudio == '' ? 'No track loaded' : `Loaded: ${$loadedAudio}`)
+    let loadedName = $derived(
+        $loadedAudio == null ? 'No track loaded' : `Loaded: ${$loadedAudio.path}`
+    )
 </script>
 
 <Card.Root class="m-2">
@@ -40,7 +42,7 @@
                 step={1}
                 value={$volume}
                 onValueCommit={(v) => ($volume = v)}
-                disabled={$loadedAudio == ''}
+                disabled={$loadedAudio == null}
             />
             <p class="text-bold text-xl">{$volume}</p>
         </div>

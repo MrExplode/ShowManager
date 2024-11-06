@@ -107,6 +107,18 @@ public class Timecode implements Comparable<Timecode> {
 
     // gemerated
 
+
+    @Override
+    public String toString() {
+        return "Timecode{" +
+                "millisecLength=" + millisecLength +
+                ", hour=" + hour +
+                ", min=" + min +
+                ", sec=" + sec +
+                ", frame=" + frame +
+                '}';
+    }
+
     public int getHour() {
         return hour;
     }

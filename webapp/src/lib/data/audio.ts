@@ -4,7 +4,7 @@ import { get, post, wait } from '$lib/data/api'
 import type { AudioTrack } from '$lib/data/types'
 
 let isSyncing = true
-export const loadedAudio = writable('')
+export const loadedAudio = writable<AudioTrack | null>(null)
 export const volume = writable<number[]>([100])
 export const playing = writable(false)
 export const markers = writable<Marker[]>([])
