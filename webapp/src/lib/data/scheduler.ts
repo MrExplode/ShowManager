@@ -5,6 +5,7 @@ import { get, post, wait } from '$lib/data/api'
 let isSyncing = true
 export const events = writable<ScheduledEvent[]>([])
 export const recording = writable(false)
+export const executedIds = writable<string[]>([])
 
 recording.subscribe((v) => {
     if (!isSyncing) {
@@ -20,6 +21,7 @@ export const syncEvents = async () => {
     const data = await get('/scheduler/events')
     isSyncing = true
     events.set(data.events)
+    executedIds.set([])
     isSyncing = false
 }
 

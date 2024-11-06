@@ -89,7 +89,7 @@ export interface SchedulerMessage {
     type: 'scheduler'
     action: 'record' | 'eventAdd' | 'eventExecuted' | 'syncEvents'
     record: boolean | undefined
-    event: unknown | undefined
+    event: ScheduledEvent | undefined
 }
 
 export interface LogMessage {

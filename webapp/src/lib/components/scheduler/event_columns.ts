@@ -3,6 +3,8 @@ import { formatTime, type ScheduledEvent } from '$lib/data/types'
 import type { ColumnDef } from '@tanstack/table-core'
 import { createRawSnippet } from 'svelte'
 import EventTableAction from './EventTableAction.svelte'
+import EventDetail from './EventDetail.svelte'
+import ExecutionStatus from './ExecutionStatus.svelte'
 
 export const columns: ColumnDef<ScheduledEvent>[] = [
     {
@@ -20,9 +22,15 @@ export const columns: ColumnDef<ScheduledEvent>[] = [
         header: 'Type'
     },
     {
+        id: 'details',
+        cell: ({ row }) => renderComponent(EventDetail, { event: row.original })
+    },
+    {
+        id: 'executionStatus',
+        cell: ({ row }) => renderComponent(ExecutionStatus, { event: row.original })
+    },
+    {
         id: 'actions',
-        cell: ({ row }) => {
-            return renderComponent(EventTableAction, { event: row.original })
-        }
+        cell: ({ row }) => renderComponent(EventTableAction, { event: row.original })
     }
 ]

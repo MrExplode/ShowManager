@@ -31,7 +31,8 @@ import {
     schedulerActive,
     syncOutputs
 } from '$lib/data/output'
-import { syncEvents, syncRecording } from '$lib/data/scheduler'
+import { executedIds, syncEvents, syncRecording } from '$lib/data/scheduler'
+import { get } from 'svelte/store'
 
 export const handle = async (msg: Message) => {
     switch (msg.type) {
@@ -122,7 +123,7 @@ const handleScheduler = async (msg: SchedulerMessage) => {
             break
         case 'eventExecuted':
             // todo
-            console.log(msg.event)
+            executedIds.set([...get(executedIds), msg.event!.id])
             break
         case 'syncEvents':
             await syncEvents()
