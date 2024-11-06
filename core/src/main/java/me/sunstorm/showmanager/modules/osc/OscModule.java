@@ -15,10 +15,12 @@ import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -31,7 +33,9 @@ public class OscModule extends Module {
     private static final Logger log = LoggerFactory.getLogger(OscModule.class);
 
     private final Worker worker;
-    private final SchedulerModule scheduler;
+    private final Provider<SchedulerModule> schedulerProvider;
+    @Nullable
+    private SchedulerModule scheduler;
     private InetAddress address;
     private int outgoingPort = 8000;
     private int incomingPort = 8001;
@@ -43,10 +47,10 @@ public class OscModule extends Module {
     private final Map<String, Object> recordCache = new HashMap<>();
 
     @Inject
-    public OscModule(EventBus bus, Worker worker, SchedulerModule scheduler) {
+    public OscModule(EventBus bus, Worker worker, Provider<SchedulerModule> schedulerProvider) {
         super(bus);
         this.worker = worker;
-        this.scheduler = scheduler;
+        this.schedulerProvider = schedulerProvider;
 
         init();
         try {
@@ -64,8 +68,8 @@ public class OscModule extends Module {
                         OSCMessage message = (OSCMessage) event.getPacket();
                         Object property = message.getArguments() == null ? null : (!message.getArguments().isEmpty() ? message.getArguments().getFirst() : null);
                         if (!recordCache.containsKey(message.getAddress()) && recordCache.get(message.getAddress()) != property) {
-                            System.out.println("adding: " + message.getAddress() + " stuff: " + message.getArguments().toString());
-                            scheduler.addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments())));
+                            log.info("adding: {} stuff: {}", message.getAddress(), message.getArguments().toString());
+                            loadSchedulerModule().addEvent(new ScheduledOscEvent(worker.getCurrentTime(), new OSCMessage(message.getAddress(), message.getArguments()), null));
                             recordCache.put(message.getAddress(), property);
                         }
                     }
@@ -137,6 +141,13 @@ public class OscModule extends Module {
     @Override
     public String getName() {
         return "osc-dispatcher";
+    }
+
+    private SchedulerModule loadSchedulerModule() {
+        if (scheduler == null) {
+            scheduler = schedulerProvider.get();
+        }
+        return scheduler;
     }
 
     // generated
