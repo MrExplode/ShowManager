@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "every weekend"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
+      "groupName": "web tooling",
+      "matchPackageNames": ["*prettier*", "*eslint*", "@types/eslint", "vite*"]
+    },
+    {
+      "groupName": "Svelte",
+      "matchPackageNames": ["svelte*", "@sveltejs/*", "!svelte-sonner"]
+    }
+  ]
+}
