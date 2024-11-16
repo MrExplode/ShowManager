@@ -19,6 +19,14 @@
     {
       "groupName": "Svelte",
       "matchPackageNames": ["svelte*", "@sveltejs/*", "!svelte-sonner"]
+    },
+    {
+      "groupName": "TailwindCSS",
+      "matchPackageNames": ["tailwind*", "clsx", "autoprefixer"]
+    },
+    {
+      "groupName": "peaks.js",
+      "matchPackageNames": ["peaks.js", "waveform-data", "konva"]
     }
   ]
 }
