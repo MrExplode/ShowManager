@@ -2,10 +2,10 @@ name: Build webapp
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'renovate/**' ]
     paths: [ 'webapp/**' ]
   pull_request:
-    branches: [ '"renovate/**' ]
+    branches: [ 'master', 'renovate/**' ]
     paths: [ 'webapp/**' ]
 
 jobs:

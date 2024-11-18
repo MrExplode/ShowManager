@@ -2,10 +2,10 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'renovate/**' ]
     paths-exclude: [ 'webapp/**' ]
   pull_request:
-    branches: [ 'renovate/**' ]
+    branches: [ 'master', 'renovate/**' ]
     paths-exclude: [ 'webapp/**' ]
 
 jobs:
