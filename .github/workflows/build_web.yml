@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    working-directory: webapp/
+    working-directory: ./webapp
 
 jobs:
   build:
@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+          cache-dependency-path: './webapp/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

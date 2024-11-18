@@ -3,10 +3,10 @@ name: Build
 on:
   push:
     branches: [ 'master', 'renovate/**' ]
-    paths-exclude: [ 'webapp/**' ]
+    paths-ignore: [ 'webapp/**' ]
   pull_request:
     branches: [ 'master', 'renovate/**' ]
-    paths-exclude: [ 'webapp/**' ]
+    paths-ignore: [ 'webapp/**' ]
 
 jobs:
   build:
