@@ -9,7 +9,6 @@ version = "2.0-SNAPSHOT"
 val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
-    implementation(group = "com.github.MrExplode",     name = "ltc4j",                   version = "9918267f58")
     implementation(group = "com.google.code.gson",     name = "gson",                    version = "2.11.0")
     implementation(group = "com.google.guava",         name = "guava",                   version = "33.3.1-jre")
     implementation(group = "com.illposed.osc",         name = "javaosc-core",            version = "0.9") {
