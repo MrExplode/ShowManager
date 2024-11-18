@@ -46,7 +46,8 @@ public class AudioController {
         this.player = player;
         this.wsHandler = wsHandler;
 
-        this.waveformRunner = new WaveformRunner(Path.of(System.getenv("showmanager.audiowaveform")));
+        var env = System.getenv("showmanager.audiowaveform");
+        this.waveformRunner = new WaveformRunner(Path.of(env == null ? "" : env));
     }
 
     @Post("/volume")

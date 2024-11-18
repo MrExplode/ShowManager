@@ -6,6 +6,8 @@ plugins {
 group = "me.sunstorm"
 version = "2.0-SNAPSHOT"
 
+val mockitoAgent = configurations.create("mockitoAgent")
+
 dependencies {
     implementation(group = "com.github.MrExplode",     name = "ltc4j",                   version = "9918267f58")
     implementation(group = "com.google.code.gson",     name = "gson",                    version = "2.11.0")
@@ -27,13 +29,18 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.11.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(group = "org.assertj",       name = "assertj-core",          version = "3.26.3")
     testImplementation(group = "org.mockito",       name = "mockito-core",          version = "5.14.2")
     testImplementation(group = "org.mockito",       name = "mockito-junit-jupiter", version = "5.14.2")
+    mockitoAgent(      group = "org.mockito",       name = "mockito-core",          version = "5.14.2") {
+        isTransitive = false
+    }
 }
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
 
 tasks.jacocoTestReport {

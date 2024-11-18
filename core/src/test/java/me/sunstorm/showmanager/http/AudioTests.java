@@ -5,8 +5,6 @@ import io.javalin.http.Context;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
-import me.sunstorm.showmanager.injection.DependencyInjection;
-import org.codejargon.feather.Feather;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -31,7 +29,7 @@ public class AudioTests {
 
     @Test
     void testVolume() {
-        var controller = new AudioController();
+        var controller = new AudioController(eventBus, player, null);
         when(ctx.body()).thenReturn("{}");
         assertThatThrownBy(() -> controller.postVolume(ctx)).isInstanceOf(BadRequestResponse.class);
         when(ctx.body()).thenReturn("{\"volume\": 5}");
