@@ -14,7 +14,7 @@
     },
     {
       "groupName": "web tooling",
-      "matchPackageNames": ["*prettier*", "*eslint*", "@types/eslint", "vite*"]
+      "matchPackageNames": ["*prettier*", "*eslint*", "@types/eslint", "vite*", "@playwright/*"]
     },
     {
       "groupName": "Svelte",
