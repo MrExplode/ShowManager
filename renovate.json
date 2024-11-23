@@ -3,9 +3,8 @@
   "extends": [
     "config:recommended"
   ],
-  "schedule": [
-    "every weekend"
-  ],
+  "schedule": ["every weekend"],
+  "automergeSchedule": ["at any time"],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
