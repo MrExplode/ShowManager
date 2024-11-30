@@ -78,7 +78,7 @@ importers:
         specifier: ^0.3.28
         version: 0.3.28(svelte@5.2.11)
       tailwind-merge:
-        specifier: ^2.5.4
+        specifier: ^2.5.5
         version: 2.5.5
       tailwind-variants:
         specifier: ^0.3.0
