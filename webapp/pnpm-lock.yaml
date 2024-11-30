@@ -36,13 +36,13 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       eslint:
-        specifier: ^9.15.0
+        specifier: ^9.16.0
         version: 9.16.0(jiti@1.21.6)
       eslint-config-prettier:
         specifier: ^9.1.0
         version: 9.1.0(eslint@9.16.0(jiti@1.21.6))
       eslint-plugin-svelte:
-        specifier: ^2.46.0
+        specifier: ^2.46.1
         version: 2.46.1(eslint@9.16.0(jiti@1.21.6))(svelte@5.2.11)
       globals:
         specifier: ^15.12.0
@@ -60,13 +60,13 @@ importers:
         specifier: ^3.4.2
         version: 3.4.2(konva@9.3.16)(waveform-data@4.5.0)
       prettier:
-        specifier: ^3.3.3
+        specifier: ^3.4.1
         version: 3.4.1
       prettier-plugin-svelte:
-        specifier: ^3.2.8
+        specifier: ^3.3.2
         version: 3.3.2(prettier@3.4.1)(svelte@5.2.11)
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.8
+        specifier: ^0.6.9
         version: 0.6.9(prettier-plugin-svelte@3.3.2(prettier@3.4.1)(svelte@5.2.11))(prettier@3.4.1)
       svelte:
         specifier: ^5.2.3
@@ -93,13 +93,13 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       typescript-eslint:
-        specifier: ^8.15.0
+        specifier: ^8.16.0
         version: 8.16.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
       vite:
         specifier: ^5.4.11
         version: 5.4.11
       vitest:
-        specifier: ^2.1.5
+        specifier: ^2.1.6
         version: 2.1.6
       waveform-data:
         specifier: ^4.5.0
