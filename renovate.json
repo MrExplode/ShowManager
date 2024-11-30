@@ -9,7 +9,8 @@
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
-      "automergeType": "branch"
+      "automergeType": "branch",
+      "rangeStrategy": "bump"
     },
     {
       "groupName": "web tooling",
