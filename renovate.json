@@ -5,12 +5,12 @@
   ],
   "schedule": ["every weekend"],
   "automergeSchedule": ["at any time"],
+  "rangeStrategy": "bump",
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
-      "automergeType": "branch",
-      "rangeStrategy": "bump"
+      "automergeType": "branch"
     },
     {
       "groupName": "web tooling",
