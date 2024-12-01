@@ -6,6 +6,7 @@
   "schedule": ["every weekend"],
   "automergeSchedule": ["at any time"],
   "rangeStrategy": "bump",
+  "branchConcurrentLimit": 10,
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
@@ -14,7 +15,7 @@
     },
     {
       "groupName": "web tooling",
-      "matchPackageNames": ["*prettier*", "*eslint*", "@types/eslint", "vite*", "@playwright/*"]
+      "matchPackageNames": ["*prettier*", "*eslint*", "@types/eslint", "vite*", "@playwright/*", "typescript"]
     },
     {
       "groupName": "Svelte",
