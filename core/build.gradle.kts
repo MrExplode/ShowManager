@@ -26,7 +26,7 @@ dependencies {
     implementation(group = "org.slf4j",                name = "slf4j-api",               version = "2.0.16")
     implementation(group = "redis.clients",            name = "jedis",                   version = "5.2.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(group = "org.assertj",       name = "assertj-core",          version = "3.26.3")
