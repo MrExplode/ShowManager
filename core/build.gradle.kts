@@ -15,7 +15,7 @@ dependencies {
         exclude("org.slf4j")
     }
     implementation(group = "com.lmax",                 name = "disruptor",               version = "4.0.0")
-    implementation(group = "io.javalin",               name = "javalin",                 version = "6.3.0")
+    implementation(group = "io.javalin",               name = "javalin",                 version = "6.4.0")
     implementation(group = "javax.inject",             name = "javax.inject",            version = "1")
     implementation(group = "javax.xml.bind",           name = "jaxb-api",                version = "2.3.1")
     implementation(group = "net.minecrell",            name = "terminalconsoleappender", version = "1.3.0")
