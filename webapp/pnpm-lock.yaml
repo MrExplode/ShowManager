@@ -78,8 +78,8 @@ importers:
         specifier: ^0.3.28
         version: 0.3.28(svelte@5.16.0)
       tailwind-merge:
-        specifier: ^2.5.5
-        version: 2.5.5
+        specifier: ^2.6.0
+        version: 2.6.0
       tailwind-variants:
         specifier: ^0.3.0
         version: 0.3.0(tailwindcss@3.4.17)
@@ -1696,8 +1696,8 @@ packages:
     resolution: {integrity: sha512-Ygqsiac6UogVED2ruKclU+pOeMThxWtp9LG+li7BXeDKC2paVIsRTMkNmcON4Zejerd1s5sZHWx6ZtU85xklVg==}
     engines: {node: '>=18'}
 
-  tailwind-merge@2.5.5:
-    resolution: {integrity: sha512-0LXunzzAZzo0tEPxV3I297ffKZPlKDrjj7NXphC8V5ak9yHC5zRmxnOe2m/Rd/7ivsOMJe3JZ2JVocoDdQTRBA==}
+  tailwind-merge@2.6.0:
+    resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
   tailwind-variants@0.3.0:
     resolution: {integrity: sha512-ho2k5kn+LB1fT5XdNS3Clb96zieWxbStE9wNLK7D0AV64kdZMaYzAKo0fWl6fXLPY99ffF9oBJnIj5escEl/8A==}
@@ -3338,11 +3338,11 @@ snapshots:
       magic-string: 0.30.15
       zimmerframe: 1.1.2
 
-  tailwind-merge@2.5.5: {}
+  tailwind-merge@2.6.0: {}
 
   tailwind-variants@0.3.0(tailwindcss@3.4.17):
     dependencies:
-      tailwind-merge: 2.5.5
+      tailwind-merge: 2.6.0
       tailwindcss: 3.4.17
 
   tailwindcss-animate@1.0.7(tailwindcss@3.4.17):
