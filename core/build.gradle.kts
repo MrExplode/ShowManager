@@ -29,7 +29,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation(group = "org.assertj",       name = "assertj-core",          version = "3.27.2")
+    testImplementation(group = "org.assertj",       name = "assertj-core",          version = "3.27.3")
     testImplementation(group = "org.mockito",       name = "mockito-core",          version = "5.15.2")
     testImplementation(group = "org.mockito",       name = "mockito-junit-jupiter", version = "5.15.2")
     mockitoAgent(      group = "org.mockito",       name = "mockito-core",          version = "5.15.2") {
