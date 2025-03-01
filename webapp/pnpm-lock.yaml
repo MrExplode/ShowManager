@@ -51,8 +51,8 @@ importers:
         specifier: ^9.3.18
         version: 9.3.18
       lucide-svelte:
-        specifier: ^0.475.0
-        version: 0.475.0(svelte@5.20.5)
+        specifier: ^0.477.0
+        version: 0.477.0(svelte@5.20.5)
       mode-watcher:
         specifier: ^0.5.1
         version: 0.5.1(svelte@5.20.5)
@@ -1099,8 +1099,8 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-  lucide-svelte@0.475.0:
-    resolution: {integrity: sha512-N5+hFTPHaZe9HhqJDxxxODfYuOmI6v+JIowzERcea/uxytN/JZlehVTcINBNp8wMo7l6ov1Jf5srrDbkI/WsJg==}
+  lucide-svelte@0.477.0:
+    resolution: {integrity: sha512-w/zj6/CXTtTizIeo8SuWGYu0u45CJ7cD2AtNzIObVHZrWXNgaIIX/2cI25wybjSmYHIi4pub2TLv/kNPKiB3ww==}
     peerDependencies:
       svelte: ^3 || ^4 || ^5.0.0-next.42
 
@@ -2687,7 +2687,7 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lucide-svelte@0.475.0(svelte@5.20.5):
+  lucide-svelte@0.477.0(svelte@5.20.5):
     dependencies:
       svelte: 5.20.5
 
