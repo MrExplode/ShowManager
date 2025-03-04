@@ -1,4 +1,5 @@
-# ShowManager [![Build Status](https://github.com/MrExplode/ShowManager/actions/workflows/build.yml/badge.svg)](https://github.com/MrExplode/ShowManager/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/06b58e31d1834512bc7016d8240cb6f8)](https://www.codacy.com/gh/MrExplode/ShowManager/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrExplode/ShowManager&amp;utm_campaign=Badge_Grade) [![Codecov](https://img.shields.io/codecov/c/github/MrExplode/ShowManager)](https://app.codecov.io/gh/MrExplode/ShowManager)
+# ShowManager [![Build Status](https://github.com/MrExplode/ShowManager/actions/workflows/build.yml/badge.svg)](https://github.com/MrExplode/ShowManager/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/06b58e31d1834512bc7016d8240cb6f8)](https://www.codacy.com/gh/MrExplode/ShowManager/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrExplode/ShowManager&amp;utm_campaign=Badge_Grade) [![Codecov](https://img.shields.io/codecov/c/github/MrExplode/ShowManager)](https://app.codecov.io/gh/MrExplode/ShowManager)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMrExplode%2FShowManager.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMrExplode%2FShowManager?ref=badge_shield)
+
 This project aims to be the "brain" of a prerecorded show by playing Art-Net timecode, sending scheduled OSC messages and playing audio tracks synced to timecode.
 
 <img src="docs/ui_1.png" width="927" height="800" alt="Web UI showcase">
@@ -91,3 +92,7 @@ You have to set the audio output, and add your tracks. Example:
 
 Run again, and open the web UI on the host+port that's specified in the project settings. It defaults to `http://127.0.0.1:7000`.
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMrExplode%2FShowManager.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMrExplode%2FShowManager?ref=badge_large)
