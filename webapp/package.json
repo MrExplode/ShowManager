@@ -29,7 +29,7 @@
         "eslint-plugin-svelte": "^3.0.2",
         "globals": "^16.0.0",
         "konva": "^9.3.18",
-        "lucide-svelte": "^0.477.0",
+        "lucide-svelte": "^0.479.0",
         "mode-watcher": "^0.5.1",
         "peaks.js": "^3.4.2",
         "prettier": "^3.5.2",
