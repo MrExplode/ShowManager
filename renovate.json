@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "schedule": ["every weekend"],
+  "schedule": ["* * 1,15 * *"],
   "automergeSchedule": ["at any time"],
   "rangeStrategy": "bump",
   "branchConcurrentLimit": 10,
