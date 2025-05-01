@@ -17,7 +17,7 @@
     "devDependencies": {
         "@playwright/test": "^1.51.1",
         "@sveltejs/adapter-static": "^3.0.8",
-        "@sveltejs/kit": "^2.20.7",
+        "@sveltejs/kit": "^2.20.8",
         "@sveltejs/vite-plugin-svelte": "^5.0.3",
         "@tanstack/table-core": "^8.21.3",
         "@types/eslint": "^9.6.1",
@@ -35,7 +35,7 @@
         "prettier": "^3.5.3",
         "prettier-plugin-svelte": "^3.3.3",
         "prettier-plugin-tailwindcss": "^0.6.11",
-        "svelte": "^5.27.0",
+        "svelte": "^5.28.2",
         "svelte-check": "^4.1.6",
         "svelte-sonner": "^0.3.28",
         "tailwind-merge": "^2.6.0",
