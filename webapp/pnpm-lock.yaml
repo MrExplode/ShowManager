@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@playwright/test':
-        specifier: ^1.51.1
+        specifier: ^1.52.0
         version: 1.52.0
       '@sveltejs/adapter-static':
         specifier: ^3.0.8
@@ -36,7 +36,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       eslint:
-        specifier: ^9.24.0
+        specifier: ^9.25.1
         version: 9.25.1(jiti@1.21.6)
       eslint-config-prettier:
         specifier: ^10.1.2
@@ -93,13 +93,13 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       typescript-eslint:
-        specifier: ^8.30.1
+        specifier: ^8.31.1
         version: 8.31.1(eslint@9.25.1(jiti@1.21.6))(typescript@5.8.3)
       vite:
-        specifier: ^6.3.0
+        specifier: ^6.3.4
         version: 6.3.4(jiti@1.21.6)(yaml@2.6.0)
       vitest:
-        specifier: ^3.1.1
+        specifier: ^3.1.2
         version: 3.1.2(jiti@1.21.6)(yaml@2.6.0)
       waveform-data:
         specifier: ^4.5.1
@@ -2492,7 +2492,7 @@ snapshots:
 
   eslint@9.25.1(jiti@1.21.6):
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.1(eslint@9.25.1(jiti@1.21.6))
+      '@eslint-community/eslint-utils': 4.6.1(eslint@9.25.1(jiti@1.21.6))
       '@eslint-community/regexpp': 4.12.1
       '@eslint/config-array': 0.20.0
       '@eslint/config-helpers': 0.2.1
