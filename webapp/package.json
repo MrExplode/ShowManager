@@ -30,7 +30,7 @@
         "globals": "^16.0.0",
         "konva": "^9.3.20",
         "lucide-svelte": "^0.503.0",
-        "mode-watcher": "^1.0.4",
+        "mode-watcher": "^1.0.7",
         "peaks.js": "^3.4.2",
         "prettier": "^3.5.3",
         "prettier-plugin-svelte": "^3.3.3",
