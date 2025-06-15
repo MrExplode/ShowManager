@@ -15,7 +15,7 @@
         "test:e2e": "playwright test"
     },
     "devDependencies": {
-        "@internationalized/date": "^3.8.1",
+        "@internationalized/date": "^3.8.2",
         "@lucide/svelte": "^0.515.0",
         "@playwright/test": "^1.53.0",
         "@sveltejs/adapter-static": "^3.0.8",
@@ -49,8 +49,10 @@
         "vitest": "^3.2.3",
         "waveform-data": "^4.5.2"
     },
+    "packageManager": "pnpm@10.12.1",
     "pnpm": {
         "onlyBuiltDependencies": [
+            "@tailwindcss/oxide",
             "esbuild"
         ]
     }

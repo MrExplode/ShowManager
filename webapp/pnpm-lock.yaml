@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@internationalized/date':
-        specifier: ^3.8.1
+        specifier: ^3.8.2
         version: 3.8.2
       '@lucide/svelte':
         specifier: ^0.515.0
