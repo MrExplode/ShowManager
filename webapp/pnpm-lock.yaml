@@ -54,8 +54,8 @@ importers:
         specifier: ^0.511.0
         version: 0.511.0(svelte@5.33.11)
       mode-watcher:
-        specifier: ^1.0.7
-        version: 1.0.7(svelte@5.33.11)
+        specifier: ^1.0.8
+        version: 1.0.8(svelte@5.33.11)
       peaks.js:
         specifier: ^3.4.2
         version: 3.4.2(konva@9.3.20)(waveform-data@4.5.1)
@@ -1153,8 +1153,8 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  mode-watcher@1.0.7:
-    resolution: {integrity: sha512-ZGA7ZGdOvBJeTQkzdBOnXSgTkO6U6iIFWJoyGCTt6oHNg9XP9NBvS26De+V4W2aqI+B0yYXUskFG2VnEo3zyMQ==}
+  mode-watcher@1.0.8:
+    resolution: {integrity: sha512-1YIgYymrae0lhcG9zPS/YWOvcKsUbM4bLGIh+eXTUIput5+dEJifcmUgp8NSehSXGSwITH6jbSjNhGEIhE3k5Q==}
     peerDependencies:
       svelte: ^5.27.0
 
@@ -2790,7 +2790,7 @@ snapshots:
 
   minipass@7.1.2: {}
 
-  mode-watcher@1.0.7(svelte@5.33.11):
+  mode-watcher@1.0.8(svelte@5.33.11):
     dependencies:
       runed: 0.25.0(svelte@5.33.11)
       svelte: 5.33.11
