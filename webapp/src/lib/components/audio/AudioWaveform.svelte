@@ -80,11 +80,11 @@
             >
         </div>
         <div class="space-y-2">
-            <div class="flex h-[100px] w-[1000px] flex-col border shadow-sm">
+            <div class="flex h-[100px] w-[1000px] flex-col border shadow-xs">
                 <div class="size-full" bind:this={zoomview}></div>
                 <div class="h-4 w-full" bind:this={scrollbar}></div>
             </div>
-            <div bind:this={overview} class="h-[75px] w-[1000px] border shadow-sm"></div>
+            <div bind:this={overview} class="h-[75px] w-[1000px] border shadow-xs"></div>
         </div>
     </div>
     {#await loadWaveData()}

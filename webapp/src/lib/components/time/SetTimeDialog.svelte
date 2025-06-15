@@ -28,7 +28,7 @@
 <Dialog.Root bind:open={isOpen}>
     <Dialog.Trigger
         disabled={$playing}
-        class={cn(buttonVariants({ variant: 'outline' }), classNames)}>Set</Dialog.Trigger
+        class={cn(buttonVariants({ variant: 'outline-solid' }), classNames)}>Set</Dialog.Trigger
     >
     <Dialog.Content>
         <Dialog.Header>
