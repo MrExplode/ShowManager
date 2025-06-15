@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentTime, playing, paused, play, pause, stop } from '$lib/data/control'
 
-    import Disc3 from 'lucide-svelte/icons/disc-3'
+    import Disc3 from '@lucide/svelte/icons/disc-3'
     import { Button } from '@/ui/button'
     import * as Card from '@/ui/card'
     import SetTimeDialog from './SetTimeDialog.svelte'
@@ -21,7 +21,7 @@
             >
         </div>
         {#if $playing}
-            <Disc3 class="h-7 animate-spin text-muted-foreground" />
+            <Disc3 class="text-muted-foreground h-7 animate-spin" />
         {/if}
     </Card.Header>
     <Card.Footer class="mt-4 flex gap-2">

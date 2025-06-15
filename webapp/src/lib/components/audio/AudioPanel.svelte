@@ -1,10 +1,10 @@
 <script lang="ts">
     import * as Card from '@/ui/card'
     import { Slider } from '@/ui/slider'
-    import Volume from 'lucide-svelte/icons/volume'
-    import Volume1 from 'lucide-svelte/icons/volume-1'
-    import Volume2 from 'lucide-svelte/icons/volume-2'
-    import Disc3 from 'lucide-svelte/icons/disc-3'
+    import Volume from '@lucide/svelte/icons/volume'
+    import Volume1 from '@lucide/svelte/icons/volume-1'
+    import Volume2 from '@lucide/svelte/icons/volume-2'
+    import Disc3 from '@lucide/svelte/icons/disc-3'
 
     import { loadedAudio, playing, volume, availableTracks } from '$lib/data/audio'
     import DataTable from '@/DataTable.svelte'
@@ -23,7 +23,7 @@
             <Card.Description>{loadedName}</Card.Description>
         </div>
         {#if $playing}
-            <Disc3 class="h-7 animate-spin text-muted-foreground" />
+            <Disc3 class="text-muted-foreground h-7 animate-spin" />
         {/if}
     </Card.Header>
     <Card.Content class="flex-1 flex-col items-center space-y-4 text-center">

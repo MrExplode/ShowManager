@@ -9,7 +9,7 @@
 </script>
 
 <Card.Root class="m-2 self-start">
-    <Card.Header class="flex flex-row items-center justify-between px-6 pb-0 pt-3">
+    <Card.Header class="flex flex-row items-center justify-between px-6 pt-3 pb-0">
         <Card.Title>Scheduler</Card.Title>
         <!-- <Button class="ml-6" variant="secondary">New</Button> -->
         <CreateEventDialog class="ml-6" />

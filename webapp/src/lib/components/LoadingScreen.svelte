@@ -1,6 +1,6 @@
 <script lang="ts">
     import * as Card from '@/ui/card'
-    import LoaderPinwheel from 'lucide-svelte/icons/loader-pinwheel'
+    import LoaderPinwheel from '@lucide/svelte/icons/loader-pinwheel'
 </script>
 
 <div class="flex min-h-screen items-center justify-center">

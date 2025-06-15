@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Ellipsis from 'lucide-svelte/icons/ellipsis'
-    import CircleX from 'lucide-svelte/icons/circle-x'
+    import Ellipsis from '@lucide/svelte/icons/ellipsis'
+    import CircleX from '@lucide/svelte/icons/circle-x'
     import { Button } from '@/ui/button'
     import * as Dropdown from '@/ui/dropdown-menu'
     import type { ScheduledEvent } from '$lib/data/types'
