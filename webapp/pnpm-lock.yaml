@@ -36,8 +36,8 @@ importers:
         specifier: ^9.6.1
         version: 9.6.1
       bits-ui:
-        specifier: 2.8.10
-        version: 2.8.10(@internationalized/date@3.8.2)(svelte@5.35.1)
+        specifier: 2.8.11
+        version: 2.8.11(@internationalized/date@3.8.2)(svelte@5.35.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -760,8 +760,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bits-ui@2.8.10:
-    resolution: {integrity: sha512-MOobkqapDZNrpcNmeL2g664xFmH4tZBOKBTxFmsQYMZQuybSZHQnPXy+AjM5XZEXRmCFx5+XRmo6+fC3vHh1hQ==}
+  bits-ui@2.8.11:
+    resolution: {integrity: sha512-lKN9rAk69my6j7H1D4B87r8LrHuEtfEsf1xCixBj9yViql2BdI3f04HyyyT7T1GOCpgb9+8b0B+nm3LN81Konw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@internationalized/date': ^3.8.1
@@ -2317,7 +2317,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bits-ui@2.8.10(@internationalized/date@3.8.2)(svelte@5.35.1):
+  bits-ui@2.8.11(@internationalized/date@3.8.2)(svelte@5.35.1):
     dependencies:
       '@floating-ui/core': 1.7.1
       '@floating-ui/dom': 1.7.1
