@@ -24,7 +24,7 @@
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/table-core": "^8.21.3",
         "@types/eslint": "^9.6.1",
-        "bits-ui": "2.8.11",
+        "bits-ui": "2.9.0",
         "clsx": "^2.1.1",
         "eslint": "^9.32.0",
         "eslint-config-prettier": "^10.1.8",
