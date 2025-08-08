@@ -20,7 +20,7 @@
         "@playwright/test": "^1.54.2",
         "@sveltejs/adapter-static": "^3.0.8",
         "@sveltejs/kit": "^2.27.0",
-        "@sveltejs/vite-plugin-svelte": "^5.1.1",
+        "@sveltejs/vite-plugin-svelte": "^6.1.1",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/table-core": "^8.21.3",
         "@types/eslint": "^9.6.1",
