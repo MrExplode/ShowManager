@@ -60,8 +60,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.38.1)
       peaks.js:
-        specifier: ^3.4.2
-        version: 3.4.2(konva@9.3.22)(waveform-data@4.5.2)
+        specifier: ^4.0.0
+        version: 4.0.0(konva@9.3.22)(waveform-data@4.5.2)
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -1274,12 +1274,12 @@ packages:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
 
-  peaks.js@3.4.2:
-    resolution: {integrity: sha512-cgKooOBIBwIiLBCIOYbrFH4+8TmeDMV9KbqR31cFRlvWwBVOgEuDdNgX0szmOw4F4cjSM5IjqovfrUYKlDl/JA==}
-    engines: {node: '>= 8.11.2'}
+  peaks.js@4.0.0:
+    resolution: {integrity: sha512-nd4iFkczr0/7OwCtKKt0k7DwDLqJtfYWim7TIR3WzhF3hvepQn9laIZ16P8IHlDK2JFlBhn8X+IAOtUBMlPLxg==}
+    engines: {node: '>= 20.0.0'}
     peerDependencies:
       konva: '>= 8.3.14 < 10'
-      waveform-data: '>= 4.3.0 < 5'
+      waveform-data: '>= 4.5.2 < 5'
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -2803,7 +2803,7 @@ snapshots:
 
   pathval@2.0.0: {}
 
-  peaks.js@3.4.2(konva@9.3.22)(waveform-data@4.5.2):
+  peaks.js@4.0.0(konva@9.3.22)(waveform-data@4.5.2):
     dependencies:
       eventemitter3: 5.0.1
       konva: 9.3.22
