@@ -9,7 +9,7 @@ version = "2.0-SNAPSHOT"
 val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
-    implementation(group = "com.google.code.gson",     name = "gson",                    version = "2.13.1")
+    implementation(group = "com.google.code.gson",     name = "gson",                    version = "2.13.2")
     implementation(group = "com.google.guava",         name = "guava",                   version = "33.4.8-jre")
     implementation(group = "com.illposed.osc",         name = "javaosc-core",            version = "0.9") {
         exclude("org.slf4j")
