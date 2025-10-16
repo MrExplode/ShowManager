@@ -22,7 +22,7 @@ dependencies {
     implementation(group = "org.apache.logging.log4j", name = "log4j-core",              version = "2.25.2")
     implementation(group = "org.apache.logging.log4j", name = "log4j-api",               version = "2.25.2")
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",       version = "2.25.2")
-    implementation(group = "org.ow2.asm",              name = "asm",                     version = "9.8")
+    implementation(group = "org.ow2.asm",              name = "asm",                     version = "9.9")
     implementation(group = "org.slf4j",                name = "slf4j-api",               version = "2.0.17")
     implementation(group = "redis.clients",            name = "jedis",                   version = "6.2.0")
 
