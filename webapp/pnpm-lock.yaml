@@ -54,14 +54,14 @@ importers:
         specifier: ^16.5.0
         version: 16.5.0
       konva:
-        specifier: ^10.0.8
-        version: 10.0.8
+        specifier: ^10.0.9
+        version: 10.0.9
       mode-watcher:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.43.2)
       peaks.js:
         specifier: ^4.0.0
-        version: 4.0.0(konva@10.0.8)(waveform-data@4.5.2)
+        version: 4.0.0(konva@10.0.9)(waveform-data@4.5.2)
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -1097,8 +1097,8 @@ packages:
   known-css-properties@0.37.0:
     resolution: {integrity: sha512-JCDrsP4Z1Sb9JwG0aJ8Eo2r7k4Ou5MwmThS/6lcIe1ICyb7UBJKGRIUUdqc2ASdE/42lgz6zFUnzAIhtXnBVrQ==}
 
-  konva@10.0.8:
-    resolution: {integrity: sha512-kQqErBIj2mR/srYDheRD2hq5v0gkwqoJZvbPz3DhCcyRNJfMEnd/AzLhWz2f567BB9vtL2p2EqKwI6n+MyM9Hw==}
+  konva@10.0.9:
+    resolution: {integrity: sha512-AEqV0XqfE0ouHjcSo/IVAXZUK4jB/r18OlUoIzPFEx/59Vb95Yq1S4Ch5QuDDEXJT21SEpOMb89zSpEpsQWzWg==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -2622,7 +2622,7 @@ snapshots:
 
   known-css-properties@0.37.0: {}
 
-  konva@10.0.8: {}
+  konva@10.0.9: {}
 
   levn@0.4.1:
     dependencies:
@@ -2756,10 +2756,10 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  peaks.js@4.0.0(konva@10.0.8)(waveform-data@4.5.2):
+  peaks.js@4.0.0(konva@10.0.9)(waveform-data@4.5.2):
     dependencies:
       eventemitter3: 5.0.1
-      konva: 10.0.8
+      konva: 10.0.9
       waveform-data: 4.5.2
 
   picocolors@1.1.1: {}
