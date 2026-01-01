@@ -29,7 +29,7 @@
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-svelte": "^3.13.1",
-        "globals": "^16.5.0",
+        "globals": "^17.0.0",
         "konva": "^10.0.12",
         "mode-watcher": "^1.1.0",
         "peaks.js": "^4.0.0",
