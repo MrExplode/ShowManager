@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@internationalized/date':
-        specifier: ^3.10.1
-        version: 3.10.1
+        specifier: ^3.11.0
+        version: 3.11.0
       '@lucide/svelte':
         specifier: ^0.563.1
         version: 0.563.1(svelte@5.49.1)
@@ -37,7 +37,7 @@ importers:
         version: 9.6.1
       bits-ui:
         specifier: 2.15.5
-        version: 2.15.5(@internationalized/date@3.10.1)(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.49.1)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)(typescript@5.9.3)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)
+        version: 2.15.5(@internationalized/date@3.11.0)(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.49.1)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)(typescript@5.9.3)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -343,8 +343,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@internationalized/date@3.10.1':
-    resolution: {integrity: sha512-oJrXtQiAXLvT9clCf1K4kxp3eKsQhIaZqxEyowkBcsvZDdZkbWrVmnGknxs5flTD0VGsxrxKgBCZty1EzoiMzA==}
+  '@internationalized/date@3.11.0':
+    resolution: {integrity: sha512-BOx5huLAWhicM9/ZFs84CzP+V3gBW6vlpM02yzsdYC7TGlZJX1OJiEEHcSayF00Z+3jLlm4w79amvSt6RqKN3Q==}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -1851,7 +1851,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@internationalized/date@3.10.1':
+  '@internationalized/date@3.11.0':
     dependencies:
       '@swc/helpers': 0.5.17
 
@@ -2251,11 +2251,11 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bits-ui@2.15.5(@internationalized/date@3.10.1)(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.49.1)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)(typescript@5.9.3)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1):
+  bits-ui@2.15.5(@internationalized/date@3.11.0)(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.49.1)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)(typescript@5.9.3)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1):
     dependencies:
       '@floating-ui/core': 1.7.1
       '@floating-ui/dom': 1.7.1
-      '@internationalized/date': 3.10.1
+      '@internationalized/date': 3.11.0
       esm-env: 1.2.2
       runed: 0.35.1(@sveltejs/kit@2.50.1(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.49.1)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)(typescript@5.9.3)(vite@7.3.1(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.0)))(svelte@5.49.1)
       svelte: 5.49.1

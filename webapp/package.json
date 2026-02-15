@@ -15,7 +15,7 @@
         "test:e2e": "playwright test"
     },
     "devDependencies": {
-        "@internationalized/date": "^3.10.1",
+        "@internationalized/date": "^3.11.0",
         "@lucide/svelte": "^0.563.1",
         "@playwright/test": "^1.58.2",
         "@sveltejs/adapter-static": "^3.0.10",
