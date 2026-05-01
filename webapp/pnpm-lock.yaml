@@ -78,8 +78,8 @@ importers:
         specifier: ^4.4.6
         version: 4.4.6(picomatch@4.0.4)(svelte@5.55.4)(typescript@6.0.2)
       svelte-sonner:
-        specifier: ^1.1.0
-        version: 1.1.0(svelte@5.55.4)
+        specifier: ^1.1.1
+        version: 1.1.1(svelte@5.55.4)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -1405,8 +1405,8 @@ packages:
       svelte:
         optional: true
 
-  svelte-sonner@1.1.0:
-    resolution: {integrity: sha512-3lYM6ZIqWe+p9vwwWHGWP/ZdvHiUtzURsud2quIxivrX4rvpXh6i+geBGn0m3JS6KwW6W8VgbOl3xQMcDuh6gg==}
+  svelte-sonner@1.1.1:
+    resolution: {integrity: sha512-5cd3p7wa4cq0NsqslMwdlPb7x1JglEZ/GKrLePWNr5bCxR1nagAVrY01FRFrXfUGs41miLt3C327+8XJo5BzZw==}
     peerDependencies:
       svelte: ^5.0.0
 
@@ -2727,7 +2727,7 @@ snapshots:
     optionalDependencies:
       svelte: 5.55.4
 
-  svelte-sonner@1.1.0(svelte@5.55.4):
+  svelte-sonner@1.1.1(svelte@5.55.4):
     dependencies:
       runed: 0.28.0(svelte@5.55.4)
       svelte: 5.55.4
