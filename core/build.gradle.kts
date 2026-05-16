@@ -24,7 +24,7 @@ dependencies {
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",       version = "2.25.4")
     implementation(group = "org.ow2.asm",              name = "asm",                     version = "9.10")
     implementation(group = "org.slf4j",                name = "slf4j-api",               version = "2.0.18")
-    implementation(group = "redis.clients",            name = "jedis",                   version = "7.4.1")
+    implementation(group = "redis.clients",            name = "jedis",                   version = "7.5.0")
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
