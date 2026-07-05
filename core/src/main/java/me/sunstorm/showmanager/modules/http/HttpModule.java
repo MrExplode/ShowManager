@@ -21,12 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class HttpModule extends Module {
     private static final Logger log = LoggerFactory.getLogger(HttpModule.class);
 
