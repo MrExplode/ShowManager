@@ -53,7 +53,7 @@ tasks.register("build-webapp", Exec::class.java) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine("cmd.exe", "/c", "bun", "run", "build")
     } else {
-        commandLine("bash", "-c", "bun", "run", "build")
+        commandLine("bun", "run", "build")
     }
     doLast {
         println("Webapp build done!")
