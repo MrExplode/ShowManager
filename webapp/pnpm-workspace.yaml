@@ -1,3 +1,0 @@
-publicHoistPattern:
-  - "*eslint*"
-  - "*prettier*"
