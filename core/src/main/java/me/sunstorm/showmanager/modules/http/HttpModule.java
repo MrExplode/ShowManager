@@ -59,8 +59,8 @@ public class HttpModule extends Module {
                     return Constants.GSON.fromJson(new BufferedReader(new InputStreamReader(json)), targetType);
                 }
             });
-            if (System.getenv("showmanager.debug") == null) {
-                var directory = System.getenv("showmanager.dist") != null ? System.getenv("showmanager.dist") : System.getProperty("showmanager.dist");
+            if (System.getenv("SHOWMANAGER_DEBUG") == null) {
+                var directory = System.getenv("SHOWMANAGER_DIST") != null ? System.getenv("SHOWMANAGER_DIST") : System.getProperty("SHOWMANAGER_DIST");
                 if (directory != null) {
                     config.staticFiles.add(directory, Location.EXTERNAL);
                 } else {
