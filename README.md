@@ -15,7 +15,6 @@ Please note that this is a hobby project of mine, and it is WIP. Only `wav` file
 - [x] Timecode triggered OSC message sending
 - [x] Timecode triggered audio track player
 - [x] Web user interface
-- [ ] Selectable output destination (eg. client1 plays Art-Net, client2 plays audio, and so on)
 
 ## Building
 
@@ -27,17 +26,17 @@ You can build the Java artifact with:
 the artifact will be in `build/libs`  
 
 ### UI
-ShowManager uses a [web UI](webapp). In order to use you have to build it first, using standard [web tooling](https://pnpm.io).
+ShowManager uses a [web UI](webapp). You can build it with [Bun](https://bun.com/).
 
 ```bash
 # First setup
-pnpm install
+bun install --frozen-lockfile
 ```
 ```bash
-pnpm run build
+bun run build
 ```
 
-After setting up the project with `pnpm install`, you can use the `build-webapp` gradle task for building. It runs the pnpm
+After setting up the project with `bun install`, you can use the `build-webapp` gradle task for building. It runs the bun
 build command internally.
 ```bash
 # example full clean build, without tests

@@ -51,9 +51,9 @@ tasks.assemble {
 tasks.register("build-webapp", Exec::class.java) {
     workingDir = layout.projectDirectory.dir("webapp").asFile
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd.exe", "/c", "pnpm", "run", "build")
+        commandLine("cmd.exe", "/c", "bun", "run", "build")
     } else {
-        commandLine("bash", "-c", "pnpm", "run", "build")
+        commandLine("bash", "-c", "bun", "run", "build")
     }
     doLast {
         println("Webapp build done!")
