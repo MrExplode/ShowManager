@@ -21,6 +21,6 @@ public interface Constants {
             .registerTypeAdapter(ScheduledEvent.class, new ScheduledEventSerializer())
             .registerTypeAdapter(AudioTrack.class, new AudioTrackSerializer())
             .create();
-    //yeah I don't care about cross compat ATM.
-    File BASE_DIRECTORY = new File(System.getProperty("user.home") + File.separator + "AppData" + File.separator + "Roaming", "ShowManager");
+
+    File BASE_DIRECTORY = new File(System.getProperty("user.dir"), "ShowManager");
 }
