@@ -25,6 +25,7 @@ public class Worker implements Runnable, Terminable {
     private final DmxRemoteModule dmxRemote;
     private final ArtNetModule artNetModule;
     private final int framerate;
+    private final double frameInterval;
     private boolean running = true;
     private boolean playing = false;
     private long start = 0;
@@ -35,7 +36,12 @@ public class Worker implements Runnable, Terminable {
     public Worker(EventBus bus, LtcModule ltcModule, ArtNetModule artNetModule, DmxRemoteModule dmxRemoteModule, @Named("framerate") int framerate) {
         this.eventBus = bus;
         this.ltcModule = ltcModule;
+        if (framerate <= 0) {
+            log.warn("Invalid framerate {}, falling back to 25", framerate);
+            framerate = 25;
+        }
         this.framerate = framerate;
+        this.frameInterval = 1000.0 / framerate;
         this.artNetModule = artNetModule;
         this.dmxRemote = dmxRemoteModule;
         register();
@@ -49,7 +55,7 @@ public class Worker implements Runnable, Terminable {
         long time = start;
         while (running) {
             final long current = System.currentTimeMillis();
-            if (current >= time + (1000 / framerate)) {
+            if (current >= time + frameInterval) {
                 time = current;
                 if (playing) {
                     elapsed = time - start;
