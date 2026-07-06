@@ -3,7 +3,7 @@
 build/
 run/
 **/out/*
-core/logs
+**/logs
 ShowManager/
 
 **/.vs/

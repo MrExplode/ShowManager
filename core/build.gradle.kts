@@ -9,30 +9,30 @@ version = "2.0-SNAPSHOT"
 val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
-    implementation(group = "com.google.code.gson",     name = "gson",                    version = "2.14.0")
-    implementation(group = "com.google.guava",         name = "guava",                   version = "33.6.0-jre")
-    implementation(group = "com.illposed.osc",         name = "javaosc-core",            version = "0.9") {
+    implementation(libs.gson)
+    implementation(libs.guava)
+    implementation(libs.javaosc.core) {
         exclude("org.slf4j")
     }
-    implementation(group = "com.lmax",                 name = "disruptor",               version = "4.0.0")
-    implementation(group = "io.javalin",               name = "javalin",                 version = "6.7.0")
-    implementation(group = "javax.inject",             name = "javax.inject",            version = "1")
-    implementation(group = "javax.xml.bind",           name = "jaxb-api",                version = "2.3.1")
-    implementation(group = "net.minecrell",            name = "terminalconsoleappender", version = "1.3.0")
-    implementation(group = "org.apache.logging.log4j", name = "log4j-core",              version = "2.26.0")
-    implementation(group = "org.apache.logging.log4j", name = "log4j-api",               version = "2.26.0")
-    implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",       version = "2.26.0")
-    implementation(group = "org.ow2.asm",              name = "asm",                     version = "9.10.1")
-    implementation(group = "org.slf4j",                name = "slf4j-api",               version = "2.0.18")
-    implementation(group = "redis.clients",            name = "jedis",                   version = "7.5.3")
+    implementation(libs.disruptor)
+    implementation(libs.javalin)
+    implementation(libs.javax.inject)
+    implementation(libs.jaxb.api)
+    implementation(libs.terminalconsoleappender)
+    implementation(libs.log4j.core)
+    implementation(libs.log4j.api)
+    implementation(libs.log4j.slf4j2.impl)
+    implementation(libs.asm)
+    implementation(libs.slf4j.api)
+    implementation(libs.jedis)
 
-    testImplementation(platform("org.junit:junit-bom:6.1.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation(group = "org.assertj",       name = "assertj-core",          version = "3.27.7")
-    testImplementation(group = "org.mockito",       name = "mockito-core",          version = "5.23.0")
-    testImplementation(group = "org.mockito",       name = "mockito-junit-jupiter", version = "5.23.0")
-    mockitoAgent(      group = "org.mockito",       name = "mockito-core",          version = "5.23.0") {
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
+    mockitoAgent(libs.mockito.core) {
         isTransitive = false
     }
 }

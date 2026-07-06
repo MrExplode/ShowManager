@@ -3,7 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     java
-    id("com.gradleup.shadow") version "9.4.3"
+    alias(libs.plugins.shadow)
 }
 
 group = "me.sunstorm"
