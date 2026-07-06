@@ -14,14 +14,10 @@ dependencies {
     implementation(libs.javaosc.core) {
         exclude("org.slf4j")
     }
-    implementation(libs.disruptor)
     implementation(libs.javalin)
     implementation(libs.javax.inject)
     implementation(libs.jaxb.api)
-    implementation(libs.terminalconsoleappender)
-    implementation(libs.log4j.core)
-    implementation(libs.log4j.api)
-    implementation(libs.log4j.slf4j2.impl)
+    implementation(libs.logback.classic)
     implementation(libs.asm)
     implementation(libs.slf4j.api)
     implementation(libs.jedis)

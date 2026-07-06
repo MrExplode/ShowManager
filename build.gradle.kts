@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
@@ -32,7 +31,6 @@ dependencies {
 }
 
 tasks.shadowJar {
-    transform(Log4j2PluginsCacheFileTransformer())
     archiveBaseName.set("ShowManager")
     archiveClassifier.set("")
     manifest {
