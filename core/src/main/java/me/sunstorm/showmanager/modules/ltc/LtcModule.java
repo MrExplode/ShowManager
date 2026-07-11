@@ -4,6 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.eventsystem.EventBus;
+import me.sunstorm.showmanager.eventsystem.EventCall;
+import me.sunstorm.showmanager.eventsystem.EventPriority;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
 import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.util.Timecode;
@@ -74,6 +80,32 @@ public class LtcModule extends ToggleableModule {
 
     public void setTime(Timecode time) {
         clip.setMicrosecondPosition(time.getMillisecLength() * 1000 + offset * 1000L);
+    }
+
+    @EventCall(EventPriority.LOWEST)
+    public void onStart(TimecodeStartEvent event) {
+        if (!event.isCancelled())
+            start();
+    }
+
+    @EventCall(EventPriority.LOWEST)
+    public void onPause(TimecodePauseEvent event) {
+        if (!event.isCancelled())
+            stop();
+    }
+
+    @EventCall(EventPriority.LOWEST)
+    public void onStop(TimecodeStopEvent event) {
+        if (event.isCancelled())
+            return;
+        setTime(Timecode.ZERO);
+        stop();
+    }
+
+    @EventCall(EventPriority.LOWEST)
+    public void onSet(TimecodeSetEvent event) {
+        if (!event.isCancelled())
+            setTime(event.getTime());
     }
 
     @Override

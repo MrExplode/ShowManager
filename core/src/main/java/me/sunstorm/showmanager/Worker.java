@@ -3,7 +3,6 @@ package me.sunstorm.showmanager;
 import me.sunstorm.showmanager.modules.artnet.ArtNetModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
-import me.sunstorm.showmanager.modules.ltc.LtcModule;
 import me.sunstorm.showmanager.modules.remote.DmxRemoteModule;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Exceptions;
@@ -21,7 +20,6 @@ public class Worker implements Runnable, Terminable {
     private static final Logger log = LoggerFactory.getLogger(Worker.class);
 
     private final EventBus eventBus;
-    private final LtcModule ltcModule;
     private final DmxRemoteModule dmxRemote;
     private final ArtNetModule artNetModule;
     private final int framerate;
@@ -33,9 +31,8 @@ public class Worker implements Runnable, Terminable {
     private Timecode currentTime = new Timecode(0);
 
     @Inject
-    public Worker(EventBus bus, LtcModule ltcModule, ArtNetModule artNetModule, DmxRemoteModule dmxRemoteModule, @Named("framerate") int framerate) {
+    public Worker(EventBus bus, ArtNetModule artNetModule, DmxRemoteModule dmxRemoteModule, @Named("framerate") int framerate) {
         this.eventBus = bus;
-        this.ltcModule = ltcModule;
         if (framerate <= 0) {
             log.warn("Invalid framerate {}, falling back to 25", framerate);
             framerate = 25;
@@ -87,7 +84,6 @@ public class Worker implements Runnable, Terminable {
         if (event.isCancelled())
             return;
 
-        ltcModule.setTime(time);
         elapsed = time.millis();
         start = System.currentTimeMillis() - elapsed;
         this.currentTime = time;
@@ -104,7 +100,6 @@ public class Worker implements Runnable, Terminable {
             start = System.currentTimeMillis();
         else
             start = System.currentTimeMillis() - elapsed;
-        ltcModule.start();
         this.playing = true;
     }
     
@@ -115,9 +110,8 @@ public class Worker implements Runnable, Terminable {
         if (event.isCancelled())
             return;
         this.playing = false;
-        ltcModule.stop();
     }
-    
+
     public void stop() {
         log.info("Stop");
         TimecodeStopEvent event = new TimecodeStopEvent(currentTime);
@@ -125,8 +119,6 @@ public class Worker implements Runnable, Terminable {
         if (event.isCancelled())
             return;
         this.playing = false;
-        ltcModule.setTime(Timecode.ZERO);
-        ltcModule.stop();
         currentTime = new Timecode(0);
         start = 0;
     }
