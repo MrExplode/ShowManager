@@ -12,6 +12,7 @@ import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.modules.ToggleableModule;
+import me.sunstorm.showmanager.modules.remote.DmxRemoteModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -32,10 +33,12 @@ public class ArtNetModule extends ToggleableModule {
     private final ArtNetServer server;
     private final ArtTimePacket packet;
     private final ArtNetBuffer buffer;
+    private final DmxRemoteModule dmxRemote;
 
     @Inject
-    public ArtNetModule(EventBus eventBus) {
+    public ArtNetModule(EventBus eventBus, DmxRemoteModule dmxRemote) {
         super(eventBus);
+        this.dmxRemote = dmxRemote;
         init();
 
         server = new ArtNetServer();
@@ -53,6 +56,8 @@ public class ArtNetModule extends ToggleableModule {
                 int universe = dmxPacket.getUniverseID();
 
                 buffer.setDmxData((short) subnet, (short) universe, dmxPacket.getDmxData());
+                if (subnet == dmxRemote.getAddress().subnet() && universe == dmxRemote.getAddress().universe())
+                    dmxRemote.handleData(dmxPacket.getDmxData());
             }
         });
         setReplyPacket();
