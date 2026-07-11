@@ -3,6 +3,7 @@ package me.sunstorm.showmanager;
 import me.sunstorm.showmanager.clock.FollowerTimeSource;
 import me.sunstorm.showmanager.clock.MasterTimeSource;
 import me.sunstorm.showmanager.clock.TimeSource;
+import me.sunstorm.showmanager.cluster.ClockSync;
 import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
@@ -30,12 +31,13 @@ public class Worker implements Runnable, Terminable, Listener {
     private final long frameIntervalNanos;
     private volatile boolean running = true;
     private final MasterTimeSource master = new MasterTimeSource();
-    private final FollowerTimeSource follower = new FollowerTimeSource();
+    private final FollowerTimeSource follower;
 
     @Inject
-    public Worker(EventBus bus, ClusterService cluster, @Named("framerate") int framerate) {
+    public Worker(EventBus bus, ClusterService cluster, ClockSync clockSync, @Named("framerate") int framerate) {
         this.eventBus = bus;
         this.cluster = cluster;
+        this.follower = new FollowerTimeSource(clockSync);
         if (framerate <= 0) {
             log.warn("Invalid framerate {}, falling back to 25", framerate);
             framerate = 25;
@@ -150,7 +152,7 @@ public class Worker implements Runnable, Terminable, Listener {
     @EventCall
     public void onTimeChange(TimecodeChangeEvent event) {
         if (!isMaster())
-            follower.feed(event.getTime());
+            follower.feed(event.getTime(), event.getMasterTimestamp());
     }
 
     @EventCall

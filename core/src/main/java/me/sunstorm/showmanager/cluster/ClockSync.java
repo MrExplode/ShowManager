@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager.cluster;
 
+import me.sunstorm.showmanager.clock.ClockOffset;
 import me.sunstorm.showmanager.terminable.Terminable;
 import org.jgroups.Address;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * window is the least perturbed by queuing/GC/scheduler spikes, so its offset is the trustworthy one.
  */
 @Singleton
-public class ClockSync implements Terminable {
+public class ClockSync implements ClockOffset, Terminable {
     private static final Logger log = LoggerFactory.getLogger(ClockSync.class);
     private static final int WINDOW = 8;
     private static final long PERIOD_MS = 1000;
@@ -39,6 +40,7 @@ public class ClockSync implements Terminable {
     private int count = 0;
     private int idx = 0;
     private int logged = 0;
+    private volatile boolean synced = false;
     private volatile long offsetNanos = 0;
     private volatile long delayNanos = 0;
 
@@ -93,6 +95,7 @@ public class ClockSync implements Terminable {
         int best = minDelayIndex(delays, count);
         offsetNanos = offsets[best];
         delayNanos = delays[best];
+        synced = true;
         if (++logged % 10 == 1)
             log.info("[clock] offset {} us, one-way delay {} us (min of {} samples)", offsetNanos / 1000, delayNanos / 2000, count);
     }
@@ -111,8 +114,14 @@ public class ClockSync implements Terminable {
     /**
      * Follower nanos -> coordinator nanos correction; 0 when this node is the master.
      */
+    @Override
     public long offsetNanos() {
         return offsetNanos;
+    }
+
+    @Override
+    public boolean synced() {
+        return synced;
     }
 
     public long delayNanos() {
