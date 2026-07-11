@@ -32,7 +32,7 @@ public class ClusterService implements Terminable {
     private volatile JChannel channel;
     private volatile Consumer<byte[]> messageListener;
     private volatile SyncHandler syncHandler;
-    private volatile Consumer<View> viewHandler;
+    private volatile Runnable viewHandler;
 
     public ClusterService(ClusterConfig config) {
         this.config = config;
@@ -86,9 +86,9 @@ public class ClusterService implements Terminable {
         @Override
         public void viewAccepted(View view) {
             log.info("[cluster] view: {} members, coordinator {}", view.size(), view.getCoord());
-            Consumer<View> handler = viewHandler;
+            Runnable handler = viewHandler;
             if (handler != null)
-                handler.accept(view);
+                handler.run();
         }
     };
 
@@ -129,7 +129,7 @@ public class ClusterService implements Terminable {
         this.syncHandler = handler;
     }
 
-    public void setViewHandler(Consumer<View> handler) {
+    public void setViewHandler(Runnable handler) {
         this.viewHandler = handler;
     }
 

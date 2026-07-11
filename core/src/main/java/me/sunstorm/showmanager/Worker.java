@@ -32,12 +32,14 @@ public class Worker implements Runnable, Terminable, Listener {
     private volatile boolean running = true;
     private final MasterTimeSource master = new MasterTimeSource();
     private final FollowerTimeSource follower;
+    private volatile boolean wasMaster = true;
 
     @Inject
     public Worker(EventBus bus, ClusterService cluster, ClockSync clockSync, @Named("framerate") int framerate) {
         this.eventBus = bus;
         this.cluster = cluster;
         this.follower = new FollowerTimeSource(clockSync);
+        cluster.setViewHandler(this::onView);
         if (framerate <= 0) {
             log.warn("Invalid framerate {}, falling back to 25", framerate);
             framerate = 25;
@@ -181,6 +183,18 @@ public class Worker implements Runnable, Terminable, Listener {
 
     public boolean isMaster() {
         return cluster.isCoordinator();
+    }
+
+    private void onView() {
+        boolean masterNow = isMaster();
+        if (masterNow && !wasMaster) {
+            Timecode pos = follower.current();
+            master.seek(pos);
+            if (follower.isPlaying())
+                master.start();
+            log.info("Promoted to master, seeded at {} (playing={})", pos, follower.isPlaying());
+        }
+        wasMaster = masterNow;
     }
 
     private TimeSource active() {
