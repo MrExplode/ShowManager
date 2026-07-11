@@ -79,6 +79,8 @@ public class LtcModule extends ToggleableModule {
     }
 
     public void setTime(Timecode time) {
+        if (clip == null)
+            return;
         clip.setMicrosecondPosition(time.getMillisecLength() * 1000 + offset * 1000L);
     }
 
@@ -118,9 +120,12 @@ public class LtcModule extends ToggleableModule {
     @Override
     public void shutdown() throws IOException {
         log.info("Shutting down LTC...");
-        clip.close();
-        stream.close();
-        mixer.close();
+        if (clip != null)
+            clip.close();
+        if (stream != null)
+            stream.close();
+        if (mixer != null)
+            mixer.close();
     }
 
     @NotNull
