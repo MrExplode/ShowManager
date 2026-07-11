@@ -2,6 +2,7 @@ package me.sunstorm.showmanager;
 
 import me.sunstorm.showmanager.clock.MasterTimeSource;
 import me.sunstorm.showmanager.clock.TimeSource;
+import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.terminable.Terminable;
@@ -20,14 +21,16 @@ public class Worker implements Runnable, Terminable {
     private static final Logger log = LoggerFactory.getLogger(Worker.class);
 
     private final EventBus eventBus;
+    private final ClusterService cluster;
     private final int framerate;
     private final double frameInterval;
     private boolean running = true;
     private TimeSource timeSource = new MasterTimeSource();
 
     @Inject
-    public Worker(EventBus bus, @Named("framerate") int framerate) {
+    public Worker(EventBus bus, ClusterService cluster, @Named("framerate") int framerate) {
         this.eventBus = bus;
+        this.cluster = cluster;
         if (framerate <= 0) {
             log.warn("Invalid framerate {}, falling back to 25", framerate);
             framerate = 25;
@@ -98,6 +101,10 @@ public class Worker implements Runnable, Terminable {
         if (event.isCancelled())
             return;
         timeSource.stop();
+    }
+
+    public boolean isMaster() {
+        return cluster.isCoordinator();
     }
 
     @Override
