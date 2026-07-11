@@ -8,6 +8,7 @@ import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.eventsystem.events.transport.TransportCommandEvent;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Exceptions;
 import me.sunstorm.showmanager.util.Timecode;
@@ -71,15 +72,47 @@ public class Worker implements Runnable, Terminable, Listener {
         }
     }
 
-    public void setTime(Timecode time) {
-        TimecodeSetEvent event = new TimecodeSetEvent(time);
-        event.call(eventBus);
-        if (event.isCancelled())
-            return;
-        master.seek(time);
+    public void play() {
+        if (isMaster())
+            executePlay();
+        else
+            new TransportCommandEvent(TransportCommandEvent.Action.PLAY, null).call(eventBus);
     }
 
-    public void play() {
+    public void pause() {
+        if (isMaster())
+            executePause();
+        else
+            new TransportCommandEvent(TransportCommandEvent.Action.PAUSE, null).call(eventBus);
+    }
+
+    public void stop() {
+        if (isMaster())
+            executeStop();
+        else
+            new TransportCommandEvent(TransportCommandEvent.Action.STOP, null).call(eventBus);
+    }
+
+    public void setTime(Timecode time) {
+        if (isMaster())
+            executeSet(time);
+        else
+            new TransportCommandEvent(TransportCommandEvent.Action.SET, time).call(eventBus);
+    }
+
+    @EventCall
+    public void onCommand(TransportCommandEvent event) {
+        if (!isMaster())
+            return;
+        switch (event.getAction()) {
+            case PLAY -> executePlay();
+            case PAUSE -> executePause();
+            case STOP -> executeStop();
+            case SET -> executeSet(event.getTime());
+        }
+    }
+
+    private void executePlay() {
         log.info("Play");
         TimecodeStartEvent event = new TimecodeStartEvent(master.current());
         event.call(eventBus);
@@ -88,7 +121,7 @@ public class Worker implements Runnable, Terminable, Listener {
         master.start();
     }
 
-    public void pause() {
+    private void executePause() {
         log.info("Pause");
         TimecodePauseEvent event = new TimecodePauseEvent();
         event.call(eventBus);
@@ -97,13 +130,21 @@ public class Worker implements Runnable, Terminable, Listener {
         master.pause();
     }
 
-    public void stop() {
+    private void executeStop() {
         log.info("Stop");
         TimecodeStopEvent event = new TimecodeStopEvent(master.current());
         event.call(eventBus);
         if (event.isCancelled())
             return;
         master.stop();
+    }
+
+    private void executeSet(Timecode time) {
+        TimecodeSetEvent event = new TimecodeSetEvent(time);
+        event.call(eventBus);
+        if (event.isCancelled())
+            return;
+        master.seek(time);
     }
 
     @EventCall

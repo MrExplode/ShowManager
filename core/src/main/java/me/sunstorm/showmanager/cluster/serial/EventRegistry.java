@@ -14,6 +14,7 @@ import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
 import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.eventsystem.events.transport.TransportCommandEvent;
 
 import java.util.Map;
 
@@ -38,7 +39,8 @@ public interface EventRegistry {
             .put(17, MarkerDeleteEvent.class)
             .put(18, MarkerJumpEvent.class)
             .put(19, EventAddEvent.class)
-            .put(20, EventDeleteEvent.class).build();
+            .put(20, EventDeleteEvent.class)
+            .put(21, TransportCommandEvent.class).build();
 
     Map<Class<? extends Event>, Integer> IDS = REGISTRY.entrySet().stream()
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));
