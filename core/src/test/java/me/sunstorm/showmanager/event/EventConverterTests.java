@@ -1,8 +1,8 @@
 package me.sunstorm.showmanager.event;
 
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioVolumeChangeEvent;
-import me.sunstorm.showmanager.eventsystem.registry.EventConverter;
-import me.sunstorm.showmanager.eventsystem.registry.EventWrapper;
+import me.sunstorm.showmanager.cluster.serial.EventConverter;
+import me.sunstorm.showmanager.cluster.serial.EventWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

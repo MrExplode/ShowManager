@@ -1,4 +1,4 @@
-package me.sunstorm.showmanager.eventsystem.registry;
+package me.sunstorm.showmanager.cluster.serial;
 
 import com.google.common.collect.ImmutableMap;
 import me.sunstorm.showmanager.eventsystem.events.Event;
