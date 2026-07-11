@@ -65,7 +65,7 @@ public class Worker implements Runnable, Terminable {
                 if (playing) {
                     currentTime.set(elapsed);
                     artNetModule.setTime(currentTime);
-                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime);
+                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime.copy());
                     changeEvent.call(eventBus);
                 }
 
