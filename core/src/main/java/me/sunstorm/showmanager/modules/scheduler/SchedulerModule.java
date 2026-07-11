@@ -60,15 +60,16 @@ public class SchedulerModule extends ToggleableModule {
 
     @EventCall(EventPriority.LOWEST)
     public void onTimeChange(TimecodeChangeEvent e) {
-        if (!isEnabled() || scheduledEvents.isEmpty() || lastIndex + 1 == scheduledEvents.size()) return;
+        if (!isEnabled()) return;
         Timecode current = e.getTime();
 
-        for (ScheduledEvent event : scheduledEvents) {
-            if (event.getExecuteTime().equals(current)) {
-                log.info("Executing scheduled event: {}", event.getType());
-                new SchedulerExecuteEvent(event).call(eventBus);
-                event.execute();
-            }
+        while (lastIndex + 1 < scheduledEvents.size()
+                && scheduledEvents.get(lastIndex + 1).getExecuteTime().compareTo(current) <= 0) {
+            ScheduledEvent event = scheduledEvents.get(lastIndex + 1);
+            log.info("Executing scheduled event: {}", event.getType());
+            new SchedulerExecuteEvent(event).call(eventBus);
+            event.execute();
+            lastIndex++;
         }
     }
 
@@ -79,8 +80,15 @@ public class SchedulerModule extends ToggleableModule {
 
     @EventCall
     public void onTimeSet(TimecodeSetEvent e) {
-        //rerun search by resetting index to default
-        lastIndex = -1;
+        Timecode target = e.getTime();
+        int i = -1;
+        for (ScheduledEvent event : scheduledEvents) {
+            if (event.getExecuteTime().compareTo(target) < 0)
+                i++;
+            else
+                break;
+        }
+        lastIndex = i;
     }
 
     @NotNull

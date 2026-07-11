@@ -31,6 +31,7 @@ public class AudioModule extends ToggleableModule {
     private Mixer mixer;
     private int index = 0;
     @Nullable private AudioTrack current;
+    @Nullable private Timecode lastChange = null;
 
     @Inject
     public AudioModule(EventBus eventBus, SettingsStore store) {
@@ -45,10 +46,14 @@ public class AudioModule extends ToggleableModule {
     @EventCall
     public void onTimeChange(TimecodeChangeEvent e) {
         if (!isEnabled()) return;
-        if (current != null && current.getStartTime().equals(e.getTime())) {
-            log.info("play1");
-            current.play();
+        Timecode now = e.getTime();
+        if (current != null) {
+            Timecode start = current.getStartTime();
+            boolean crossed = (lastChange == null || lastChange.compareTo(start) < 0) && now.compareTo(start) >= 0;
+            if (crossed)
+                current.play();
         }
+        lastChange = now;
     }
 
     @EventCall
@@ -67,6 +72,7 @@ public class AudioModule extends ToggleableModule {
             current.discard();
         }
         index = 0;
+        lastChange = null;
         if (!tracks.isEmpty()) {
             current = tracks.get(index).loadTrack(mixer);
         }
@@ -84,6 +90,7 @@ public class AudioModule extends ToggleableModule {
     public void onTimeSet(TimecodeSetEvent e) {
         if (!isEnabled()) return;
         Timecode time = e.getTime();
+        lastChange = time;
         if (current != null && current.isLoaded() && time.isBetween(current.getStartTime(), current.getEndTime())) {
             current.getClip().setMicrosecondPosition(time.subtract(current.getStartTime()).millis() * 1000);
         } else {
