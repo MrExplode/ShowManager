@@ -59,7 +59,7 @@ public class OscModule extends Module {
             portIn.addPacketListener(new OSCPacketListener() {
                 @Override
                 public void handlePacket(OSCPacketEvent event) {
-                    if (event.getPacket() instanceof OSCMessage && ((OSCMessage) event.getPacket()).getAddress().startsWith("/timecode/")) {
+                    if (event.getPacket() instanceof OSCMessage) {
                         OscReceiveEvent oscEvent = new OscReceiveEvent(event.getPacket());
                         oscEvent.call(eventBus);
                     }
