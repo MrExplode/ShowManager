@@ -33,14 +33,28 @@ public class TimecodeTests {
         assertThat(new Timecode(0, 0, 0, 0).millis()).isEqualTo(0);
         Timecode time = new Timecode(1, 2, 3, 4);
         if (Framerate.get() == 24)
-            assertThat(time.millis()).isEqualTo(3723164);
+            assertThat(time.millis()).isEqualTo(3723167);
         if (Framerate.get() == 25)
             assertThat(time.millis()).isEqualTo(3723160);
         if (Framerate.get() == 30)
-            assertThat(time.millis()).isEqualTo(3723132);
+            assertThat(time.millis()).isEqualTo(3723134);
     }
-    
-    
+
+    @RepeatedTest(3)
+    @DisplayName("Every frame survives the conversion to millis and back")
+    public void testFrameRoundTrip() {
+        for (int frame = 0; frame < Framerate.get(); frame++)
+            assertThat(new Timecode(0, 0, 0, frame).getFrame()).isEqualTo(frame);
+    }
+
+    @RepeatedTest(3)
+    @DisplayName("Millis never convert to a frame number the framerate doesn't have")
+    public void testFrameRange() {
+        for (long millis = 0; millis < 1000; millis++)
+            assertThat(new Timecode(millis).getFrame()).isBetween(0, Framerate.get() - 1);
+    }
+
+
     @RepeatedTest(3)
     public void testAdd() {
         Timecode value = new Timecode(0, 0, 5, 0).add(new Timecode(0, 0, 5, 0));

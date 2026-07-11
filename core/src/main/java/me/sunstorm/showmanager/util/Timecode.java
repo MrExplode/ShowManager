@@ -39,14 +39,15 @@ public class Timecode implements Comparable<Timecode> {
         value = value - ((long) min * 60 * 1000);
         this.sec = (int) (value / 1000);
         value = value - (sec * 1000L);
-        this.frame = (int) (value / (1000 / framerate));
+        this.frame = (int) (value * framerate / 1000);
     }
-    
+
     private void syncFrom(int framerate) {
         int hourM = this.hour * 60 * 60 * 1000;
         int minM = this.min * 60 * 1000;
         int secM = this.sec * 1000;
-        int frameM = this.frame * (1000 / framerate);
+        // the first whole millisec that still falls inside the frame, so that syncTo() gives the frame back
+        int frameM = (int) Math.ceil(this.frame * 1000d / framerate);
         this.millisecLength = hourM + minM + secM + frameM;
     }
 
