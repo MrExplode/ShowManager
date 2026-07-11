@@ -9,6 +9,8 @@ import ch.bildspur.artnet.packets.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.eventsystem.EventBus;
+import me.sunstorm.showmanager.eventsystem.EventCall;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.util.Timecode;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +61,12 @@ public class ArtNetModule extends ToggleableModule {
         } catch (SocketException | ArtNetException e) {
             log.error("Failed to start ArtNet server", e);
         }
+    }
+
+    @EventCall
+    public void onTimeChange(@NotNull TimecodeChangeEvent event) {
+        setTime(event.getTime());
+        broadcast();
     }
 
     public void setTime(@NotNull Timecode time) {
