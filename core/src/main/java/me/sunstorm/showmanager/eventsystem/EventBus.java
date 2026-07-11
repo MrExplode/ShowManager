@@ -1,5 +1,9 @@
 package me.sunstorm.showmanager.eventsystem;
 
+import me.sunstorm.showmanager.cluster.ClusterService;
+import me.sunstorm.showmanager.cluster.serial.EventConverter;
+import me.sunstorm.showmanager.cluster.serial.EventRegistry;
+import me.sunstorm.showmanager.cluster.serial.EventWrapper;
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 import me.sunstorm.showmanager.eventsystem.events.Event;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +24,15 @@ public class EventBus {
     private final Predicate<Method> methodPredicate = method -> method.isAnnotationPresent(EventCall.class) && method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ExecutorFactory executorFactory = new ExecutorFactory();
+    private final EventConverter converter = new EventConverter();
+    private ClusterService cluster;
 
     public EventBus() {
         log.info("Loading EventBus...");
+    }
+
+    public void setCluster(ClusterService cluster) {
+        this.cluster = cluster;
     }
 
     public void call(Event event) {
@@ -38,6 +48,35 @@ public class EventBus {
             }
         } else {
             executeEvent(event);
+        }
+        publish(async, event);
+    }
+
+    private void publish(boolean async, Event event) {
+        if (cluster == null || !cluster.isConnected())
+            return;
+        Integer id = EventRegistry.idOf(event);
+        if (id == null)
+            return;
+        cluster.send(converter.encode(new EventWrapper(id, async, cluster.selfId(), event)));
+    }
+
+    public void onClusterMessage(byte[] data) {
+        try {
+            EventWrapper wrapper = converter.decode(data);
+            if (cluster != null && wrapper.origin().equals(cluster.selfId()))
+                return;
+            if (wrapper.async()) {
+                if (wrapper.event() instanceof CancellableEvent) {
+                    log.error("[EventHandler] Received cancellable event ({}) asynchronously", wrapper.event().getClass().getSimpleName());
+                } else {
+                    executor.execute(() -> executeEvent(wrapper.event()));
+                }
+            } else {
+                executeEvent(wrapper.event());
+            }
+        } catch (Exception e) {
+            log.error("Failed to handle cluster message", e);
         }
     }
 

@@ -48,6 +48,8 @@ public class ShowManager {
         new ModuleManager(FEATHER);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
+        eventBus.setCluster(clusterService);
+        clusterService.setMessageListener(eventBus::onClusterMessage);
         clusterService.connect();
         Project.current().save();
         worker.run();
