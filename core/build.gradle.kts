@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.javalin)
     implementation(libs.javax.inject)
     implementation(libs.jaxb.api)
+    implementation(libs.jgroups)
     implementation(libs.logback.classic)
     implementation(libs.asm)
     implementation(libs.slf4j.api)
