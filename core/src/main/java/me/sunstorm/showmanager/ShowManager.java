@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager;
 
+import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.ModuleManager;
 import me.sunstorm.showmanager.settings.SettingsStore;
@@ -27,6 +28,7 @@ public class ShowManager {
     private final SettingsStore settingsStore;
     private final ProjectManager projectManager;
     private final EventBus eventBus;
+    private final ClusterService clusterService;
     private final Worker worker;
 
     public ShowManager() throws IOException {
@@ -38,13 +40,15 @@ public class ShowManager {
         Framerate.set(config.getFramerate());
         eventBus = new EventBus();
         projectManager = new ProjectManager();
+        clusterService = new ClusterService(config.getClusterConfig());
 
-        FEATHER = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config));
+        FEATHER = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config, clusterService));
 
         this.worker = FEATHER.instance(Worker.class);
         new ModuleManager(FEATHER);
 
         Runtime.getRuntime().addShutdownHook(new Thread(Terminables::shutdownAll));
+        clusterService.connect();
         Project.current().save();
         worker.run();
     }

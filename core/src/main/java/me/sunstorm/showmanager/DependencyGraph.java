@@ -1,5 +1,6 @@
 package me.sunstorm.showmanager;
 
+import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
@@ -12,12 +13,14 @@ public class DependencyGraph {
     private final EventBus eventBus;
     private final SettingsStore settings;
     private final Config config;
+    private final ClusterService cluster;
 
-    public DependencyGraph(ShowManager sm, EventBus eventBus, SettingsStore settings, Config config) {
+    public DependencyGraph(ShowManager sm, EventBus eventBus, SettingsStore settings, Config config, ClusterService cluster) {
         this.sm = sm;
         this.eventBus = eventBus;
         this.settings = settings;
         this.config = config;
+        this.cluster = cluster;
     }
 
     @Provides
@@ -38,6 +41,11 @@ public class DependencyGraph {
     @Provides
     Config config() {
         return this.config;
+    }
+
+    @Provides
+    ClusterService cluster() {
+        return this.cluster;
     }
 
     @Provides
