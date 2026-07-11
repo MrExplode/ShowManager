@@ -11,6 +11,7 @@ public class ClusterConfig {
     private int port = 7800;
     private boolean useMulticast = true;
     private List<String> seedNodes = new ArrayList<>();
+    private List<String> outputs = new ArrayList<>();
 
     public boolean isEnabled() {
         return enabled;
@@ -38,5 +39,9 @@ public class ClusterConfig {
 
     public List<String> getSeedNodes() {
         return seedNodes;
+    }
+
+    public List<String> getOutputs() {
+        return outputs;
     }
 }
