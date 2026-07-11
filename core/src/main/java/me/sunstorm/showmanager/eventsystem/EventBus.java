@@ -55,6 +55,8 @@ public class EventBus {
     private void publish(boolean async, Event event) {
         if (cluster == null || !cluster.isConnected())
             return;
+        if (event instanceof CancellableEvent cancellable && cancellable.isCancelled())
+            return;
         Integer id = EventRegistry.idOf(event);
         if (id == null)
             return;
