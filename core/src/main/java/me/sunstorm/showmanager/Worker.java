@@ -1,5 +1,7 @@
 package me.sunstorm.showmanager;
 
+import me.sunstorm.showmanager.clock.MasterTimeSource;
+import me.sunstorm.showmanager.clock.TimeSource;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.terminable.Terminable;
@@ -21,10 +23,7 @@ public class Worker implements Runnable, Terminable {
     private final int framerate;
     private final double frameInterval;
     private boolean running = true;
-    private boolean playing = false;
-    private long start = 0;
-    private long elapsed = 0;
-    private Timecode currentTime = new Timecode(0);
+    private TimeSource timeSource = new MasterTimeSource();
 
     @Inject
     public Worker(EventBus bus, @Named("framerate") int framerate) {
@@ -42,23 +41,21 @@ public class Worker implements Runnable, Terminable {
     public void run() {
         log.info("Starting...");
         running = true;
-        start = 0;
-        long time = start;
+        long time = 0;
         while (running) {
             final long current = System.currentTimeMillis();
             if (current >= time + frameInterval) {
                 time = current;
-                if (playing) {
-                    elapsed = time - start;
-                    currentTime.set(elapsed);
-                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(currentTime.copy());
+                if (timeSource.isPlaying()) {
+                    timeSource.tick(current);
+                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(timeSource.current().copy());
                     changeEvent.call(eventBus);
                 }
             }
 
             //slowing down the loop
             try {
-                if (playing)
+                if (timeSource.isPlaying())
                     TimeUnit.MILLISECONDS.sleep(1);
                 else
                     TimeUnit.MILLISECONDS.sleep(10);
@@ -73,44 +70,34 @@ public class Worker implements Runnable, Terminable {
         event.call(eventBus);
         if (event.isCancelled())
             return;
-
-        elapsed = time.millis();
-        start = System.currentTimeMillis() - elapsed;
-        this.currentTime = time;
+        timeSource.seek(time);
     }
-    
+
     public void play() {
         log.info("Play");
-        TimecodeStartEvent event = new TimecodeStartEvent(currentTime);
+        TimecodeStartEvent event = new TimecodeStartEvent(timeSource.current());
         event.call(eventBus);
         if (event.isCancelled())
             return;
-
-        if (start == 0)
-            start = System.currentTimeMillis();
-        else
-            start = System.currentTimeMillis() - elapsed;
-        this.playing = true;
+        timeSource.start();
     }
-    
+
     public void pause() {
         log.info("Pause");
         TimecodePauseEvent event = new TimecodePauseEvent();
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        this.playing = false;
+        timeSource.pause();
     }
 
     public void stop() {
         log.info("Stop");
-        TimecodeStopEvent event = new TimecodeStopEvent(currentTime);
+        TimecodeStopEvent event = new TimecodeStopEvent(timeSource.current());
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        this.playing = false;
-        currentTime = new Timecode(0);
-        start = 0;
+        timeSource.stop();
     }
 
     @Override
@@ -121,11 +108,11 @@ public class Worker implements Runnable, Terminable {
     // generated
 
     public Timecode getCurrentTime() {
-        return currentTime;
+        return timeSource.current();
     }
 
     public boolean isPlaying() {
-        return playing;
+        return timeSource.isPlaying();
     }
 
 }
