@@ -6,7 +6,7 @@ import me.sunstorm.showmanager.cluster.serial.EventWrapper;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSyncEvent;
 import me.sunstorm.showmanager.settings.config.ClusterConfig;
 import me.sunstorm.showmanager.util.Timecode;
 import org.junit.jupiter.api.Test;
@@ -47,8 +47,8 @@ public class EventDistributionTests {
         final AtomicReference<Timecode> last = new AtomicReference<>();
 
         @EventCall
-        public void onTime(TimecodeChangeEvent event) {
-            last.set(event.getTime());
+        public void onSync(TimecodeSyncEvent event) {
+            last.set(event.getPosition());
         }
     }
 
@@ -63,7 +63,7 @@ public class EventDistributionTests {
         TimeListener listener = new TimeListener();
         busB.register(listener);
 
-        busA.call(new TimecodeChangeEvent(new Timecode(0, 0, 5, 0)));
+        busA.call(new TimecodeSyncEvent(new Timecode(0, 0, 5, 0), 12345L));
         assertThat(clusterA.sent).isNotNull();
 
         busB.onClusterMessage(clusterA.sent);
@@ -77,7 +77,7 @@ public class EventDistributionTests {
         TimeListener listener = new TimeListener();
         bus.register(listener);
 
-        byte[] echo = new EventConverter().encode(new EventWrapper(11, false, "B", new TimecodeChangeEvent(new Timecode(0, 0, 7, 0))));
+        byte[] echo = new EventConverter().encode(new EventWrapper(6, false, "B", new TimecodeSyncEvent(new Timecode(0, 0, 7, 0), 999L)));
         bus.onClusterMessage(echo);
         assertThat(listener.last.get()).isNull();
     }

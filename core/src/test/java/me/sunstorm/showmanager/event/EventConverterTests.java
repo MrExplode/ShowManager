@@ -2,7 +2,7 @@ package me.sunstorm.showmanager.event;
 
 import me.sunstorm.showmanager.cluster.serial.EventConverter;
 import me.sunstorm.showmanager.cluster.serial.EventWrapper;
-import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSyncEvent;
 import me.sunstorm.showmanager.eventsystem.events.transport.TransportCommandEvent;
 import me.sunstorm.showmanager.util.Timecode;
 import org.junit.jupiter.api.Test;
@@ -14,14 +14,16 @@ public class EventConverterTests {
     private final EventConverter converter = new EventConverter();
 
     @Test
-    void roundTripsTimecodeChange() {
-        EventWrapper wrapper = new EventWrapper(11, false, "node1", new TimecodeChangeEvent(new Timecode(0, 1, 30, 0)));
+    void roundTripsTimecodeSync() {
+        EventWrapper wrapper = new EventWrapper(6, false, "node1", new TimecodeSyncEvent(new Timecode(0, 1, 30, 0), 42L));
         EventWrapper result = converter.decode(converter.encode(wrapper));
-        assertThat(result.id()).isEqualTo(11);
+        assertThat(result.id()).isEqualTo(6);
         assertThat(result.async()).isFalse();
         assertThat(result.origin()).isEqualTo("node1");
-        assertThat(result.event()).isInstanceOf(TimecodeChangeEvent.class);
-        assertThat(((TimecodeChangeEvent) result.event()).getTime()).isEqualTo(new Timecode(0, 1, 30, 0));
+        assertThat(result.event()).isInstanceOf(TimecodeSyncEvent.class);
+        TimecodeSyncEvent sync = (TimecodeSyncEvent) result.event();
+        assertThat(sync.getPosition()).isEqualTo(new Timecode(0, 1, 30, 0));
+        assertThat(sync.getMasterTimestamp()).isEqualTo(42L);
     }
 
     @Test

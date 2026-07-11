@@ -2,7 +2,11 @@ package me.sunstorm.showmanager.cluster.serial;
 
 import com.google.common.collect.ImmutableMap;
 import me.sunstorm.showmanager.eventsystem.events.Event;
-import me.sunstorm.showmanager.eventsystem.events.time.*;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodePauseEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSetEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStartEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeStopEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeSyncEvent;
 import me.sunstorm.showmanager.eventsystem.events.transport.TransportCommandEvent;
 
 import java.util.Map;
@@ -14,12 +18,12 @@ import java.util.Map;
  */
 public interface EventRegistry {
     Map<Integer, Class<? extends Event>> REGISTRY = ImmutableMap.<Integer, Class<? extends Event>>builder()
-            .put(11, TimecodeChangeEvent.class)
             .put(1, TimecodePauseEvent.class)
             .put(2, TimecodeSetEvent.class)
             .put(3, TimecodeStartEvent.class)
             .put(4, TimecodeStopEvent.class)
-            .put(5, TransportCommandEvent.class).build();
+            .put(5, TransportCommandEvent.class)
+            .put(6, TimecodeSyncEvent.class).build();
 
     Map<Class<? extends Event>, Integer> IDS = REGISTRY.entrySet().stream()
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));

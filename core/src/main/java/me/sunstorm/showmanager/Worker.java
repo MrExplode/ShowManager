@@ -57,18 +57,24 @@ public class Worker implements Runnable, Terminable, Listener {
         long lastFrame = 0;
         while (running) {
             final long now = System.nanoTime();
-            boolean driving = isMaster() && master.isPlaying();
+            final TimeSource src = active();
+            final boolean playing = src.isPlaying();
             if (now - lastFrame >= frameIntervalNanos) {
                 lastFrame = now;
-                if (driving) {
-                    master.tick(now);
-                    new TimecodeChangeEvent(master.current().copy(), now).call(eventBus);
+                if (playing) {
+                    boolean asMaster = isMaster();
+                    if (asMaster)
+                        master.tick(now);
+                    Timecode pos = src.current().copy();
+                    new TimecodeChangeEvent(pos).call(eventBus);
+                    if (asMaster && cluster.isConnected())
+                        new TimecodeSyncEvent(pos, now).call(eventBus);
                 }
             }
 
             //slowing down the loop
             try {
-                TimeUnit.MILLISECONDS.sleep(driving ? 1 : 10);
+                TimeUnit.MILLISECONDS.sleep(playing ? 1 : 10);
             } catch (InterruptedException e) {
                 Exceptions.sneaky(e);
             }
@@ -152,9 +158,9 @@ public class Worker implements Runnable, Terminable, Listener {
     }
 
     @EventCall
-    public void onTimeChange(TimecodeChangeEvent event) {
+    public void onSync(TimecodeSyncEvent event) {
         if (!isMaster())
-            follower.feed(event.getTime(), event.getMasterTimestamp());
+            follower.feed(event.getPosition(), event.getMasterTimestamp());
     }
 
     @EventCall
