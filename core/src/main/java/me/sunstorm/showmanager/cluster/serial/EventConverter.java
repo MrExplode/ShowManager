@@ -14,6 +14,7 @@ public class EventConverter implements Codec<EventWrapper> {
         JsonObject object = new JsonObject();
         object.addProperty("id", message.id());
         object.addProperty("async", message.async());
+        object.addProperty("origin", message.origin());
         object.add("event", Constants.GSON.toJsonTree(message.event()));
         return object.toString().getBytes(StandardCharsets.UTF_8);
     }
@@ -23,7 +24,8 @@ public class EventConverter implements Codec<EventWrapper> {
         JsonObject object = JsonParser.parseString(new String(message, StandardCharsets.UTF_8)).getAsJsonObject();
         int id = object.get("id").getAsInt();
         boolean async = object.get("async").getAsBoolean();
+        String origin = object.get("origin").getAsString();
         Event event = Constants.GSON.fromJson(object.get("event").getAsJsonObject(), EventRegistry.REGISTRY.get(id));
-        return new EventWrapper(id, async, event);
+        return new EventWrapper(id, async, origin, event);
     }
 }

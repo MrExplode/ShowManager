@@ -39,4 +39,11 @@ public interface EventRegistry {
             .put(18, MarkerJumpEvent.class)
             .put(19, EventAddEvent.class)
             .put(20, EventDeleteEvent.class).build();
+
+    Map<Class<? extends Event>, Integer> IDS = REGISTRY.entrySet().stream()
+            .collect(ImmutableMap.toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));
+
+    static Integer idOf(Event event) {
+        return IDS.get(event.getClass());
+    }
 }

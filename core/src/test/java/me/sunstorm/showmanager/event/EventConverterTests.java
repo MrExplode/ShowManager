@@ -13,20 +13,21 @@ public class EventConverterTests {
 
     @Test
     void testEncode() {
-        EventWrapper wrapper = new EventWrapper(5, false, new AudioVolumeChangeEvent(15));
-        String excepted = "{\"id\":5,\"async\":false,\"event\":{\"volume\":15}}";
+        EventWrapper wrapper = new EventWrapper(5, false, "node1", new AudioVolumeChangeEvent(15));
+        String excepted = "{\"id\":5,\"async\":false,\"origin\":\"node1\",\"event\":{\"volume\":15}}";
         EventConverter converter = new EventConverter();
         assertThat(converter.encode(wrapper)).isEqualTo(excepted.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
     void testDecode() {
-        String input = "{\"id\":5,\"async\":false,\"event\":{\"volume\":15}}";
-        EventWrapper excepted = new EventWrapper(5, false, new AudioVolumeChangeEvent(15));
+        String input = "{\"id\":5,\"async\":false,\"origin\":\"node1\",\"event\":{\"volume\":15}}";
+        EventWrapper excepted = new EventWrapper(5, false, "node1", new AudioVolumeChangeEvent(15));
         EventConverter converter = new EventConverter();
         assertThat(converter.decode(input.getBytes(StandardCharsets.UTF_8))).satisfies(w -> {
             assertThat(w.id()).as("event id").isEqualTo(excepted.id());
             assertThat(w.async()).isEqualTo(excepted.async());
+            assertThat(w.origin()).isEqualTo(excepted.origin());
             assertThat(w.event()).isNotNull().isInstanceOf(AudioVolumeChangeEvent.class);
             assertThat(((AudioVolumeChangeEvent) w.event()).getVolume()).isEqualTo(15);
         });
