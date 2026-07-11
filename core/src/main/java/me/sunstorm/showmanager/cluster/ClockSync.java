@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
@@ -37,16 +38,19 @@ public class ClockSync implements ClockOffset, Terminable {
 
     private final long[] offsets = new long[WINDOW];
     private final long[] delays = new long[WINDOW];
+    private final int framerate;
     private int count = 0;
     private int idx = 0;
     private int logged = 0;
+    private int frameWarn = 0;
     private volatile boolean synced = false;
     private volatile long offsetNanos = 0;
     private volatile long delayNanos = 0;
 
     @Inject
-    public ClockSync(ClusterService cluster) {
+    public ClockSync(ClusterService cluster, @Named("framerate") int framerate) {
         this.cluster = cluster;
+        this.framerate = framerate;
         this.cluster.setSyncHandler(this::onSync);
         register();
     }
@@ -62,7 +66,7 @@ public class ClockSync implements ClockOffset, Terminable {
             Address coord = cluster.getCoordinator();
             if (coord == null)
                 return;
-            cluster.sendSync(coord, ClusterService.MSG_SYNC_REQ, ByteBuffer.allocate(8).putLong(System.nanoTime()).array());
+            cluster.sendSync(coord, ClusterService.MSG_SYNC_REQ, ByteBuffer.allocate(12).putLong(System.nanoTime()).putInt(framerate).array());
         } catch (Exception e) {
             log.debug("clock sync probe failed", e);
         }
@@ -71,14 +75,19 @@ public class ClockSync implements ClockOffset, Terminable {
     private void onSync(Address src, byte type, byte[] body) {
         try {
             if (type == ClusterService.MSG_SYNC_REQ) {
-                long t1 = ByteBuffer.wrap(body).getLong();
+                ByteBuffer in = ByteBuffer.wrap(body);
+                long t1 = in.getLong();
+                if (in.remaining() >= 4)
+                    warnFramerate(in.getInt(), "a follower");
                 long t2 = System.nanoTime();
                 long t3 = System.nanoTime();
-                cluster.sendSync(src, ClusterService.MSG_SYNC_RESP, ByteBuffer.allocate(24).putLong(t1).putLong(t2).putLong(t3).array());
+                cluster.sendSync(src, ClusterService.MSG_SYNC_RESP, ByteBuffer.allocate(28).putLong(t1).putLong(t2).putLong(t3).putInt(framerate).array());
             } else if (type == ClusterService.MSG_SYNC_RESP) {
                 long t4 = System.nanoTime();
                 ByteBuffer b = ByteBuffer.wrap(body);
                 long t1 = b.getLong(), t2 = b.getLong(), t3 = b.getLong();
+                if (b.remaining() >= 4)
+                    warnFramerate(b.getInt(), "the master");
                 record(((t2 - t1) + (t3 - t4)) / 2, (t4 - t1) - (t3 - t2));
             }
         } catch (Exception e) {
@@ -98,6 +107,11 @@ public class ClockSync implements ClockOffset, Terminable {
         synced = true;
         if (++logged % 10 == 1)
             log.info("[clock] offset {} us, one-way delay {} us (min of {} samples)", offsetNanos / 1000, delayNanos / 2000, count);
+    }
+
+    private void warnFramerate(int remote, String peer) {
+        if (remote != 0 && remote != framerate && frameWarn++ % 10 == 0)
+            log.warn("[cluster] framerate mismatch: this node is {} fps but {} runs {} fps — timecode WILL diverge, align config across nodes", framerate, peer, remote);
     }
 
     /**
