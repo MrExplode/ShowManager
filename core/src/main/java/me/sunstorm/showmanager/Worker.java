@@ -1,9 +1,12 @@
 package me.sunstorm.showmanager;
 
+import me.sunstorm.showmanager.clock.FollowerTimeSource;
 import me.sunstorm.showmanager.clock.MasterTimeSource;
 import me.sunstorm.showmanager.clock.TimeSource;
 import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
+import me.sunstorm.showmanager.eventsystem.EventCall;
+import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.terminable.Terminable;
 import me.sunstorm.showmanager.util.Exceptions;
@@ -17,7 +20,7 @@ import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
-public class Worker implements Runnable, Terminable {
+public class Worker implements Runnable, Terminable, Listener {
     private static final Logger log = LoggerFactory.getLogger(Worker.class);
 
     private final EventBus eventBus;
@@ -25,7 +28,8 @@ public class Worker implements Runnable, Terminable {
     private final int framerate;
     private final double frameInterval;
     private boolean running = true;
-    private TimeSource timeSource = new MasterTimeSource();
+    private final MasterTimeSource master = new MasterTimeSource();
+    private final FollowerTimeSource follower = new FollowerTimeSource();
 
     @Inject
     public Worker(EventBus bus, ClusterService cluster, @Named("framerate") int framerate) {
@@ -38,6 +42,7 @@ public class Worker implements Runnable, Terminable {
         this.framerate = framerate;
         this.frameInterval = 1000.0 / framerate;
         register();
+        eventBus.register(this);
     }
 
     @Override
@@ -47,42 +52,40 @@ public class Worker implements Runnable, Terminable {
         long time = 0;
         while (running) {
             final long current = System.currentTimeMillis();
+            boolean driving = isMaster() && master.isPlaying();
             if (current >= time + frameInterval) {
                 time = current;
-                if (timeSource.isPlaying()) {
-                    timeSource.tick(current);
-                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(timeSource.current().copy());
+                if (driving) {
+                    master.tick(current);
+                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(master.current().copy());
                     changeEvent.call(eventBus);
                 }
             }
 
             //slowing down the loop
             try {
-                if (timeSource.isPlaying())
-                    TimeUnit.MILLISECONDS.sleep(1);
-                else
-                    TimeUnit.MILLISECONDS.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(driving ? 1 : 10);
             } catch (InterruptedException e) {
                 Exceptions.sneaky(e);
             }
         }
     }
-    
+
     public void setTime(Timecode time) {
         TimecodeSetEvent event = new TimecodeSetEvent(time);
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        timeSource.seek(time);
+        master.seek(time);
     }
 
     public void play() {
         log.info("Play");
-        TimecodeStartEvent event = new TimecodeStartEvent(timeSource.current());
+        TimecodeStartEvent event = new TimecodeStartEvent(master.current());
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        timeSource.start();
+        master.start();
     }
 
     public void pause() {
@@ -91,20 +94,54 @@ public class Worker implements Runnable, Terminable {
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        timeSource.pause();
+        master.pause();
     }
 
     public void stop() {
         log.info("Stop");
-        TimecodeStopEvent event = new TimecodeStopEvent(timeSource.current());
+        TimecodeStopEvent event = new TimecodeStopEvent(master.current());
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        timeSource.stop();
+        master.stop();
+    }
+
+    @EventCall
+    public void onTimeChange(TimecodeChangeEvent event) {
+        if (!isMaster())
+            follower.feed(event.getTime());
+    }
+
+    @EventCall
+    public void onTimeStart(TimecodeStartEvent event) {
+        if (!isMaster())
+            follower.start();
+    }
+
+    @EventCall
+    public void onTimePause(TimecodePauseEvent event) {
+        if (!isMaster())
+            follower.pause();
+    }
+
+    @EventCall
+    public void onTimeStop(TimecodeStopEvent event) {
+        if (!isMaster())
+            follower.stop();
+    }
+
+    @EventCall
+    public void onTimeSet(TimecodeSetEvent event) {
+        if (!isMaster())
+            follower.seek(event.getTime());
     }
 
     public boolean isMaster() {
         return cluster.isCoordinator();
+    }
+
+    private TimeSource active() {
+        return isMaster() ? master : follower;
     }
 
     @Override
@@ -115,11 +152,11 @@ public class Worker implements Runnable, Terminable {
     // generated
 
     public Timecode getCurrentTime() {
-        return timeSource.current();
+        return active().current();
     }
 
     public boolean isPlaying() {
-        return timeSource.isPlaying();
+        return active().isPlaying();
     }
 
 }
