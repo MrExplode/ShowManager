@@ -71,7 +71,10 @@ public class LtcModule extends ToggleableModule implements Runnable {
         this.ownership = ownership;
         this.framerate = framerate;
         init();
-        open();
+        if (ownership.owns(OutputType.LTC))
+            open();
+        else
+            log.info("LTC not owned by this node, output line not opened");
     }
 
     private void open() {
@@ -232,10 +235,11 @@ public class LtcModule extends ToggleableModule implements Runnable {
     public void shutdown() {
         log.info("Shutting down LTC...");
         running = false;
-        if (line != null)
+        if (line != null) {
             line.close();
-        if (mixer != null)
-            mixer.close();
+            if (mixer != null)
+                mixer.close();
+        }
     }
 
     @NotNull

@@ -37,6 +37,7 @@ public class ArtNetModule extends ToggleableModule {
     private final ArtNetBuffer buffer;
     private final DmxRemoteModule dmxRemote;
     private final Ownership ownership;
+    private boolean serverStarted = false;
 
     @Inject
     public ArtNetModule(EventBus eventBus, DmxRemoteModule dmxRemote, Ownership ownership) {
@@ -64,11 +65,16 @@ public class ArtNetModule extends ToggleableModule {
                     dmxRemote.handleData(dmxPacket.getDmxData());
             }
         });
-        setReplyPacket();
-        try {
-            server.start(address);
-        } catch (SocketException | ArtNetException e) {
-            log.error("Failed to start ArtNet server", e);
+        if (ownership.owns(OutputType.ARTNET)) {
+            setReplyPacket();
+            try {
+                server.start(address);
+                serverStarted = true;
+            } catch (SocketException | ArtNetException e) {
+                log.error("Failed to start ArtNet server", e);
+            }
+        } else {
+            log.info("Art-Net not owned by this node, server not started");
         }
     }
 
@@ -95,7 +101,8 @@ public class ArtNetModule extends ToggleableModule {
     @Override
     public void shutdown() {
         log.info("Shutting down ArtNet...");
-        server.stop();
+        if (serverStarted)
+            server.stop();
     }
 
     private void setReplyPacket() {

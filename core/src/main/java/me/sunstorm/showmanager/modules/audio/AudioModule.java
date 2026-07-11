@@ -42,7 +42,7 @@ public class AudioModule extends ToggleableModule {
         this.store = store;
         this.ownership = ownership;
         init();
-        if (!tracks.isEmpty()) {
+        if (!tracks.isEmpty() && ownership.owns(OutputType.AUDIO)) {
             current = tracks.get(index).loadTrack(mixer);
         }
     }
@@ -76,7 +76,7 @@ public class AudioModule extends ToggleableModule {
         }
         index = 0;
         lastChange = null;
-        if (!tracks.isEmpty()) {
+        if (!tracks.isEmpty() && ownership.owns(OutputType.AUDIO)) {
             current = tracks.get(index).loadTrack(mixer);
         }
     }
@@ -96,7 +96,7 @@ public class AudioModule extends ToggleableModule {
         lastChange = time;
         if (current != null && current.isLoaded() && time.isBetween(current.getStartTime(), current.getEndTime())) {
             current.getClip().setMicrosecondPosition(time.subtract(current.getStartTime()).millis() * 1000);
-        } else {
+        } else if (ownership.owns(OutputType.AUDIO)) {
             for (int i = 0; i < tracks.size(); i++) {
                 Timecode start = tracks.get(i).getStartTime();
                 Timecode end = tracks.get(i).getEndTime();
@@ -112,7 +112,7 @@ public class AudioModule extends ToggleableModule {
 
     @EventCall
     public void onAudioStop(AudioStopEvent e) {
-        if (++index < tracks.size()) {
+        if (++index < tracks.size() && ownership.owns(OutputType.AUDIO)) {
             current = tracks.get(index).loadTrack(mixer);
         }
     }
@@ -120,7 +120,8 @@ public class AudioModule extends ToggleableModule {
     @Override
     public void shutdown() {
         tracks.forEach(AudioTrack::discard);
-        mixer.close();
+        if (ownership.owns(OutputType.AUDIO) && mixer != null)
+            mixer.close();
     }
 
     @Override
