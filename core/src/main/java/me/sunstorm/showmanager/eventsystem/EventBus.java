@@ -2,10 +2,6 @@ package me.sunstorm.showmanager.eventsystem;
 
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 import me.sunstorm.showmanager.eventsystem.events.Event;
-import me.sunstorm.showmanager.eventsystem.registry.EventConverter;
-import me.sunstorm.showmanager.eventsystem.registry.EventWrapper;
-import me.sunstorm.showmanager.redis.AbstractMessageHandler;
-import me.sunstorm.showmanager.redis.converter.Converter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
-public class EventBus extends AbstractMessageHandler<EventWrapper> {
+public class EventBus {
     private static final Logger log = LoggerFactory.getLogger(EventBus.class);
 
     private final Map<Class<?>, List<ListenerContainer>> listeners = new HashMap<>();
@@ -26,7 +22,6 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
     private final ExecutorFactory executorFactory = new ExecutorFactory();
 
     public EventBus() {
-        super("eventbus");
         log.info("Loading EventBus...");
     }
 
@@ -44,7 +39,6 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
         } else {
             executeEvent(event);
         }
-        //todo send redis
     }
 
     private void executeEvent(@NotNull Event event) {
@@ -80,24 +74,6 @@ public class EventBus extends AbstractMessageHandler<EventWrapper> {
 
     public void unregister(Listener listener) {
         listeners.values().forEach(list -> list.removeIf(container -> container.instance().equals(listener)));
-    }
-
-    @Override
-    public void handleMessage(EventWrapper message) {
-        if (message.async()) {
-            if (message.event() instanceof CancellableEvent) {
-                log.error("[EventHandler] Called cancellable event ({}) asynchronously", message.event().getClass().getSimpleName());
-            } else {
-                executor.execute(() -> executeEvent(message.event()));
-            }
-        } else {
-            executeEvent(message.event());
-        }
-    }
-
-    @Override
-    public Converter<EventWrapper> getConverter() {
-        return new EventConverter();
     }
 
     record ListenerContainer(EventExecutor executor, Listener instance, EventPriority priority) {
