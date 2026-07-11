@@ -29,4 +29,9 @@ public class ScheduledJumpEvent extends AbstractScheduledEvent {
     public void execute() {
         worker.setTime(jumpTo.copy());
     }
+
+    @Override
+    public boolean masterOnly() {
+        return true;
+    }
 }

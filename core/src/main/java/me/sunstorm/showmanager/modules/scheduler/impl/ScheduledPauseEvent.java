@@ -19,4 +19,9 @@ public class ScheduledPauseEvent extends AbstractScheduledEvent {
     public void execute() {
         worker.pause();
     }
+
+    @Override
+    public boolean masterOnly() {
+        return true;
+    }
 }

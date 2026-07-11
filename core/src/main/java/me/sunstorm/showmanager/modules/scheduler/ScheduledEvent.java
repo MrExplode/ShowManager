@@ -16,4 +16,12 @@ public interface ScheduledEvent {
     UUID getId();
 
     void execute();
+
+    /**
+     * True if this cue mutates the authoritative show clock and must run on the master only,
+     * so followers don't route a duplicate transport command back to it.
+     */
+    default boolean masterOnly() {
+        return false;
+    }
 }

@@ -19,4 +19,9 @@ public class ScheduledStopEvent extends AbstractScheduledEvent {
     public void execute() {
         worker.stop();
     }
+
+    @Override
+    public boolean masterOnly() {
+        return true;
+    }
 }

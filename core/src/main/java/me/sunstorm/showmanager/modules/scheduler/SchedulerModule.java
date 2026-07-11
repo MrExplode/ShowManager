@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.Worker;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;
@@ -35,11 +36,13 @@ public class SchedulerModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(SchedulerModule.class);
 
     private final List<ScheduledEvent> scheduledEvents = new CopyOnWriteArrayList<>();
+    private final Worker worker;
     private int lastIndex = -1;
 
     @Inject
-    public SchedulerModule(EventBus bus) {
+    public SchedulerModule(EventBus bus, Worker worker) {
         super(bus);
+        this.worker = worker;
         init();
         scheduledEvents.sort(Comparator.comparing(ScheduledEvent::getExecuteTime));
     }
@@ -68,7 +71,8 @@ public class SchedulerModule extends ToggleableModule {
             ScheduledEvent event = scheduledEvents.get(lastIndex + 1);
             log.info("Executing scheduled event: {}", event.getType());
             new SchedulerExecuteEvent(event).call(eventBus);
-            event.execute();
+            if (!event.masterOnly() || worker.isMaster())
+                event.execute();
             lastIndex++;
         }
     }
