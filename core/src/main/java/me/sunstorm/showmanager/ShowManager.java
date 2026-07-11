@@ -7,6 +7,7 @@ import me.sunstorm.showmanager.settings.config.Config;
 import me.sunstorm.showmanager.settings.project.Project;
 import me.sunstorm.showmanager.settings.project.ProjectManager;
 import me.sunstorm.showmanager.terminable.Terminables;
+import me.sunstorm.showmanager.util.Framerate;
 import me.sunstorm.showmanager.util.JsonLoader;
 import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ public class ShowManager {
         settingsStore = new SettingsStore();
         settingsStore.load();
         config = JsonLoader.loadOrDefault("config.json", Config.class);
+        Framerate.set(config.getFramerate());
         eventBus = new EventBus();
         projectManager = new ProjectManager();
 
