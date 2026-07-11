@@ -20,7 +20,7 @@ public class ClusterService implements Terminable {
     private static final Logger log = LoggerFactory.getLogger(ClusterService.class);
 
     private final ClusterConfig config;
-    private JChannel channel;
+    private volatile JChannel channel;
     private volatile Consumer<byte[]> messageListener;
 
     public ClusterService(ClusterConfig config) {

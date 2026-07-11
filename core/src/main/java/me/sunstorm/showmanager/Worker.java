@@ -28,7 +28,7 @@ public class Worker implements Runnable, Terminable, Listener {
     private final ClusterService cluster;
     private final int framerate;
     private final double frameInterval;
-    private boolean running = true;
+    private volatile boolean running = true;
     private final MasterTimeSource master = new MasterTimeSource();
     private final FollowerTimeSource follower = new FollowerTimeSource();
 
@@ -99,6 +99,7 @@ public class Worker implements Runnable, Terminable, Listener {
         else
             new TransportCommandEvent(TransportCommandEvent.Action.SET, time).call(eventBus);
     }
+
 
     @EventCall
     public void onCommand(TransportCommandEvent event) {

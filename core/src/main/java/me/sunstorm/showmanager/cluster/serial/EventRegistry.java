@@ -31,16 +31,16 @@ public interface EventRegistry {
             .put(9, OscRecordStopEvent.class)
             .put(10, DmxRemoteStateEvent.class)
             .put(11, TimecodeChangeEvent.class)
-            .put(12, TimecodePauseEvent.class)
-            .put(13, TimecodeSetEvent.class)
-            .put(14, TimecodeStartEvent.class)
-            .put(15, TimecodeStopEvent.class)
+            .put(1, TimecodePauseEvent.class)
+            .put(2, TimecodeSetEvent.class)
+            .put(3, TimecodeStartEvent.class)
+            .put(4, TimecodeStopEvent.class)
             .put(16, MarkerCreateEvent.class)
             .put(17, MarkerDeleteEvent.class)
             .put(18, MarkerJumpEvent.class)
             .put(19, EventAddEvent.class)
             .put(20, EventDeleteEvent.class)
-            .put(21, TransportCommandEvent.class).build();
+            .put(5, TransportCommandEvent.class).build();
 
     Map<Class<? extends Event>, Integer> IDS = REGISTRY.entrySet().stream()
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));
