@@ -8,6 +8,8 @@ import ch.bildspur.artnet.events.ArtNetServerEventAdapter;
 import ch.bildspur.artnet.packets.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import me.sunstorm.showmanager.cluster.OutputType;
+import me.sunstorm.showmanager.cluster.Ownership;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
@@ -34,11 +36,13 @@ public class ArtNetModule extends ToggleableModule {
     private final ArtTimePacket packet;
     private final ArtNetBuffer buffer;
     private final DmxRemoteModule dmxRemote;
+    private final Ownership ownership;
 
     @Inject
-    public ArtNetModule(EventBus eventBus, DmxRemoteModule dmxRemote) {
+    public ArtNetModule(EventBus eventBus, DmxRemoteModule dmxRemote, Ownership ownership) {
         super(eventBus);
         this.dmxRemote = dmxRemote;
+        this.ownership = ownership;
         init();
 
         server = new ArtNetServer();
@@ -83,7 +87,7 @@ public class ArtNetModule extends ToggleableModule {
     }
 
     public void broadcast() {
-        if (isEnabled()) {
+        if (isEnabled() && ownership.owns(OutputType.ARTNET)) {
             server.broadcastPacket(packet);
         }
     }

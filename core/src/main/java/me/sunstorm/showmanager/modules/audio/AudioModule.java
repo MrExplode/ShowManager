@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sunstorm.showmanager.Constants;
+import me.sunstorm.showmanager.cluster.OutputType;
+import me.sunstorm.showmanager.cluster.Ownership;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.events.audio.AudioStopEvent;
@@ -28,15 +30,17 @@ public class AudioModule extends ToggleableModule {
 
     private final List<AudioTrack> tracks = new ArrayList<>();
     private final SettingsStore store;
+    private final Ownership ownership;
     private Mixer mixer;
     private int index = 0;
     @Nullable private AudioTrack current;
     @Nullable private Timecode lastChange = null;
 
     @Inject
-    public AudioModule(EventBus eventBus, SettingsStore store) {
+    public AudioModule(EventBus eventBus, SettingsStore store, Ownership ownership) {
         super(eventBus);
         this.store = store;
+        this.ownership = ownership;
         init();
         if (!tracks.isEmpty()) {
             current = tracks.get(index).loadTrack(mixer);
@@ -50,7 +54,7 @@ public class AudioModule extends ToggleableModule {
         if (current != null) {
             Timecode start = current.getStartTime();
             boolean crossed = (lastChange == null || lastChange.compareTo(start) < 0) && now.compareTo(start) >= 0;
-            if (crossed)
+            if (crossed && ownership.owns(OutputType.AUDIO))
                 current.play();
         }
         lastChange = now;
@@ -59,8 +63,7 @@ public class AudioModule extends ToggleableModule {
     @EventCall
     public void onTimeStart(TimecodeStartEvent e) {
         if (!isEnabled()) return;
-        if (current != null && e.getTime().isBetween(current.getStartTime(), current.getEndTime())) {
-            log.info("play2");
+        if (current != null && ownership.owns(OutputType.AUDIO) && e.getTime().isBetween(current.getStartTime(), current.getEndTime())) {
             current.play();
         }
     }

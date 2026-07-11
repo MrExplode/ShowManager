@@ -6,6 +6,8 @@ import com.illposed.osc.*;
 import com.illposed.osc.transport.OSCPortIn;
 import com.illposed.osc.transport.OSCPortOut;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.cluster.OutputType;
+import me.sunstorm.showmanager.cluster.Ownership;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
@@ -33,6 +35,7 @@ public class OscModule extends Module {
     private static final Logger log = LoggerFactory.getLogger(OscModule.class);
 
     private final Worker worker;
+    private final Ownership ownership;
     private final Provider<SchedulerModule> schedulerProvider;
     @Nullable
     private SchedulerModule scheduler;
@@ -47,9 +50,10 @@ public class OscModule extends Module {
     private final Map<String, Object> recordCache = new HashMap<>();
 
     @Inject
-    public OscModule(EventBus bus, Worker worker, Provider<SchedulerModule> schedulerProvider) {
+    public OscModule(EventBus bus, Worker worker, Ownership ownership, Provider<SchedulerModule> schedulerProvider) {
         super(bus);
         this.worker = worker;
+        this.ownership = ownership;
         this.schedulerProvider = schedulerProvider;
 
         init();
@@ -97,6 +101,8 @@ public class OscModule extends Module {
         OscDispatchEvent event = new OscDispatchEvent(packet);
         event.call(eventBus);
         if (event.isCancelled())
+            return;
+        if (!ownership.owns(OutputType.OSC))
             return;
         try {
             if (portOut != null) portOut.send(packet);

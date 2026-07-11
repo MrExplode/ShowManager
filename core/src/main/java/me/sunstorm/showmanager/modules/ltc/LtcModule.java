@@ -2,6 +2,8 @@ package me.sunstorm.showmanager.modules.ltc;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import me.sunstorm.showmanager.cluster.OutputType;
+import me.sunstorm.showmanager.cluster.Ownership;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.EventPriority;
@@ -40,6 +42,7 @@ public class LtcModule extends ToggleableModule implements Runnable {
     private static final int CHANNELS = 2;
 
     private final SettingsStore store;
+    private final Ownership ownership;
     private final int framerate;
 
     private Mixer mixer;
@@ -62,9 +65,10 @@ public class LtcModule extends ToggleableModule implements Runnable {
     private volatile Anchor anchor = new Anchor(0, System.nanoTime());
 
     @Inject
-    public LtcModule(EventBus bus, SettingsStore store, @Named("framerate") int framerate) {
+    public LtcModule(EventBus bus, SettingsStore store, Ownership ownership, @Named("framerate") int framerate) {
         super(bus);
         this.store = store;
+        this.ownership = ownership;
         this.framerate = framerate;
         init();
         open();
@@ -99,7 +103,7 @@ public class LtcModule extends ToggleableModule implements Runnable {
         long current = -1;
         boolean started = false;
         while (running) {
-            if (!playing || !isEnabled()) {
+            if (!playing || !isEnabled() || !ownership.owns(OutputType.LTC)) {
                 if (started) {
                     idle();
                     started = false;
