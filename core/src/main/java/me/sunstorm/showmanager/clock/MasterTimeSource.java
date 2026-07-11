@@ -4,21 +4,20 @@ import me.sunstorm.showmanager.util.Timecode;
 
 public class MasterTimeSource implements TimeSource {
     private volatile boolean playing = false;
-    private long start = 0;
-    private long elapsed = 0;
+    private long startNanos = 0;
+    private long elapsedMillis = 0;
     private volatile Timecode currentTime = new Timecode(0);
 
     @Override
     public synchronized void start() {
-        if (start == 0)
-            start = System.currentTimeMillis();
-        else
-            start = System.currentTimeMillis() - elapsed;
+        startNanos = System.nanoTime() - elapsedMillis * 1_000_000L;
         playing = true;
     }
 
     @Override
     public synchronized void pause() {
+        if (playing)
+            elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000L;
         playing = false;
     }
 
@@ -26,21 +25,21 @@ public class MasterTimeSource implements TimeSource {
     public synchronized void stop() {
         playing = false;
         currentTime = new Timecode(0);
-        start = 0;
-        elapsed = 0;
+        startNanos = 0;
+        elapsedMillis = 0;
     }
 
     @Override
     public synchronized void seek(Timecode time) {
-        elapsed = time.millis();
-        start = System.currentTimeMillis() - elapsed;
+        elapsedMillis = time.millis();
+        startNanos = System.nanoTime() - elapsedMillis * 1_000_000L;
         currentTime = time.copy();
     }
 
     @Override
-    public synchronized void tick(long now) {
-        elapsed = now - start;
-        currentTime = new Timecode(elapsed);
+    public synchronized void tick(long nowNanos) {
+        elapsedMillis = (nowNanos - startNanos) / 1_000_000L;
+        currentTime = new Timecode(elapsedMillis);
     }
 
     @Override

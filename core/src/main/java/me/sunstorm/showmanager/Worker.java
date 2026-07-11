@@ -27,7 +27,7 @@ public class Worker implements Runnable, Terminable, Listener {
     private final EventBus eventBus;
     private final ClusterService cluster;
     private final int framerate;
-    private final double frameInterval;
+    private final long frameIntervalNanos;
     private volatile boolean running = true;
     private final MasterTimeSource master = new MasterTimeSource();
     private final FollowerTimeSource follower = new FollowerTimeSource();
@@ -41,7 +41,7 @@ public class Worker implements Runnable, Terminable, Listener {
             framerate = 25;
         }
         this.framerate = framerate;
-        this.frameInterval = 1000.0 / framerate;
+        this.frameIntervalNanos = 1_000_000_000L / framerate;
         register();
         eventBus.register(this);
     }
@@ -50,16 +50,15 @@ public class Worker implements Runnable, Terminable, Listener {
     public void run() {
         log.info("Starting...");
         running = true;
-        long time = 0;
+        long lastFrame = 0;
         while (running) {
-            final long current = System.currentTimeMillis();
+            final long now = System.nanoTime();
             boolean driving = isMaster() && master.isPlaying();
-            if (current >= time + frameInterval) {
-                time = current;
+            if (now - lastFrame >= frameIntervalNanos) {
+                lastFrame = now;
                 if (driving) {
-                    master.tick(current);
-                    TimecodeChangeEvent changeEvent = new TimecodeChangeEvent(master.current().copy());
-                    changeEvent.call(eventBus);
+                    master.tick(now);
+                    new TimecodeChangeEvent(master.current().copy(), now).call(eventBus);
                 }
             }
 
