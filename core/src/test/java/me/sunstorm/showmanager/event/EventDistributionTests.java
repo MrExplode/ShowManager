@@ -6,11 +6,12 @@ import me.sunstorm.showmanager.cluster.serial.EventWrapper;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
-import me.sunstorm.showmanager.eventsystem.events.audio.AudioVolumeChangeEvent;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import me.sunstorm.showmanager.settings.config.ClusterConfig;
+import me.sunstorm.showmanager.util.Timecode;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,12 +43,12 @@ public class EventDistributionTests {
         }
     }
 
-    public static class VolumeListener implements Listener {
-        final AtomicInteger last = new AtomicInteger(-1);
+    public static class TimeListener implements Listener {
+        final AtomicReference<Timecode> last = new AtomicReference<>();
 
         @EventCall
-        public void onVolume(AudioVolumeChangeEvent event) {
-            last.set(event.getVolume());
+        public void onTime(TimecodeChangeEvent event) {
+            last.set(event.getTime());
         }
     }
 
@@ -59,25 +60,25 @@ public class EventDistributionTests {
 
         EventBus busB = new EventBus();
         busB.setCluster(new CapturingCluster("B"));
-        VolumeListener listener = new VolumeListener();
+        TimeListener listener = new TimeListener();
         busB.register(listener);
 
-        busA.call(new AudioVolumeChangeEvent(15));
+        busA.call(new TimecodeChangeEvent(new Timecode(0, 0, 5, 0)));
         assertThat(clusterA.sent).isNotNull();
 
         busB.onClusterMessage(clusterA.sent);
-        assertThat(listener.last).hasValue(15);
+        assertThat(listener.last.get()).isEqualTo(new Timecode(0, 0, 5, 0));
     }
 
     @Test
     void suppressesOwnEcho() {
         EventBus bus = new EventBus();
         bus.setCluster(new CapturingCluster("B"));
-        VolumeListener listener = new VolumeListener();
+        TimeListener listener = new TimeListener();
         bus.register(listener);
 
-        byte[] echo = new EventConverter().encode(new EventWrapper(5, false, "B", new AudioVolumeChangeEvent(7)));
+        byte[] echo = new EventConverter().encode(new EventWrapper(11, false, "B", new TimecodeChangeEvent(new Timecode(0, 0, 7, 0))));
         bus.onClusterMessage(echo);
-        assertThat(listener.last).hasValue(-1);
+        assertThat(listener.last.get()).isNull();
     }
 }

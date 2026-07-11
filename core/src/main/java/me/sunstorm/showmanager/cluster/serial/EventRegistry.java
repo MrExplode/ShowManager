@@ -2,44 +2,23 @@ package me.sunstorm.showmanager.cluster.serial;
 
 import com.google.common.collect.ImmutableMap;
 import me.sunstorm.showmanager.eventsystem.events.Event;
-import me.sunstorm.showmanager.eventsystem.events.audio.*;
-import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
-import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
-import me.sunstorm.showmanager.eventsystem.events.marker.MarkerJumpEvent;
-import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
-import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
-import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
-import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
-import me.sunstorm.showmanager.eventsystem.events.remote.DmxRemoteStateEvent;
-import me.sunstorm.showmanager.eventsystem.events.scheduler.EventAddEvent;
-import me.sunstorm.showmanager.eventsystem.events.scheduler.EventDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.time.*;
 import me.sunstorm.showmanager.eventsystem.events.transport.TransportCommandEvent;
 
 import java.util.Map;
 
+/**
+ * The cluster-distributable event whitelist: only authoritative state that must cross nodes —
+ * the master's timecode/transport beacons and follower-to-master transport commands. Local output
+ * and input side-effect events stay on their origin node.
+ */
 public interface EventRegistry {
     Map<Integer, Class<? extends Event>> REGISTRY = ImmutableMap.<Integer, Class<? extends Event>>builder()
-            .put(1, AudioLoadEvent.class)
-            .put(2, AudioPauseEvent.class)
-            .put(3, AudioStartEvent.class)
-            .put(4, AudioStopEvent.class)
-            .put(5, AudioVolumeChangeEvent.class)
-            .put(6, OscDispatchEvent.class)
-            .put(7, OscReceiveEvent.class)
-            .put(8, OscRecordStartEvent.class)
-            .put(9, OscRecordStopEvent.class)
-            .put(10, DmxRemoteStateEvent.class)
             .put(11, TimecodeChangeEvent.class)
             .put(1, TimecodePauseEvent.class)
             .put(2, TimecodeSetEvent.class)
             .put(3, TimecodeStartEvent.class)
             .put(4, TimecodeStopEvent.class)
-            .put(16, MarkerCreateEvent.class)
-            .put(17, MarkerDeleteEvent.class)
-            .put(18, MarkerJumpEvent.class)
-            .put(19, EventAddEvent.class)
-            .put(20, EventDeleteEvent.class)
             .put(5, TransportCommandEvent.class).build();
 
     Map<Class<? extends Event>, Integer> IDS = REGISTRY.entrySet().stream()
