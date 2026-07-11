@@ -28,7 +28,7 @@ public class EventDistributionTests {
         String id;
 
         @Override
-        public void send(byte[] payload) {
+        public void send(byte[] payload, boolean oob) {
             sent = payload;
         }
 

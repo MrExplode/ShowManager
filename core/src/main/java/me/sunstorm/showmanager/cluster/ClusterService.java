@@ -2,6 +2,7 @@ package me.sunstorm.showmanager.cluster;
 
 import me.sunstorm.showmanager.settings.config.ClusterConfig;
 import me.sunstorm.showmanager.terminable.Terminable;
+import org.jgroups.Address;
 import org.jgroups.BytesMessage;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -19,9 +20,19 @@ import java.util.function.Consumer;
 public class ClusterService implements Terminable {
     private static final Logger log = LoggerFactory.getLogger(ClusterService.class);
 
+    public static final byte MSG_EVENT = 1;
+    public static final byte MSG_SYNC_REQ = 2;
+    public static final byte MSG_SYNC_RESP = 3;
+
+    public interface SyncHandler {
+        void handle(Address src, byte type, byte[] body);
+    }
+
     private final ClusterConfig config;
     private volatile JChannel channel;
     private volatile Consumer<byte[]> messageListener;
+    private volatile SyncHandler syncHandler;
+    private volatile Consumer<View> viewHandler;
 
     public ClusterService(ClusterConfig config) {
         this.config = config;
@@ -56,22 +67,55 @@ public class ClusterService implements Terminable {
     private final Receiver receiver = new Receiver() {
         @Override
         public void receive(Message msg) {
-            Consumer<byte[]> listener = messageListener;
-            if (listener != null)
-                listener.accept(Arrays.copyOfRange(msg.getArray(), msg.getOffset(), msg.getOffset() + msg.getLength()));
+            byte[] raw = Arrays.copyOfRange(msg.getArray(), msg.getOffset(), msg.getOffset() + msg.getLength());
+            if (raw.length == 0)
+                return;
+            byte type = raw[0];
+            byte[] body = Arrays.copyOfRange(raw, 1, raw.length);
+            if (type == MSG_EVENT) {
+                Consumer<byte[]> listener = messageListener;
+                if (listener != null)
+                    listener.accept(body);
+            } else {
+                SyncHandler handler = syncHandler;
+                if (handler != null)
+                    handler.handle(msg.getSrc(), type, body);
+            }
         }
 
         @Override
         public void viewAccepted(View view) {
             log.info("[cluster] view: {} members, coordinator {}", view.size(), view.getCoord());
+            Consumer<View> handler = viewHandler;
+            if (handler != null)
+                handler.accept(view);
         }
     };
 
     public void send(byte[] payload) {
-        if (channel == null || !channel.isConnected())
+        send(payload, false);
+    }
+
+    public void send(byte[] payload, boolean oob) {
+        sendRaw(null, MSG_EVENT, payload, oob);
+    }
+
+    public void sendSync(Address dest, byte type, byte[] body) {
+        sendRaw(dest, type, body, true);
+    }
+
+    private void sendRaw(Address dest, byte type, byte[] body, boolean oob) {
+        JChannel ch = channel;
+        if (ch == null || !ch.isConnected())
             return;
+        byte[] payload = new byte[body.length + 1];
+        payload[0] = type;
+        System.arraycopy(body, 0, payload, 1, body.length);
+        Message msg = new BytesMessage(dest, payload);
+        if (oob)
+            msg.setFlag(Message.Flag.OOB);
         try {
-            channel.send(new BytesMessage(null, payload));
+            ch.send(msg);
         } catch (Exception e) {
             log.error("Failed to send cluster message", e);
         }
@@ -81,14 +125,33 @@ public class ClusterService implements Terminable {
         this.messageListener = listener;
     }
 
+    public void setSyncHandler(SyncHandler handler) {
+        this.syncHandler = handler;
+    }
+
+    public void setViewHandler(Consumer<View> handler) {
+        this.viewHandler = handler;
+    }
+
     public boolean isConnected() {
-        return channel != null && channel.isConnected();
+        JChannel ch = channel;
+        return ch != null && ch.isConnected();
     }
 
     public boolean isCoordinator() {
         if (!isConnected())
             return true;
         return Objects.equals(channel.getAddress(), channel.getView().getCoord());
+    }
+
+    public Address getAddress() {
+        JChannel ch = channel;
+        return ch != null ? ch.getAddress() : null;
+    }
+
+    public Address getCoordinator() {
+        JChannel ch = channel;
+        return ch != null && ch.getView() != null ? ch.getView().getCoord() : null;
     }
 
     public String selfId() {

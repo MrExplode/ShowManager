@@ -6,6 +6,7 @@ import me.sunstorm.showmanager.cluster.serial.EventRegistry;
 import me.sunstorm.showmanager.cluster.serial.EventWrapper;
 import me.sunstorm.showmanager.eventsystem.events.CancellableEvent;
 import me.sunstorm.showmanager.eventsystem.events.Event;
+import me.sunstorm.showmanager.eventsystem.events.time.TimecodeChangeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,8 @@ public class EventBus {
         Integer id = EventRegistry.idOf(event);
         if (id == null)
             return;
-        cluster.send(converter.encode(new EventWrapper(id, async, cluster.selfId(), event)));
+        boolean oob = event instanceof TimecodeChangeEvent;
+        cluster.send(converter.encode(new EventWrapper(id, async, cluster.selfId(), event)), oob);
     }
 
     public void onClusterMessage(byte[] data) {
