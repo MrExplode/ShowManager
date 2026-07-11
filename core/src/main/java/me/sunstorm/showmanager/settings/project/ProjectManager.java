@@ -25,18 +25,18 @@ public class ProjectManager implements Terminable {
     public ProjectManager() {
         register();
         log.info("Loading projects...");
-        if (!PROJECTS_DIR.exists()) {
+        if (!PROJECTS_DIR.exists())
             PROJECTS_DIR.mkdirs();
-            return;
-        }
 
         String lastProjectName = "";
         try {
-            lastProjectName = Files.readString(LAST_PROJECT.toPath());
+            lastProjectName = Files.readString(LAST_PROJECT.toPath()).trim();
         } catch (IOException e) {
             log.info("Couldn't find last project descriptor");
         }
-        List<File> projectFiles = Arrays.stream(PROJECTS_DIR.listFiles()).filter(f -> f.isFile() && f.getName().endsWith(".json")).toList();
+        File[] files = PROJECTS_DIR.listFiles();
+        List<File> projectFiles = files == null ? List.of()
+                : Arrays.stream(files).filter(f -> f.isFile() && f.getName().endsWith(".json")).toList();
         String finalLastProjectName = lastProjectName;
         projectFiles.forEach(projectFile -> {
             Project project = new Project(projectFile);
@@ -52,14 +52,18 @@ public class ProjectManager implements Terminable {
                 if (!projectFile.renameTo(new File(PROJECTS_DIR, correctFileName + ".json")))
                     log.warn("Renaming project file {} failed", projectFile.getName());
             }
-            //todo load last project descriptor
             if (project.getName().equals(finalLastProjectName)) {
                 currentProject = project;
             }
         });
         if (currentProject == null) {
-            currentProject = new Project(new File(PROJECTS_DIR, "unknown.json"));
-            currentProject.loadJson();
+            if (!projects.isEmpty()) {
+                currentProject = projects.get(0);
+                log.info("Last project '{}' not found, loading '{}'", finalLastProjectName, currentProject.getName());
+            } else {
+                currentProject = new Project(new File(PROJECTS_DIR, "unknown.json"));
+                currentProject.loadJson();
+            }
         }
     }
 
@@ -70,7 +74,7 @@ public class ProjectManager implements Terminable {
         if (!LAST_PROJECT.exists())
             LAST_PROJECT.createNewFile();
         PrintWriter writer = new PrintWriter(LAST_PROJECT);
-        writer.println(currentProject.getName());
+        writer.print(currentProject.getName());
         writer.close();
     }
 }
