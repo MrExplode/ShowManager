@@ -20,7 +20,6 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.asm)
     implementation(libs.slf4j.api)
-    implementation(libs.jedis)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

@@ -7,7 +7,6 @@ javalin = "6.7.0"
 javaosc = "0.9"
 javax-inject = "1"
 jaxb-api = "2.3.1"
-jedis = "7.5.3"
 junit = "6.1.1"
 logback = "1.5.18"
 mockito = "5.23.0"
@@ -22,7 +21,6 @@ javalin = { group = "io.javalin", name = "javalin", version.ref = "javalin" }
 javaosc-core = { group = "com.illposed.osc", name = "javaosc-core", version.ref = "javaosc" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
 jaxb-api = { group = "javax.xml.bind", name = "jaxb-api", version.ref = "jaxb-api" }
-jedis = { group = "redis.clients", name = "jedis", version.ref = "jedis" }
 logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 

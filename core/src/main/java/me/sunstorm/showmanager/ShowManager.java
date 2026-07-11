@@ -2,9 +2,6 @@ package me.sunstorm.showmanager;
 
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.ModuleManager;
-import me.sunstorm.showmanager.redis.Redis;
-import me.sunstorm.showmanager.redis.impl.DummyRedisImpl;
-import me.sunstorm.showmanager.redis.impl.RedisImpl;
 import me.sunstorm.showmanager.settings.SettingsStore;
 import me.sunstorm.showmanager.settings.config.Config;
 import me.sunstorm.showmanager.settings.project.Project;
@@ -29,7 +26,6 @@ public class ShowManager {
     private final SettingsStore settingsStore;
     private final ProjectManager projectManager;
     private final EventBus eventBus;
-    private final Redis redis;
     private final Worker worker;
 
     public ShowManager() throws IOException {
@@ -40,13 +36,6 @@ public class ShowManager {
         config = JsonLoader.loadOrDefault("config.json", Config.class);
         eventBus = new EventBus();
         projectManager = new ProjectManager();
-
-        if (config.getRedisConfig().isEnabled()) {
-            redis = new RedisImpl(config.getRedisConfig().getCredentials());
-        }
-        else {
-            redis = new DummyRedisImpl();
-        }
 
         FEATHER = Feather.with(new DependencyGraph(this, eventBus, settingsStore, config));
 
