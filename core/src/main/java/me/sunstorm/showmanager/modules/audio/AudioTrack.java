@@ -78,6 +78,12 @@ public class AudioTrack {
             log.error("Track audio type not supported", e);
         } catch (LineUnavailableException e) {
             log.error("Failed to open mixer line", e);
+        } catch (IllegalArgumentException e) {
+            // mixer.getLine() when the mixer has no line for this format - a busy device reports none at all
+            log.error("Mixer {} can't play track {}", mixer.getMixerInfo().getName(), file.getName(), e);
+        }
+        if (!loaded) {
+            discard();
         }
         return this;
     }
@@ -121,14 +127,17 @@ public class AudioTrack {
     }
 
     public void discard() {
-        stop();
         if (clip != null) {
+            stop();
             clip.close();
+            clip = null;
         }
         if (stream != null) {
             close(stream);
+            stream = null;
         }
         loaded = false;
+        paused = false;
     }
 
     public void setStartTime(Timecode time) {
@@ -137,7 +146,8 @@ public class AudioTrack {
             return;
         }
         startTime = time;
-        endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
+        if (clip != null)
+            endTime = startTime.add(new Timecode(clip.getMicrosecondLength() / 1000));
     }
 
     public void setVolume(int volume) {

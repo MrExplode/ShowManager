@@ -14,8 +14,10 @@ public class AudioTrackSerializer implements JsonSerializer<AudioTrack>, JsonDes
     @Override
     public AudioTrack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject data = json.getAsJsonObject();
+        if (!data.has("start")) throw new JsonParseException("Audio track has no 'start' timecode");
+        if (!data.has("path")) throw new JsonParseException("Audio track has no 'path'");
         Timecode start = context.deserialize(data.get("start"), Timecode.class);
-        List<Marker> markers = context.deserialize(data.get("markers"), List.class);
+        List<Marker> markers = data.has("markers") ? context.deserialize(data.get("markers"), List.class) : List.of();
         var instance = new AudioTrack(start, new File(data.get("path").getAsString()), markers);
         if (data.has("volume")) {
             instance.setVolume(Math.round(data.get("volume").getAsFloat() * 100));

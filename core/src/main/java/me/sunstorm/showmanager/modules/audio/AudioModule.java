@@ -3,6 +3,7 @@ package me.sunstorm.showmanager.modules.audio;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.cluster.OutputType;
 import me.sunstorm.showmanager.cluster.Ownership;
@@ -43,8 +44,17 @@ public class AudioModule extends ToggleableModule {
         this.ownership = ownership;
         init();
         if (!tracks.isEmpty() && ownership.owns(OutputType.AUDIO)) {
-            current = tracks.get(index).loadTrack(mixer);
+            current = load(index);
         }
+    }
+
+    /**
+     * @return the track at {@code i}, or null if it failed to load - a broken track never becomes {@link #current}
+     */
+    @Nullable
+    private AudioTrack load(int i) {
+        AudioTrack track = tracks.get(i).loadTrack(mixer);
+        return track.isLoaded() ? track : null;
     }
 
     @EventCall
@@ -77,7 +87,7 @@ public class AudioModule extends ToggleableModule {
         index = 0;
         lastChange = null;
         if (!tracks.isEmpty() && ownership.owns(OutputType.AUDIO)) {
-            current = tracks.get(index).loadTrack(mixer);
+            current = load(index);
         }
     }
 
@@ -100,10 +110,12 @@ public class AudioModule extends ToggleableModule {
             for (int i = 0; i < tracks.size(); i++) {
                 Timecode start = tracks.get(i).getStartTime();
                 Timecode end = tracks.get(i).getEndTime();
-                if (time.isBetween(start, end)) {
+                // a track only knows its end once loaded, so an unloaded one can't be seeked into
+                if (end != null && time.isBetween(start, end)) {
                     index = i;
-                    current = tracks.get(index).loadTrack(mixer);
-                    current.getClip().setMicrosecondPosition(time.subtract(current.getStartTime()).millis() * 1000);
+                    current = load(index);
+                    if (current != null)
+                        current.getClip().setMicrosecondPosition(time.subtract(current.getStartTime()).millis() * 1000);
                     break;
                 }
             }
@@ -113,7 +125,7 @@ public class AudioModule extends ToggleableModule {
     @EventCall
     public void onAudioStop(AudioStopEvent e) {
         if (++index < tracks.size() && ownership.owns(OutputType.AUDIO)) {
-            current = tracks.get(index).loadTrack(mixer);
+            current = load(index);
         }
     }
 
@@ -153,7 +165,14 @@ public class AudioModule extends ToggleableModule {
         var object = element.getAsJsonObject();
         setEnabled(object.get("enabled").getAsBoolean());
         mixer = store.getMixerByName(object.get("mixer").getAsString());
-        object.get("tracks").getAsJsonArray().forEach(e -> tracks.add(Constants.GSON.fromJson(e, AudioTrack.class)));
+        tracks.clear();
+        object.get("tracks").getAsJsonArray().forEach(e -> {
+            try {
+                tracks.add(Constants.GSON.fromJson(e, AudioTrack.class));
+            } catch (JsonParseException ex) {
+                log.error("Skipping a track of the project, it failed to load", ex);
+            }
+        });
     }
 
     @Override
