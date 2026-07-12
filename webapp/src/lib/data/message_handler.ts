@@ -29,6 +29,7 @@ import {
     artNetOutput,
     audioOutput,
     ltcOutput,
+    oscOutput,
     setSyncing as outputSyncing,
     schedulerActive,
     syncOutputs
@@ -153,6 +154,9 @@ const handleOutput = (msg: OutputMessage) => {
             break
         case 'ltc':
             ltcOutput.set(msg.value)
+            break
+        case 'osc':
+            oscOutput.set(msg.value)
             break
         case 'scheduler':
             schedulerActive.set(msg.value)

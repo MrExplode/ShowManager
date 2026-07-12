@@ -157,9 +157,12 @@ export interface ClusterMessage {
     state: ClusterState
 }
 
+/** the outputs a node can be assigned to drive, as reported in {@link ClusterNode.outputs} */
+export type OutputType = 'ARTNET' | 'AUDIO' | 'LTC' | 'OSC'
+
 export interface OutputMessage {
     type: 'output'
-    name: 'artnet' | 'audio' | 'ltc' | 'scheduler'
+    name: 'artnet' | 'audio' | 'ltc' | 'osc' | 'scheduler'
     value: boolean
 }
 

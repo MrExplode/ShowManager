@@ -5,6 +5,7 @@ let isSyncing = true
 export const artNetOutput = writable(false)
 export const audioOutput = writable(false)
 export const ltcOutput = writable(false)
+export const oscOutput = writable(false)
 export const schedulerActive = writable(false)
 
 artNetOutput.subscribe(() => {
@@ -37,6 +38,16 @@ ltcOutput.subscribe(() => {
     }
 })
 
+oscOutput.subscribe(() => {
+    if (!isSyncing) {
+        wait(
+            post('/output/osc', {
+                enabled: getValue(oscOutput)
+            })
+        )
+    }
+})
+
 schedulerActive.subscribe(() => {
     if (!isSyncing) {
         wait(
@@ -53,6 +64,7 @@ export const syncOutputs = async () => {
     artNetOutput.set(data.artnet)
     audioOutput.set(data.audio)
     ltcOutput.set(data.ltc)
+    oscOutput.set(data.osc)
     schedulerActive.set(data.scheduler)
     isSyncing = false
 }
