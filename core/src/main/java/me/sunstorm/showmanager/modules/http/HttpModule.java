@@ -10,6 +10,7 @@ import io.javalin.plugin.bundled.CorsPluginConfig;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.http.controller.AudioController;
+import me.sunstorm.showmanager.modules.http.controller.ClusterController;
 import me.sunstorm.showmanager.modules.http.routing.RoutingManager;
 import me.sunstorm.showmanager.modules.Module;
 import me.sunstorm.showmanager.modules.http.controller.ControlController;
@@ -90,6 +91,7 @@ public class HttpModule extends Module {
         RoutingManager.create(javalin,
                 feather::instance,
                 AudioController.class,
+                ClusterController.class,
                 ControlController.class,
                 OutputController.class,
                 SchedulerController.class

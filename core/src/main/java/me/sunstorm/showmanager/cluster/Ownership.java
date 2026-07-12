@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -39,5 +40,9 @@ public class Ownership {
 
     public boolean owns(OutputType type) {
         return owned.contains(type);
+    }
+
+    public Set<OutputType> getOwned() {
+        return Collections.unmodifiableSet(owned);
     }
 }

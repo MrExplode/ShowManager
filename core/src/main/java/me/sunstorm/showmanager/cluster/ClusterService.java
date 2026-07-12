@@ -14,7 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class ClusterService implements Terminable {
@@ -23,6 +26,7 @@ public class ClusterService implements Terminable {
     public static final byte MSG_EVENT = 1;
     public static final byte MSG_SYNC_REQ = 2;
     public static final byte MSG_SYNC_RESP = 3;
+    public static final byte MSG_NODE_INFO = 4;
 
     public interface SyncHandler {
         void handle(Address src, byte type, byte[] body);
@@ -31,8 +35,8 @@ public class ClusterService implements Terminable {
     private final ClusterConfig config;
     private volatile JChannel channel;
     private volatile Consumer<byte[]> messageListener;
-    private volatile SyncHandler syncHandler;
-    private volatile Runnable viewHandler;
+    private final List<SyncHandler> syncHandlers = new CopyOnWriteArrayList<>();
+    private final List<Runnable> viewHandlers = new CopyOnWriteArrayList<>();
 
     public ClusterService(ClusterConfig config) {
         this.config = config;
@@ -77,18 +81,26 @@ public class ClusterService implements Terminable {
                 if (listener != null)
                     listener.accept(body);
             } else {
-                SyncHandler handler = syncHandler;
-                if (handler != null)
-                    handler.handle(msg.getSrc(), type, body);
+                for (SyncHandler handler : syncHandlers) {
+                    try {
+                        handler.handle(msg.getSrc(), type, body);
+                    } catch (Exception e) {
+                        log.error("Cluster sync handler failed", e);
+                    }
+                }
             }
         }
 
         @Override
         public void viewAccepted(View view) {
             log.info("[cluster] view: {} members, coordinator {}", view.size(), view.getCoord());
-            Runnable handler = viewHandler;
-            if (handler != null)
-                handler.run();
+            for (Runnable handler : viewHandlers) {
+                try {
+                    handler.run();
+                } catch (Exception e) {
+                    log.error("Cluster view handler failed", e);
+                }
+            }
         }
     };
 
@@ -121,16 +133,20 @@ public class ClusterService implements Terminable {
         }
     }
 
+    public void broadcastSync(byte type, byte[] body) {
+        sendRaw(null, type, body, true);
+    }
+
     public void setMessageListener(Consumer<byte[]> listener) {
         this.messageListener = listener;
     }
 
-    public void setSyncHandler(SyncHandler handler) {
-        this.syncHandler = handler;
+    public void addSyncHandler(SyncHandler handler) {
+        syncHandlers.add(handler);
     }
 
-    public void setViewHandler(Runnable handler) {
-        this.viewHandler = handler;
+    public void addViewHandler(Runnable handler) {
+        viewHandlers.add(handler);
     }
 
     public boolean isConnected() {
@@ -154,8 +170,34 @@ public class ClusterService implements Terminable {
         return ch != null && ch.getView() != null ? ch.getView().getCoord() : null;
     }
 
+    /**
+     * Empty when not clustered.
+     */
+    public List<String> getMembers() {
+        JChannel ch = channel;
+        if (ch == null || ch.getView() == null)
+            return Collections.emptyList();
+        return ch.getView().getMembers().stream().map(ClusterService::idOf).toList();
+    }
+
+    public String coordinatorId() {
+        return idOf(getCoordinator());
+    }
+
     public String selfId() {
         return channel != null ? channel.getAddressAsString() : "local";
+    }
+
+    /**
+     * JGroups renders a UUID as its logical name once known, which is what {@link #selfId()} reports
+     * too — so ids line up across nodes.
+     */
+    public static String idOf(Address address) {
+        return address == null ? null : String.valueOf(address);
+    }
+
+    public ClusterConfig getConfig() {
+        return config;
     }
 
     @Override

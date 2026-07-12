@@ -39,7 +39,7 @@ public class Worker implements Runnable, Terminable, Listener {
         this.eventBus = bus;
         this.cluster = cluster;
         this.follower = new FollowerTimeSource(clockSync);
-        cluster.setViewHandler(this::onView);
+        cluster.addViewHandler(this::onView);
         if (framerate <= 0) {
             log.warn("Invalid framerate {}, falling back to 25", framerate);
             framerate = 25;

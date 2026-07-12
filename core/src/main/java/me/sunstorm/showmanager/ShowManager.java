@@ -1,6 +1,7 @@
 package me.sunstorm.showmanager;
 
 import me.sunstorm.showmanager.cluster.ClockSync;
+import me.sunstorm.showmanager.cluster.ClusterNodes;
 import me.sunstorm.showmanager.cluster.ClusterService;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.modules.ModuleManager;
@@ -52,8 +53,10 @@ public class ShowManager {
         eventBus.setCluster(clusterService);
         clusterService.setMessageListener(eventBus::onClusterMessage);
         ClockSync clockSync = FEATHER.instance(ClockSync.class);
+        ClusterNodes clusterNodes = FEATHER.instance(ClusterNodes.class);
         clusterService.connect();
         clockSync.start();
+        clusterNodes.start();
         Project.current().save();
         worker.run();
     }

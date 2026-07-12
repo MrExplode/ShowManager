@@ -51,7 +51,7 @@ public class ClockSync implements ClockOffset, Terminable {
     public ClockSync(ClusterService cluster, @Named("framerate") int framerate) {
         this.cluster = cluster;
         this.framerate = framerate;
-        this.cluster.setSyncHandler(this::onSync);
+        this.cluster.addSyncHandler(this::onSync);
         register();
     }
 

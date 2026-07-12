@@ -5,11 +5,13 @@ import com.google.gson.JsonObject;
 import io.javalin.websocket.*;
 import me.sunstorm.showmanager.Constants;
 import me.sunstorm.showmanager.Worker;
+import me.sunstorm.showmanager.cluster.ClusterNodes;
 import me.sunstorm.showmanager.modules.audio.AudioModule;
 import me.sunstorm.showmanager.eventsystem.EventBus;
 import me.sunstorm.showmanager.eventsystem.EventCall;
 import me.sunstorm.showmanager.eventsystem.Listener;
 import me.sunstorm.showmanager.eventsystem.events.audio.*;
+import me.sunstorm.showmanager.eventsystem.events.cluster.ClusterStateChangeEvent;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerCreateEvent;
 import me.sunstorm.showmanager.eventsystem.events.marker.MarkerDeleteEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
@@ -42,14 +44,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final Worker worker;
     private final AudioModule player;
     private final SchedulerModule scheduler;
+    private final ClusterNodes clusterNodes;
 
     @Inject
-    public WebSocketHandler(EventBus eventBus, Worker worker, AudioModule player, SchedulerModule scheduler) {
+    public WebSocketHandler(EventBus eventBus, Worker worker, AudioModule player, SchedulerModule scheduler, ClusterNodes clusterNodes) {
         INSTANCE = this;
         this.eventBus = eventBus;
         this.worker = worker;
         this.player = player;
         this.scheduler = scheduler;
+        this.clusterNodes = clusterNodes;
 
         eventBus.register(this);
     }
@@ -64,6 +68,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         JsonObject data = new JsonObject();
         data.addProperty("type", "init");
         data.add("logs", logs);
+        data.add("cluster", clusterNodes.state());
         ctx.send(data.toString());
     }
 
@@ -239,6 +244,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         data.addProperty("type", "scheduler");
         data.addProperty("action", "record");
         data.addProperty("record", enabled);
+        broadcast(data);
+    }
+
+    @EventCall
+    public void onClusterChange(ClusterStateChangeEvent e) {
+        JsonObject data = new JsonObject();
+        data.addProperty("type", "cluster");
+        data.add("state", clusterNodes.state());
         broadcast(data);
     }
 
