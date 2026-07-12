@@ -5,9 +5,17 @@
     import SchedulerPanel from '@/scheduler/SchedulerPanel.svelte'
 </script>
 
-<div class="flex flex-wrap items-start justify-start gap-2">
-    <TimePanel />
-    <OutputPanel />
-    <SchedulerPanel />
-    <AudioPanel />
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <div class="xl:col-span-2">
+        <TimePanel />
+    </div>
+    <div>
+        <OutputPanel />
+    </div>
+    <div class="xl:col-span-2">
+        <AudioPanel />
+    </div>
+    <div>
+        <SchedulerPanel />
+    </div>
 </div>

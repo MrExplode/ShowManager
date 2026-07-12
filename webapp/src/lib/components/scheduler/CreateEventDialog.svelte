@@ -17,7 +17,7 @@
     import * as Tooltip from '@/ui/tooltip'
     import { toast } from 'svelte-sonner'
 
-    let { class: classNames = '' }: { class: string } = $props()
+    let { class: classNames = '' }: { class?: string } = $props()
 
     let isOpen = $state(false)
     let eventType = $state<ScheduledEventType | ''>('')

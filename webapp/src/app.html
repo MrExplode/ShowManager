@@ -4,6 +4,28 @@
         <meta charset="utf-8" />
         <link rel="icon" href="%sveltekit.assets%/favicon.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script>
+            // mode-watcher's own no-FOUC script is never prerendered in a static SPA, so without
+            // this it settles on the OS preference instead of defaultMode.
+            ;(function () {
+                try {
+                    var key = 'mode-watcher-mode'
+                    var mode = localStorage.getItem(key)
+                    if (mode !== 'dark' && mode !== 'light' && mode !== 'system') {
+                        mode = 'dark'
+                        localStorage.setItem(key, mode)
+                    }
+                    var dark =
+                        mode === 'dark' ||
+                        (mode === 'system' &&
+                            window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    document.documentElement.classList.toggle('dark', dark)
+                    document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+                } catch (e) {
+                    // storage blocked; mode-watcher handles it at runtime
+                }
+            })()
+        </script>
         %sveltekit.head%
     </head>
     <body data-sveltekit-preload-data="hover">

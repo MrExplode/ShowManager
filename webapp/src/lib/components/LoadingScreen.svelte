@@ -1,14 +1,19 @@
 <script lang="ts">
-    import * as Card from '@/ui/card'
-    import LoaderPinwheel from '@lucide/svelte/icons/loader-pinwheel'
+    import * as Empty from '@/ui/empty'
+    import { Spinner } from '@/ui/spinner'
+    import { retryCountdown } from '$lib/data/control'
 </script>
 
-<div class="flex min-h-screen items-center justify-center">
-    <Card.Root class="text-center shadow-lg">
-        <Card.Content class="space-y-3">
-            <LoaderPinwheel class="m-10 h-32 w-32 animate-spin" />
-            <h1 class="text-xl font-bold tracking-tight">ShowManager</h1>
-            <p>Connecting...</p>
-        </Card.Content>
-    </Card.Root>
+<div class="flex min-h-screen items-center justify-center p-6">
+    <Empty.Root class="max-w-md border">
+        <Empty.Header>
+            <Empty.Media variant="icon">
+                <Spinner />
+            </Empty.Media>
+            <Empty.Title class="tracking-[0.2em] uppercase">ShowManager</Empty.Title>
+            <Empty.Description>
+                Connecting to the backend… retrying in {$retryCountdown}s
+            </Empty.Description>
+        </Empty.Header>
+    </Empty.Root>
 </div>

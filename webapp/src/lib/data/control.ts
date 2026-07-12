@@ -44,3 +44,8 @@ export const stop = async () => {
 export const setTime = async (t: Timecode) => {
     await post('/control/set', t)
 }
+
+/** amount is in whole seconds; negative jumps back. */
+export const quickJump = async (amount: number) => {
+    await post('/control/quickjump', { amount })
+}

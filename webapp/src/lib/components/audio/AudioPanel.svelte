@@ -16,18 +16,18 @@
     )
 </script>
 
-<Card.Root class="m-2">
-    <Card.Header class="flex flex-row items-start justify-between">
-        <div class="flex flex-col space-y-1.5">
-            <Card.Title>Audio player</Card.Title>
-            <Card.Description>{loadedName}</Card.Description>
-        </div>
-        {#if $playing}
-            <Disc3 class="text-muted-foreground h-7 animate-spin" />
-        {/if}
+<Card.Root class="h-full">
+    <Card.Header>
+        <Card.Title>Audio player</Card.Title>
+        <Card.Description>{loadedName}</Card.Description>
+        <Card.Action>
+            {#if $playing}
+                <Disc3 class="text-muted-foreground animate-spin" />
+            {/if}
+        </Card.Action>
     </Card.Header>
-    <Card.Content class="flex-1 flex-col items-center space-y-4 text-center">
-        <div class="flex items-center space-x-6">
+    <Card.Content class="flex flex-col gap-4">
+        <div class="flex items-center gap-6">
             {#if $volume[0] < 25}
                 <Volume class="w-10" />
             {:else if $volume[0] < 50}
@@ -36,15 +36,16 @@
                 <Volume2 class="w-10" />
             {/if}
             <Slider
+                type="multiple"
                 class="min-w-32"
                 min={0}
                 max={100}
                 step={1}
                 value={$volume}
-                onValueCommit={(v) => ($volume = v)}
+                onValueCommit={(v: number[]) => ($volume = v)}
                 disabled={$loadedAudio == null}
             />
-            <p class="text-bold text-xl">{$volume}</p>
+            <p class="w-10 text-right font-mono text-xl tabular-nums">{$volume}</p>
         </div>
         <AudioWaveform />
         <DataTable data={$availableTracks} {columns} />
