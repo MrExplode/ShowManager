@@ -242,10 +242,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         broadcast(data);
     }
 
-    public void consumeLog(String log) {
+    public void consumeLog(JsonObject entry) {
         JsonObject data = new JsonObject();
         data.addProperty("type", "log");
-        data.addProperty("log", log);
+        data.add("entry", entry);
         broadcast(data);
     }
 
