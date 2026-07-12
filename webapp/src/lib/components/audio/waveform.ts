@@ -13,7 +13,8 @@ export const player: PlayerAdapter = {
     destroy: () => {},
     play: async () => {},
     pause: () => {},
-    seek: (time: number) => {},
+    // peaks.js drives seeking through the backend clock, not this player adapter
+    seek: () => {},
     isPlaying: () => {
         return get(playing)
     },

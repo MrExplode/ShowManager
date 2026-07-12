@@ -14,14 +14,14 @@ export interface Timecode {
 const timecodeRegex = /(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})\/(?<frame>\d{2})/
 
 export const fromString = (raw: string): Timecode | null => {
-    const res = raw.match(timecodeRegex)
-    if (!res) return null
+    const groups = raw.match(timecodeRegex)?.groups
+    if (!groups) return null
 
     return {
-        hour: parseInt(res!.groups['hour']),
-        min: parseInt(res!.groups['min']),
-        sec: parseInt(res!.groups['sec']),
-        frame: parseInt(res!.groups['frame']),
+        hour: parseInt(groups.hour),
+        min: parseInt(groups.min),
+        sec: parseInt(groups.sec),
+        frame: parseInt(groups.frame),
         millisecLength: 0
     }
 }

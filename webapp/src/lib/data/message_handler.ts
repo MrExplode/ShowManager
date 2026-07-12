@@ -121,10 +121,11 @@ const handleScheduler = async (msg: SchedulerMessage) => {
             // could add directly, but I don't wanna do array ops on svelte stores
             await syncEvents()
             break
-        case 'eventExecuted':
-            // todo
-            executedIds.set([...get(executedIds), msg.event!.id])
+        case 'eventExecuted': {
+            const id = msg.event?.id
+            if (id) executedIds.set([...get(executedIds), id])
             break
+        }
         case 'syncEvents':
             await syncEvents()
             break

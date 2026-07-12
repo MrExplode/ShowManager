@@ -28,6 +28,7 @@ export default ts.config(
         }
     },
     {
-        ignores: ['build/', '.svelte-kit/', 'dist/']
+        // components/ui is CLI-generated and overwritten on every shadcn-svelte update
+        ignores: ['build/', '.svelte-kit/', 'dist/', 'src/lib/components/ui/']
     }
 )

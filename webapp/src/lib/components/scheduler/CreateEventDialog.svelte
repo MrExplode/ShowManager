@@ -99,7 +99,7 @@
                 <Select.Content>
                     <Select.Group>
                         <Select.GroupHeading>Type</Select.GroupHeading>
-                        {#each eventTypes as t}
+                        {#each eventTypes as t (t)}
                             <Select.Item value={t}>{t}</Select.Item>
                         {/each}
                     </Select.Group>
