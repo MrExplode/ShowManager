@@ -58,26 +58,22 @@
 
     const amplitude = (direction: number) => {
         amplitudeIndex = Math.min(Math.max(amplitudeIndex + direction, 0), 10)
-        console.log('set amplitude to ', amplitudes[amplitudeIndex])
         peaks?.views.getView('zoomview')?.setAmplitudeScale(amplitudes[amplitudeIndex])
+    }
+
+    const zoom = (direction: number) => {
+        if (direction > 0) peaks?.zoom.zoomIn()
+        else peaks?.zoom.zoomOut()
     }
 </script>
 
 {#if $loadedAudio != null}
     <div class="flex">
         <div class="mr-2 flex flex-col gap-2">
-            <Button size="icon" variant="ghost" onclick={() => amplitude(1)}
-                ><ZoomIn class="size-4" /></Button
-            >
-            <Button size="icon" variant="ghost" onclick={() => amplitude(-1)}
-                ><ZoomOut class="size-4" /></Button
-            >
-            <Button size="icon" variant="ghost" onclick={() => zoom(-1)}
-                ><Expand class="size-4" /></Button
-            >
-            <Button size="icon" variant="ghost" onclick={() => zoom(-1)}
-                ><Shrink class="size-4" /></Button
-            >
+            <Button size="icon" variant="ghost" onclick={() => amplitude(1)}><ZoomIn /></Button>
+            <Button size="icon" variant="ghost" onclick={() => amplitude(-1)}><ZoomOut /></Button>
+            <Button size="icon" variant="ghost" onclick={() => zoom(1)}><Expand /></Button>
+            <Button size="icon" variant="ghost" onclick={() => zoom(-1)}><Shrink /></Button>
         </div>
         <div class="space-y-2">
             <div class="flex h-[100px] w-[1000px] flex-col border shadow-xs">
