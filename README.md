@@ -59,31 +59,27 @@ You have to set the audio output, and add your tracks. Example:
     "mixer": "Speakers (Realtek(R) Audio)",
     "tracks": [
       {
-        "startTime": {
+        "start": {
           "hour": 0,
           "min": 1,
           "sec": 5,
           "frame": 0
         },
-        "file": {
-          "path": "path/to/file.wav"
-        },
+        "path": "path/to/file.wav",
         "volume": 1.0,
         "markers": []
       },
       {
-        "startTime": {
+        "start": {
           "hour": 0,
           "min": 10,
           "sec": 0,
           "frame": 0
         },
-        "file": {
-          "path": "path/to/other_file.wav"
-        },
+        "path": "path/to/other_file.wav",
         "volume": 1.0,
         "markers": []
-      },
+      }
     ]
   }
 ```
