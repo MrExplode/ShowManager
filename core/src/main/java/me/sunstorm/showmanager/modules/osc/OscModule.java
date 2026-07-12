@@ -13,7 +13,7 @@ import me.sunstorm.showmanager.eventsystem.events.osc.OscDispatchEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscReceiveEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStartEvent;
 import me.sunstorm.showmanager.eventsystem.events.osc.OscRecordStopEvent;
-import me.sunstorm.showmanager.modules.Module;
+import me.sunstorm.showmanager.modules.ToggleableModule;
 import me.sunstorm.showmanager.modules.scheduler.SchedulerModule;
 import me.sunstorm.showmanager.modules.scheduler.impl.ScheduledOscEvent;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Singleton
-public class OscModule extends Module {
+public class OscModule extends ToggleableModule {
     private static final Logger log = LoggerFactory.getLogger(OscModule.class);
 
     private final Worker worker;
@@ -102,7 +102,7 @@ public class OscModule extends Module {
         event.call(eventBus);
         if (event.isCancelled())
             return;
-        if (!ownership.owns(OutputType.OSC))
+        if (!isEnabled() || !ownership.owns(OutputType.OSC))
             return;
         try {
             if (portOut != null) portOut.send(packet);
@@ -126,6 +126,7 @@ public class OscModule extends Module {
     @Override
     public JsonObject getData() {
         JsonObject data = new JsonObject();
+        data.addProperty("enabled", isEnabled());
         data.addProperty("port-out", outgoingPort);
         data.addProperty("port-in", incomingPort);
         data.addProperty("target-address", address == null ? "127.0.0.1" : address.getHostAddress());
@@ -135,6 +136,8 @@ public class OscModule extends Module {
     @Override
     public void onLoad(@NotNull JsonElement element) {
         var object = element.getAsJsonObject();
+        // projects written before OSC became toggleable have no 'enabled' key, and OSC always sent back then
+        setEnabled(!object.has("enabled") || object.get("enabled").getAsBoolean());
         incomingPort = object.get("port-in").getAsInt();
         outgoingPort = object.get("port-out").getAsInt();
         try {
