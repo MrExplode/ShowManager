@@ -15,8 +15,10 @@
         "test:e2e": "playwright test"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@fontsource-variable/geist": "^5.2.9",
         "@internationalized/date": "^3.12.2",
-        "@lucide/svelte": "^1.23.0",
+        "@lucide/svelte": "^1.24.0",
         "@playwright/test": "^1.61.1",
         "@sveltejs/adapter-static": "^3.0.10",
         "@sveltejs/kit": "^2.69.1",
@@ -36,6 +38,7 @@
         "prettier": "^3.9.4",
         "prettier-plugin-svelte": "^4.1.1",
         "prettier-plugin-tailwindcss": "^0.8.0",
+        "shadcn-svelte": "^1.4.1",
         "svelte": "^5.56.4",
         "svelte-check": "^4.7.1",
         "svelte-sonner": "^1.1.1",
