@@ -17,6 +17,9 @@ public class AudioTrackSerializer implements JsonSerializer<AudioTrack>, JsonDes
         Timecode start = context.deserialize(data.get("start"), Timecode.class);
         List<Marker> markers = context.deserialize(data.get("markers"), List.class);
         var instance = new AudioTrack(start, new File(data.get("path").getAsString()), markers);
+        if (data.has("volume")) {
+            instance.setVolume(Math.round(data.get("volume").getAsFloat() * 100));
+        }
         if (ShowManager.FEATHER != null) {
             ShowManager.FEATHER.injectFields(instance);
         }
