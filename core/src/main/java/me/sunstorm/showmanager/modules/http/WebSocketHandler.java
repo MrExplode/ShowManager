@@ -264,6 +264,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void broadcast(JsonObject data) {
         String raw = data.toString();
-        wsClients.forEach(client -> client.send(raw));
+        wsClients.forEach(client -> {
+            try {
+                client.send(raw);
+            } catch (Exception e) {
+                // the log appender sits on the root logger: logging this above debug would broadcast, fail and log again
+                log.debug("[WS] failed to send to a client", e);
+            }
+        });
     }
 }

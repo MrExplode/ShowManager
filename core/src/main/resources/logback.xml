@@ -10,9 +10,9 @@
         </encoder>
     </appender>
     <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/latest.log</file>
+        <file>ShowManager/logs/latest.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>ShowManager/logs/%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
         </rollingPolicy>
         <encoder>
@@ -20,12 +20,9 @@
         </encoder>
     </appender>
 
-    <logger name="me.sunstorm.showmanager" level="info">
-        <appender-ref ref="AsyncSocketLogger"/>
-    </logger>
-
     <root level="info">
         <appender-ref ref="Console"/>
         <appender-ref ref="File"/>
+        <appender-ref ref="AsyncSocketLogger"/>
     </root>
 </configuration>

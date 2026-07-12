@@ -3,9 +3,6 @@
 build/
 run/
 **/out/*
-# logback's rolling output dir, not the logs UI components
-**/logs
-!webapp/src/lib/components/logs/
 ShowManager/
 
 **/.vs/
