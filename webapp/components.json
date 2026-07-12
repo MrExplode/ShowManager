@@ -1,8 +1,8 @@
 {
     "$schema": "https://shadcn-svelte.com/schema.json",
     "tailwind": {
-        "css": "src\\app.css",
-        "baseColor": "slate"
+        "css": "src/app.css",
+        "baseColor": "mist"
     },
     "aliases": {
         "components": "$lib/components",
@@ -12,5 +12,9 @@
         "lib": "$lib"
     },
     "typescript": true,
-    "registry": "https://shadcn-svelte.com/registry"
+    "registry": "https://shadcn-svelte.com/registry",
+    "style": "lyra",
+    "iconLibrary": "lucide",
+    "menuColor": "default",
+    "menuAccent": "bold"
 }
