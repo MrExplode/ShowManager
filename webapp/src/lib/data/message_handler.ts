@@ -1,5 +1,6 @@
 import type {
     AudioMessage,
+    ClusterMessage,
     InitMessage,
     LogMessage,
     Message,
@@ -7,6 +8,7 @@ import type {
     SchedulerMessage,
     TimeMessage
 } from '$lib/data/types'
+import { setCluster } from '$lib/data/cluster'
 import {
     playing as audioPlaying,
     syncAudio,
@@ -54,6 +56,9 @@ export const handle = async (msg: Message) => {
         case 'output':
             handleOutput(msg as OutputMessage)
             break
+        case 'cluster':
+            setCluster((msg as ClusterMessage).state)
+            break
     }
 }
 
@@ -64,6 +69,7 @@ const handleInit = async (msg: InitMessage) => {
     await syncRecording()
     await syncEvents()
     loadLogs(msg.logs)
+    setCluster(msg.cluster)
     connected.set(true)
 }
 

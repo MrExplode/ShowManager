@@ -73,12 +73,13 @@ export interface AudioTrack {
 }
 
 export interface Message {
-    type: 'init' | 'time' | 'audio' | 'scheduler' | 'log' | 'output'
+    type: 'init' | 'time' | 'audio' | 'scheduler' | 'log' | 'output' | 'cluster'
 }
 
 export interface InitMessage {
     type: 'init'
     logs: LogEntry[]
+    cluster: ClusterState
 }
 
 export const logLevels = ['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'] as const
@@ -92,6 +93,39 @@ export interface LogEntry {
     logger: string
     message: string
     throwable?: string
+}
+
+export interface ClusterNode {
+    id: string
+    name: string
+    /** the node serving this UI */
+    self: boolean
+    master: boolean
+    framerate: number
+    playing: boolean
+    /** followers only: whether the offset estimator has a usable sample yet */
+    synced: boolean
+    /** follower clock -> master clock correction */
+    offsetUs: number
+    /** one-way network delay to the master */
+    delayUs: number
+    inView: boolean
+    /** in the view, but has stopped reporting in */
+    stale: boolean
+    outputs: string[]
+}
+
+export interface ClusterState {
+    enabled: boolean
+    connected: boolean
+    master: boolean
+    clusterName: string
+    useMulticast: boolean
+    self: string
+    coordinator: string | null
+    framerate: number
+    nodes: ClusterNode[]
+    warnings: string[]
 }
 
 export interface TimeMessage {
@@ -116,6 +150,11 @@ export interface SchedulerMessage {
 export interface LogMessage {
     type: 'log'
     entry: LogEntry
+}
+
+export interface ClusterMessage {
+    type: 'cluster'
+    state: ClusterState
 }
 
 export interface OutputMessage {
