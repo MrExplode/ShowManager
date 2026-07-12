@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { get, post } from '$lib/data/api'
-import type { Timecode } from '$lib/data/types'
+import type { LogEntry, Timecode } from '$lib/data/types'
 
 export const playing = writable(false)
 export const paused = writable(false)
@@ -11,23 +11,29 @@ export const currentTime = writable<Timecode>({
     frame: 0,
     millisecLength: 0
 })
-export const logs = writable<string[]>([])
+export const logs = writable<LogEntry[]>([])
 export const connected = writable(false)
 export const retryCountdown = writable(5)
+
+const LOG_LIMIT = 1000
 
 export const syncPlaying = async () => {
     const data = await get('/control/play')
     playing.set(data.playing)
 }
 
-export const loadLogs = (log: string[]) => {
-    logs.set(log.slice(0, 100))
+export const loadLogs = (entries: LogEntry[]) => {
+    logs.set(entries.slice(-LOG_LIMIT))
 }
 
-export const addLog = (log: string) => {
-    // todo add & trunc
-    console.log(log)
+export const addLog = (entry: LogEntry) => {
+    logs.update((current) => {
+        const next = [...current, entry]
+        return next.length > LOG_LIMIT ? next.slice(next.length - LOG_LIMIT) : next
+    })
 }
+
+export const clearLogs = () => logs.set([])
 
 export const play = async () => {
     await post('/control/play')

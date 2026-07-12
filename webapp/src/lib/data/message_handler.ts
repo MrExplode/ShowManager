@@ -133,7 +133,7 @@ const handleScheduler = async (msg: SchedulerMessage) => {
 }
 
 const handleLog = (msg: LogMessage) => {
-    addLog(msg.log)
+    addLog(msg.entry)
 }
 
 const handleOutput = (msg: OutputMessage) => {

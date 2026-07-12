@@ -78,7 +78,20 @@ export interface Message {
 
 export interface InitMessage {
     type: 'init'
-    logs: string[]
+    logs: LogEntry[]
+}
+
+export const logLevels = ['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'] as const
+export type LogLevel = (typeof logLevels)[number]
+
+export interface LogEntry {
+    id: number
+    time: string
+    level: LogLevel
+    thread: string
+    logger: string
+    message: string
+    throwable?: string
 }
 
 export interface TimeMessage {
@@ -102,7 +115,7 @@ export interface SchedulerMessage {
 
 export interface LogMessage {
     type: 'log'
-    log: string
+    entry: LogEntry
 }
 
 export interface OutputMessage {
