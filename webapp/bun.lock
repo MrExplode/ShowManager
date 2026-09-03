@@ -16,7 +16,7 @@
         "@tailwindcss/vite": "^4.3.3",
         "@tanstack/table-core": "^8.21.3",
         "@types/eslint": "^9.6.1",
-        "bits-ui": "2.18.1",
+        "bits-ui": "2.19.0",
         "clsx": "^2.1.1",
         "eslint": "^10.8.0",
         "eslint-config-prettier": "^10.1.8",
@@ -339,7 +339,7 @@
 
     "balanced-match": ["balanced-match@4.0.4", "", {}, "sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA=="],
 
-    "bits-ui": ["bits-ui@2.18.1", "", { "dependencies": { "@floating-ui/core": "1.7.1", "@floating-ui/dom": "1.7.1", "esm-env": "1.2.2", "runed": "0.35.1", "svelte-toolbelt": "0.10.6", "tabbable": "6.2.0" }, "peerDependencies": { "@internationalized/date": "3.12.2", "svelte": "5.56.3" } }, "sha512-KkemzKFH4T3gt3H+P86JcnAWExjByv/6vlwjm/BoCwTPHu03yiCdxbghdJLvFReQTe0acCAiRcKfmixxD6XvlA=="],
+    "bits-ui": ["bits-ui@2.19.0", "", { "dependencies": { "@floating-ui/core": "^1.7.1", "@floating-ui/dom": "^1.7.1", "esm-env": "^1.1.2", "runed": "^0.35.1", "svelte-toolbelt": "^0.10.6", "tabbable": "^6.2.0" }, "peerDependencies": { "@internationalized/date": "^3.8.1", "svelte": "^5.33.0" } }, "sha512-dHDm5Jw2NZJgLRvHAwPeuR4BnZij+AqTIq33OqVfo+qiMXontoC/yIvGT5TZaviv7OuBdJ2QUy2JPQ2yKBvF6w=="],
 
     "brace-expansion": ["brace-expansion@5.0.9", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg=="],
 
