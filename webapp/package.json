@@ -52,7 +52,7 @@
         "vitest": "^4.1.10",
         "waveform-data": "^4.5.2"
     },
-    "packageManager": "bun@1.4.0",
+    "packageManager": "bun@1.4.2",
     "pnpm": {
         "onlyBuiltDependencies": [
             "@tailwindcss/oxide",
