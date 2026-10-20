@@ -24,7 +24,7 @@
         "@sveltejs/kit": "^2.70.3",
         "@sveltejs/vite-plugin-svelte": "^7.3.1",
         "@tailwindcss/vite": "^4.3.3",
-        "@tanstack/table-core": "^8.21.3",
+        "@tanstack/table-core": "^9.3.1",
         "@types/eslint": "^9.6.1",
         "bits-ui": "2.19.5",
         "clsx": "^2.1.1",
